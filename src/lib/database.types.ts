@@ -209,6 +209,7 @@ export interface Database {
         Returns: { id: string; name: string; member_count: number }[];
       };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
+      whoami: { Args: Record<string, never>; Returns: string };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
