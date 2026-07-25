@@ -14,10 +14,11 @@ function Submit() {
   );
 }
 
-export function SignupForm() {
+export function SignupForm({ redirectTo }: { redirectTo: string }) {
   const [state, formAction] = useFormState<AuthState, FormData>(signUp, {});
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="redirectTo" value={redirectTo} />
       <Field label="Your name" name="display_name" autoComplete="name" required
         hint="Shown to your group on the leaderboard." />
       <Field label="Email" name="email" type="email" autoComplete="email" required />

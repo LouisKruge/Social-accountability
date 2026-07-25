@@ -14,6 +14,7 @@ import {
 } from "@/components/ui";
 import { currentPeriod, formatPeriod } from "@/lib/period";
 import { recomputeCategory } from "@/app/groups/[id]/actions";
+import { createShareCard } from "@/app/share/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -86,9 +87,15 @@ export default async function LeaderboardPage({
           <SuccessNote>Leaderboard recomputed.</SuccessNote>
         </div>
       )}
-      {searchParams.error === "not_owner" && (
+      {searchParams.error && (
         <div className="mb-4">
-          <ErrorNote>Only the group owner can recompute the leaderboard.</ErrorNote>
+          <ErrorNote>
+            {searchParams.error === "not_owner"
+              ? "Only the group owner can recompute the leaderboard."
+              : searchParams.error === "no_ranking"
+                ? "You don’t have a ranking yet — log this week and recompute first."
+                : "Something went wrong creating your rank card. Try again."}
+          </ErrorNote>
         </div>
       )}
 
@@ -151,14 +158,13 @@ export default async function LeaderboardPage({
       </div>
 
       {viewerRanking && (
-        <div className="mt-5">
-          <Link
-            href={`/share/new?category=${category.id}`}
-            className="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white"
-          >
+        <form action={createShareCard} className="mt-5">
+          <input type="hidden" name="group_id" value={params.id} />
+          <input type="hidden" name="category_id" value={category.id} />
+          <button className="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">
             📸 Create my rank card
-          </Link>
-        </div>
+          </button>
+        </form>
       )}
 
       {isOwner && (

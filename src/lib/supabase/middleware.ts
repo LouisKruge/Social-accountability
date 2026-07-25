@@ -35,9 +35,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
+  const isPublic =
+    // API routes authenticate themselves (bearer secret, webhook signature) and
+    // must never be redirected to the login page.
+    pathname.startsWith("/api/") ||
+    PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
   if (!user && !isPublic && pathname !== "/") {
     const url = request.nextUrl.clone();

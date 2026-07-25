@@ -89,3 +89,34 @@ reasoning. Newest entries are appended per phase.
   invite is always free — gating joins would kill virality. The limit is on
   *owning/creating*. This is the reading of "Free tier: 1 group, 1 category" that
   keeps the growth loop intact.
+
+## Phase 2 — Social virality
+
+- **Share cards via `next/og` `ImageResponse`** (the `@vercel/og` engine, native
+  to Next). Verified end-to-end in this environment: `/api/share-card/[rankingId]`
+  returns a real 1200×630 PNG. No emoji in the PNG (satori needs an emoji font);
+  rank is rendered as `1st/2nd/3rd`.
+- **Public share access uses the service role, gated by `is_public`.** The public
+  `/share/[cardId]` page and the OG image are unauthenticated, but the anon role
+  can't read `leaderboard_rankings` (members-only, correctly). So the server
+  loads the card via the service-role admin client **only when a `share_cards`
+  row is public**, and exposes only the safe derived fields (name, rank, %). This
+  respects the opt-in without weakening RLS. (`src/lib/shareData.ts`.)
+- **Route kept as `/api/share-card/[rankingId]`** per the spec, but it renders
+  only rankings that have a public share card — so a bare/guessed ranking id
+  won't produce an image.
+- **Middleware exempts `/api/*`** from the login redirect. API routes
+  authenticate themselves (bearer secret / webhook signature); redirecting them
+  to `/login` (307) would break the cron trigger. Verified: compute endpoint now
+  returns 401 for missing/bad tokens and proceeds with a valid one.
+- **n8n receives only a safe derived payload**, never the service-role key or DB
+  access (`docs/n8n-whatsapp-workflow.md`). The app posts name/rank/%/phone; n8n
+  owns WhatsApp send + top-3 share-card requests.
+- **Scheduling documented, not hard-coded** (`docs/scheduling.md`): canonical path
+  is Supabase `pg_cron` + `pg_net` POSTing to the compute endpoint (keeps the
+  schedule next to the data), with Edge-Function-cron and Vercel-Cron
+  alternatives. Not auto-applied in the migration because it needs project
+  settings (endpoint URL + secret) and optional extensions.
+- **Invite link `/join/[code]`** previews the group via the anon-safe
+  `preview_group_by_code` RPC and routes signup/login back to the invite with
+  `redirectTo`, so the WhatsApp-shared link is a one-tap join.

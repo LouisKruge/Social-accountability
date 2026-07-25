@@ -56,6 +56,20 @@ export async function joinGroup(_prev: ActionState, formData: FormData): Promise
   redirect(`/groups/${data}`);
 }
 
+/** Single-arg variant for a plain <form action> (e.g. the /join/[code] page). */
+export async function joinByCode(formData: FormData) {
+  const code = String(formData.get("invite_code") ?? "").trim().toLowerCase();
+  if (!code) redirect("/groups");
+
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("join_group_by_code", { _code: code });
+  if (error) {
+    redirect(`/join/${encodeURIComponent(code)}?error=1`);
+  }
+  revalidatePath("/groups");
+  redirect(`/groups/${data}`);
+}
+
 export async function leaveGroup(formData: FormData) {
   const groupId = String(formData.get("group_id") ?? "");
   const { supabase, user } = await requireUser();

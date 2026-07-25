@@ -31,6 +31,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const displayName = String(formData.get("display_name") ?? "").trim();
+  const redirectTo = safeRedirectTo(formData.get("redirectTo"));
 
   if (!displayName) return { error: "Tell us your name so your group knows who you are." };
   if (!email) return { error: "Enter your email." };
@@ -47,11 +48,11 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   // If email confirmation is disabled, a session exists immediately.
   if (data.session) {
     revalidatePath("/", "layout");
-    redirect("/groups");
+    redirect(redirectTo);
   }
 
-  // Otherwise, prompt the user to confirm their email.
-  redirect("/login?confirm=1");
+  // Otherwise, prompt the user to confirm their email (preserve the target).
+  redirect(`/login?confirm=1&redirectTo=${encodeURIComponent(redirectTo)}`);
 }
 
 export async function signOut() {
