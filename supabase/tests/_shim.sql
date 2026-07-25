@@ -25,6 +25,8 @@ create table if not exists auth.users (
   email              text,
   phone              text,
   raw_user_meta_data jsonb not null default '{}'::jsonb,
+  -- mirrors the real Supabase column; the auto-confirm trigger sets it
+  email_confirmed_at timestamptz,
   created_at         timestamptz not null default now()
 );
 

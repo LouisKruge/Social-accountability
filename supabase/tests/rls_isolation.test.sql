@@ -34,8 +34,17 @@ select public._assert((select count(*) from public.subscriptions where tier='fre
 set request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
 set role authenticated;
 
+-- NOTE: use INSERT ... RETURNING here, exactly like the app does
+-- (`.insert({...}).select("id")`). Under RLS, RETURNING also requires the SELECT
+-- policy to pass for the new row — a real bug once slipped through because the
+-- tests inserted WITHOUT a RETURNING clause. Do not "simplify" this.
 insert into public.groups (id, name, owner_id)
-values ('aaaaaaaa-0000-0000-0000-000000000001', 'Alice Fitness Crew', :'uidA');
+values ('aaaaaaaa-0000-0000-0000-000000000001', 'Alice Fitness Crew', :'uidA')
+returning id;
+
+select public._assert(
+  (select count(*) from public.groups where id='aaaaaaaa-0000-0000-0000-000000000001') = 1,
+  'creator can INSERT ... RETURNING their own group (RLS select-on-returning)');
 
 -- owner auto-added as member by trigger
 select public._assert(
