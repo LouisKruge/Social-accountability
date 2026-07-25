@@ -28,14 +28,18 @@ export async function GET() {
   } = await supabase.auth.getUser();
   const { data: dbSees, error } = await supabase.rpc("whoami");
 
-  const authCookies = cookies()
+  const allCookieNames = cookies()
     .getAll()
-    .map((c) => c.name)
-    .filter((n) => n.startsWith("sb-") || n.includes("auth-token"));
+    .map((c) => c.name);
+  const authCookies = allCookieNames.filter(
+    (n) => n.startsWith("sb-") || n.includes("auth-token"),
+  );
 
   return NextResponse.json({
     anonKeyRole: keyRole(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""),
     serviceKeyPresent: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    cookieCount: allCookieNames.length,
+    allCookieNames,
     authCookies,
     sessionUserId: user?.id ?? null,
     dbSees: dbSees ?? null,
