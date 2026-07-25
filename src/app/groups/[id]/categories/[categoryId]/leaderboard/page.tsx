@@ -9,7 +9,7 @@ import {
   EmptyState,
   SuccessNote,
   ErrorNote,
-  formatChange,
+  formatMetric,
   rankMedal,
 } from "@/components/ui";
 import { currentPeriod, formatPeriod } from "@/lib/period";
@@ -144,11 +144,20 @@ export default async function LeaderboardPage({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {r.is_absolute && <Badge tone="amber">abs</Badge>}
+                  {category.metric_type === "streak" && <Badge tone="brand">🔥</Badge>}
+                  {category.metric_type !== "streak" && r.is_absolute && (
+                    <Badge tone="amber">abs</Badge>
+                  )}
                   <span
-                    className={`font-bold ${Number(r.pct_change) >= 0 ? "text-accent-600" : "text-red-500"}`}
+                    className={`font-bold ${
+                      category.metric_type === "streak"
+                        ? "text-slate-900"
+                        : Number(r.pct_change) >= 0
+                          ? "text-accent-600"
+                          : "text-red-500"
+                    }`}
                   >
-                    {formatChange(Number(r.pct_change), r.is_absolute, category.unit)}
+                    {formatMetric(category.metric_type, Number(r.pct_change), r.is_absolute, category.unit)}
                   </span>
                 </div>
               </Card>

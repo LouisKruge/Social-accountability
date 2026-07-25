@@ -10,7 +10,13 @@ function ordinal(n: number): string {
   return ORDINAL[n] ?? `${n}th`;
 }
 
-function changeText(pct: number, isAbsolute: boolean, unit: string | null): string {
+function valueText(
+  metricType: "percentage_change" | "streak",
+  pct: number,
+  isAbsolute: boolean,
+  unit: string | null,
+): string {
+  if (metricType === "streak") return `${pct} ${unit || "day"}${pct === 1 ? "" : "s"}`;
   const sign = pct > 0 ? "+" : "";
   if (isAbsolute) return `${sign}${pct}${unit ? ` ${unit}` : ""}`;
   return `${sign}${pct}%`;
@@ -46,7 +52,7 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
     );
   }
 
-  const positive = data.pctChange >= 0;
+  const positive = data.metricType === "streak" || data.pctChange >= 0;
 
   return new ImageResponse(
     (
@@ -98,7 +104,7 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
                 color: positive ? "#a3e635" : "#fca5a5",
               }}
             >
-              {changeText(data.pctChange, data.isAbsolute, data.unit)}
+              {valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit)}
             </div>
           </div>
           <div style={{ fontSize: 40, fontWeight: 700, marginTop: 20 }}>{data.displayName}</div>

@@ -13,7 +13,13 @@ function siteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "";
 }
 
-function changeText(pct: number, isAbsolute: boolean, unit: string | null) {
+function valueText(
+  metricType: "percentage_change" | "streak",
+  pct: number,
+  isAbsolute: boolean,
+  unit: string | null,
+) {
+  if (metricType === "streak") return `${pct} ${unit || "day"}${pct === 1 ? "" : "s"}`;
   const sign = pct > 0 ? "+" : "";
   return isAbsolute ? `${sign}${pct}${unit ? ` ${unit}` : ""}` : `${sign}${pct}%`;
 }
@@ -28,7 +34,7 @@ export async function generateMetadata({
 
   const imageUrl = `${siteUrl()}/api/share-card/${data.rankingId}`;
   const title = `${data.displayName} is ${ordinal(data.rank)} in ${data.categoryName} on Ascend`;
-  const description = `${changeText(data.pctChange, data.isAbsolute, data.unit)} this week in ${data.groupName}. Start low, climb fast.`;
+  const description = `${valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit)} this week in ${data.groupName}. Start low, climb fast.`;
 
   return {
     title,
@@ -47,7 +53,7 @@ export default async function SharePage({ params }: { params: { cardId: string }
   if (!data) notFound();
 
   const imageUrl = `/api/share-card/${data.rankingId}`;
-  const positive = data.pctChange >= 0;
+  const positive = data.metricType === "streak" || data.pctChange >= 0;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-lg flex-col items-center px-4 py-10">
@@ -70,7 +76,7 @@ export default async function SharePage({ params }: { params: { cardId: string }
           {data.displayName} is {ordinal(data.rank)} in {data.categoryName}
         </p>
         <p className={`mt-1 text-lg font-bold ${positive ? "text-accent-600" : "text-red-500"}`}>
-          {changeText(data.pctChange, data.isAbsolute, data.unit)} this week
+          {valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit)} this week
         </p>
         <p className="mt-1 text-sm text-slate-500">
           in {data.groupName} — ranked by rate of improvement, not absolute numbers.

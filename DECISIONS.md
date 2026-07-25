@@ -120,3 +120,21 @@ reasoning. Newest entries are appended per phase.
 - **Invite link `/join/[code]`** previews the group via the anon-safe
   `preview_group_by_code` RPC and routes signup/login back to the invite with
   `redirectTo`, so the WhatsApp-shared link is a one-tap join.
+
+## Phase 3 — Expand categories
+
+- **The data model + ranking logic already carried all three category types** —
+  the migration's `metric_type` ('percentage_change' | 'streak') and `direction`
+  ('increase' | 'decrease'), plus `computeScore`, cover savings %, debt paydown %,
+  steps %, and streaks from day one. Phase 3 was therefore mostly correctness
+  proof + presentation, not new plumbing.
+- **Streak rendering** is metric-aware everywhere (leaderboard, OG image, public
+  share page): a streak shows as "12 days" with a 🔥 badge, no +/− sign and no
+  "abs" tag (which is reserved for the baseline-0 percentage fallback). Added
+  `formatMetric()` and threaded `metric_type` through `shareData`.
+- **All three types proven to rank correctly** via new unit tests: an increase %
+  worked example, a decrease/debt worked example, and a streak-length ranking.
+- **Multi-group isolation proven**: the isolation test now gives Alice a *second*
+  group with a streak category and asserts a member of only her first group can't
+  see any of it — 29 assertions total, still green. A user belonging to 2+ groups
+  is native (the `/groups` list and RLS are per-membership); no bleed.

@@ -158,6 +158,23 @@ export function formatChange(pct: number, isAbsolute: boolean, unit?: string | n
   return `${sign}${pct}%`;
 }
 
+/**
+ * Leaderboard value label that's aware of the metric type. Streaks are a raw
+ * count (e.g. "12 day streak"), not a signed change; percentage/absolute metrics
+ * keep the +/− change formatting.
+ */
+export function formatMetric(
+  metricType: "percentage_change" | "streak",
+  value: number,
+  isAbsolute: boolean,
+  unit?: string | null,
+): string {
+  if (metricType === "streak") {
+    return `${value} ${unit || "day"}${value === 1 ? "" : "s"}`;
+  }
+  return formatChange(value, isAbsolute, unit);
+}
+
 export function rankMedal(rank: number): string {
   return rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`;
 }

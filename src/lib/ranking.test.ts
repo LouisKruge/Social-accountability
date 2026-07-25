@@ -121,6 +121,34 @@ describe("computeRankings — worked example (matches the spec's math)", () => {
     ]);
   });
 
+  it("ranks a DEBT PAYDOWN (decrease) category by % reduction", () => {
+    // Zanele 8000→6000 = 25% down; Sipho 20000→18000 = 10% down.
+    const rows = computeRankings(
+      { metricType: "percentage_change", direction: "decrease" },
+      [
+        { userId: "sipho", baselineValue: 20000, currentValue: 18000, submittedAt: "2026-07-13T08:00:00Z" },
+        { userId: "zanele", baselineValue: 8000, currentValue: 6000, submittedAt: "2026-07-13T09:00:00Z" },
+      ],
+    );
+    expect(rows).toEqual([
+      { userId: "zanele", pctChange: 25, isAbsolute: false, rank: 1 },
+      { userId: "sipho", pctChange: 10, isAbsolute: false, rank: 2 },
+    ]);
+  });
+
+  it("ranks a STREAK category by streak length (flagged absolute)", () => {
+    const rows = computeRankings({ metricType: "streak", direction: "increase" }, [
+      { userId: "a", baselineValue: null, currentValue: 5, submittedAt: "2026-07-13T08:00:00Z" },
+      { userId: "b", baselineValue: null, currentValue: 14, submittedAt: "2026-07-13T09:00:00Z" },
+      { userId: "c", baselineValue: null, currentValue: 9, submittedAt: "2026-07-13T10:00:00Z" },
+    ]);
+    expect(rows).toEqual([
+      { userId: "b", pctChange: 14, isAbsolute: true, rank: 1 },
+      { userId: "c", pctChange: 9, isAbsolute: true, rank: 2 },
+      { userId: "a", pctChange: 5, isAbsolute: true, rank: 3 },
+    ]);
+  });
+
   it("rounds to 2 decimals", () => {
     const [row] = computeRankings(
       { metricType: "percentage_change", direction: "increase" },

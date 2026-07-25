@@ -181,6 +181,30 @@ select public._assert(
   (select count(*) from public.entries where user_id='11111111-1111-1111-1111-111111111111' and share_raw_value) = 1,
   'After Alice opts in, co-member Bob CAN see the shared entry value');
 
+-- ── Multi-group isolation (Phase 3): Alice's SECOND group + streak category ──
+-- Bob is a member of group 1 only; none of group 2 may bleed to him.
+reset role;
+set request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
+set role authenticated;
+insert into public.groups (id, name, owner_id)
+values ('aaaaaaaa-0000-0000-0000-000000000009', 'Alice Habit Group', :'uidA');
+insert into public.categories (id, group_id, name, metric_type, direction, unit, created_by)
+values ('cccccccc-0000-0000-0000-000000000009','aaaaaaaa-0000-0000-0000-000000000009','Meditation','streak','increase','days', :'uidA');
+select public._assert((select count(*) from public.groups) = 2, 'Alice is a member of exactly her 2 own groups');
+
+reset role;
+set request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';
+set role authenticated;
+select public._assert(
+  (select count(*) from public.groups where id='aaaaaaaa-0000-0000-0000-000000000009') = 0,
+  'Bob CANNOT see Alice''s second group');
+select public._assert(
+  (select count(*) from public.categories where group_id='aaaaaaaa-0000-0000-0000-000000000009') = 0,
+  'Bob CANNOT see Alice''s second group''s streak category');
+select public._assert(
+  (select count(*) from public.group_members where group_id='aaaaaaaa-0000-0000-0000-000000000009') = 0,
+  'Bob CANNOT see Alice''s second group''s membership');
+
 -- ── anon preview by code works; anon cannot read tables ──────────────────────
 reset role;
 set request.jwt.claims = '';

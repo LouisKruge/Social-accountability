@@ -10,6 +10,7 @@ export interface ShareCardData {
   pctChange: number;
   isAbsolute: boolean;
   categoryName: string;
+  metricType: "percentage_change" | "streak";
   unit: string | null;
   groupName: string;
   periodStart: string;
@@ -63,7 +64,11 @@ async function assemble(cardId: string, rankingId: string): Promise<ShareCardDat
 
   const [{ data: profile }, { data: category }, { data: group }] = await Promise.all([
     admin.from("profiles").select("display_name").eq("id", ranking.user_id).maybeSingle(),
-    admin.from("categories").select("name, unit").eq("id", ranking.category_id).maybeSingle(),
+    admin
+      .from("categories")
+      .select("name, unit, metric_type")
+      .eq("id", ranking.category_id)
+      .maybeSingle(),
     admin.from("groups").select("name").eq("id", ranking.group_id).maybeSingle(),
   ]);
 
@@ -75,6 +80,7 @@ async function assemble(cardId: string, rankingId: string): Promise<ShareCardDat
     pctChange: Number(ranking.pct_change),
     isAbsolute: ranking.is_absolute,
     categoryName: category?.name ?? "Category",
+    metricType: (category?.metric_type as "percentage_change" | "streak") ?? "percentage_change",
     unit: category?.unit ?? null,
     groupName: group?.name ?? "their group",
     periodStart: ranking.period_start,
