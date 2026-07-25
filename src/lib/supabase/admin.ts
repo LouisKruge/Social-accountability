@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
+import { supabaseUrl } from "./env";
 
 /**
  * SERVICE-ROLE Supabase client. BYPASSES Row Level Security.
@@ -21,7 +22,7 @@ export function createAdminClient() {
       "SUPABASE_SERVICE_ROLE_KEY is not set — refusing to create an admin client.",
     );
   }
-  return createSupabaseClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+  return createSupabaseClient<Database>(supabaseUrl(), key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }

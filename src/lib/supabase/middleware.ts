@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/database.types";
+import { supabaseAnonKey, supabaseUrl } from "./env";
 
 const PUBLIC_PATHS = ["/login", "/signup", "/share", "/auth", "/api/share-card"];
 
@@ -11,10 +12,11 @@ const PUBLIC_PATHS = ["/login", "/signup", "/share", "/auth", "/api/share-card"]
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  // Fail open: if Supabase env is misconfigured, don't 500 every route —
+  // treat the request as unauthenticated and let public routes render.
+  let user = null;
+  try {
+    const supabase = createServerClient<Database>(supabaseUrl(), supabaseAnonKey(), {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -27,12 +29,11 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    });
+    user = (await supabase.auth.getUser()).data.user;
+  } catch (err) {
+    console.error("[middleware] Supabase session refresh failed:", err);
+  }
 
   const { pathname } = request.nextUrl;
   const isPublic =
