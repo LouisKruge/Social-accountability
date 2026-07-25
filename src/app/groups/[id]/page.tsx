@@ -92,6 +92,12 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
 
       <section className="mb-6">
         <CategoryForm groupId={group.id} />
+        <p className="mt-3 text-center text-xs text-slate-400">
+          Free plan includes 1 category.{" "}
+          <Link href="/billing" className="font-semibold text-brand-600">
+            Go Premium for unlimited
+          </Link>
+        </p>
       </section>
 
       <section>

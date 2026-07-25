@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell, Header, Card, Badge, ErrorNote } from "@/components/ui";
 import { signOut } from "@/app/auth/actions";
@@ -32,12 +33,17 @@ export default async function ProfilePage({
     <AppShell>
       <Header title="Profile" back="/groups" subtitle={user?.email ?? undefined} />
 
-      <div className="mb-5 flex items-center justify-between">
-        <span className="text-sm text-slate-500">Plan</span>
-        <Badge tone={subscription?.tier === "premium" ? "brand" : "slate"}>
-          {subscription?.tier === "premium" ? "Premium" : "Free"}
-        </Badge>
-      </div>
+      <Link href="/billing" className="mb-5 block">
+        <Card className="flex items-center justify-between hover:border-brand-300">
+          <div>
+            <p className="text-sm font-semibold text-slate-800">Plan &amp; billing</p>
+            <p className="text-xs text-slate-400">Manage your subscription</p>
+          </div>
+          <Badge tone={subscription?.tier === "premium" ? "brand" : "slate"}>
+            {subscription?.tier === "premium" ? "Premium" : "Free"}
+          </Badge>
+        </Card>
+      </Link>
 
       {searchParams.delete_error && (
         <div className="mb-4">

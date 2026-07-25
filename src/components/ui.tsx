@@ -178,3 +178,34 @@ export function formatMetric(
 export function rankMedal(rank: number): string {
   return rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`;
 }
+
+/**
+ * Dependency-free trend bars (a mini chart). Values can be negative; bars grow
+ * from a shared midline. Used for the premium historical trend.
+ */
+export function TrendBars({ values }: { values: { label: string; value: number }[] }) {
+  if (values.length === 0) {
+    return <p className="text-sm text-slate-400">No history yet — check back after a few weeks.</p>;
+  }
+  const max = Math.max(1, ...values.map((v) => Math.abs(v.value)));
+  return (
+    <div className="flex items-end gap-1.5" style={{ height: 96 }}>
+      {values.map((v, i) => {
+        const heightPct = (Math.abs(v.value) / max) * 100;
+        const positive = v.value >= 0;
+        return (
+          <div key={i} className="flex flex-1 flex-col items-center gap-1">
+            <div className="flex w-full flex-1 items-end justify-center">
+              <div
+                className={`w-full rounded-t ${positive ? "bg-accent-500" : "bg-red-400"}`}
+                style={{ height: `${Math.max(6, heightPct)}%` }}
+                title={`${v.value}`}
+              />
+            </div>
+            <span className="text-[10px] text-slate-400">{v.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

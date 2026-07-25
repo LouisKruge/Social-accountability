@@ -11,10 +11,12 @@ import {
   ErrorNote,
   formatMetric,
   rankMedal,
+  TrendBars,
 } from "@/components/ui";
 import { currentPeriod, formatPeriod } from "@/lib/period";
 import { recomputeCategory } from "@/app/groups/[id]/actions";
 import { createShareCard } from "@/app/share/actions";
+import { getTier } from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +70,24 @@ export default async function LeaderboardPage({
 
   const viewerLoggedThisWeek = (sharedEntries ?? []).some((e) => e.user_id === user?.id);
   const viewerRanking = (rankings ?? []).find((r) => r.user_id === user?.id);
+
+  // Premium: the viewer's own historical trend (last periods) for this category.
+  const tier = await getTier(supabase, user!.id);
+  const { data: history } = await supabase
+    .from("leaderboard_rankings")
+    .select("period_start, pct_change")
+    .eq("category_id", category.id)
+    .eq("user_id", user!.id)
+    .order("period_start", { ascending: true })
+    .limit(8);
+  const trend = (history ?? []).map((h) => ({
+    label: new Date(`${h.period_start}T00:00:00Z`).toLocaleDateString("en-ZA", {
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    }),
+    value: Number(h.pct_change),
+  }));
 
   return (
     <AppShell>
@@ -164,6 +184,31 @@ export default async function LeaderboardPage({
             );
           })
         )}
+      </div>
+
+      {/* Premium: historical trend chart, with a locked teaser for free users */}
+      <div className="mt-6">
+        <Card>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold text-slate-800">Your trend</p>
+            {tier !== "premium" && <Badge tone="brand">Premium</Badge>}
+          </div>
+          {tier === "premium" ? (
+            <TrendBars values={trend} />
+          ) : (
+            <div className="text-center">
+              <p className="text-sm text-slate-500">
+                See how your rate of improvement moves week over week.
+              </p>
+              <Link
+                href="/billing"
+                className="mt-3 inline-flex items-center justify-center rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Unlock trend charts
+              </Link>
+            </div>
+          )}
+        </Card>
       </div>
 
       {viewerRanking && (

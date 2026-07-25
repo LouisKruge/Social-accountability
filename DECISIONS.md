@@ -138,3 +138,32 @@ reasoning. Newest entries are appended per phase.
   group with a streak category and asserts a member of only her first group can't
   see any of it — 29 assertions total, still green. A user belonging to 2+ groups
   is native (the `/groups` list and RLS are per-membership); no bleed.
+
+## Phase 4 — Monetization (Paystack)
+
+- **Subscription checkout** via Paystack `transaction/initialize` with the premium
+  `plan` code; the user is redirected to Paystack's hosted checkout. We pass
+  `metadata.user_id` so the webhook can map the resulting charge back to our user.
+- **Webhook maps events without storing emails.** Resolution order:
+  `metadata.user_id` (present on the first charge) → else look up the
+  `subscriptions` row by `paystack_customer_id` (stored on that first charge). So
+  renewals, which may lack metadata, still resolve. This is why we *didn't* add an
+  `email` column to `profiles` — co-members can read profiles, and emails
+  shouldn't leak; the customer-code mapping avoids it entirely.
+- **Webhook signature verification is unit-tested** (`paystack.test.ts`, 5 tests):
+  HMAC-SHA512 of the raw body keyed by the secret, timing-safe compare. Accepts a
+  valid signature; rejects tampered body, wrong secret, short, and missing
+  signatures. The route reads the raw text body (not parsed JSON) so the HMAC
+  matches byte-for-byte.
+- **Subscription writes are service-role only.** `subscriptions` has a
+  select-own RLS policy and **no** client write policy — only the webhook (service
+  role) sets `tier`/`status`, so a user can never self-upgrade.
+- **Paywall** is enforced server-side in the create actions via
+  `canCreateGroup` / `canCreateCategory` (free = own 1 group + 1 category); the UI
+  surfaces upgrade links at each limit and a `/billing` page drives checkout.
+- **Premium value shipped**: a dependency-free historical **trend chart**
+  (`TrendBars`) on the leaderboard, gated to premium with a locked teaser for free
+  users — the second premium benefit alongside unlimited groups/categories.
+- **`server-only` in the Paystack + admin modules** keeps the secret key out of
+  any client bundle (the build fails if imported client-side); the signature test
+  mocks `server-only` to exercise the pure crypto.

@@ -63,6 +63,13 @@ export default async function GroupsPage() {
       </div>
 
       <CreateOrJoin />
+
+      <p className="mt-4 text-center text-xs text-slate-400">
+        Free plan: 1 group you own.{" "}
+        <Link href="/billing" className="font-semibold text-brand-600">
+          See Premium
+        </Link>
+      </p>
     </AppShell>
   );
 }
