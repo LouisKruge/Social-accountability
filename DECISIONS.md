@@ -203,5 +203,28 @@ reasoning. Newest entries are appended per phase.
   is ranked by raw score with the absolute entries flagged; a fairer normalization
   is a future refinement.
 - **Phone OTP auth** (spec's fast-follow) — email/password ships now.
-- **Live provisioning** (Supabase project, Vercel, n8n, Paystack keys) is a
-  user-owned step; see the top-of-file environment note.
+- **Live provisioning** (Vercel, n8n, Paystack keys) is a user-owned step; see
+  the top-of-file environment note.
+
+## Live Supabase provisioning (post-build, at the user's request)
+
+- Provisioned a **dedicated** Supabase project `ascend`
+  (ref `zpjjjcblgeoznofyfdha`, region eu-west-3, $0/mo) — separate from the
+  org's existing active project (which runs a different app), which was left
+  untouched.
+- Applied both migrations via MCP `apply_migration`. `list_tables` confirms RLS
+  on all 9 tables; the security advisor reports **no ERROR-level** findings.
+- **RLS verified against the live project** (not just local): created two real
+  auth users in different groups and confirmed via direct SQL (impersonating each
+  with `set role authenticated` + JWT claims) that neither can read the other's
+  group/entries/baselines/categories/profile; that invite-code join then reveals
+  only the group (never private entries/baselines); that opt-in sharing works;
+  and that an authenticated client cannot insert into `leaderboard_rankings`.
+  Deleting the two users (one a group **owner**) removed every related row —
+  POPIA cascade verified live too. All test data was then cleaned up (tables back
+  to 0 rows).
+- **Advisor follow-up** (`20260725000100_harden_function_grants.sql`): pinned
+  `search_path` on the one trigger fn missing it, and revoked EXECUTE on the
+  trigger functions + `delete_my_account` from `anon` (and the triggers from
+  `authenticated`) so they're off the REST RPC surface. The remaining advisor
+  WARNs are the intentional, `auth.uid()`-scoped RLS helpers and invite RPCs.
