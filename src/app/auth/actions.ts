@@ -45,14 +45,19 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   });
   if (error) return { error: error.message };
 
-  // If email confirmation is disabled, a session exists immediately.
-  if (data.session) {
-    revalidatePath("/", "layout");
-    redirect(redirectTo);
+  // Seamless MVP signup: new users are auto-confirmed by a DB trigger, so if
+  // signUp didn't already return a session (email-confirmation flow), sign the
+  // user in immediately rather than sending them through an email round-trip.
+  if (!data.session) {
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) {
+      // Confirmation genuinely required and blocked — fall back to the prompt.
+      redirect(`/login?confirm=1&redirectTo=${encodeURIComponent(redirectTo)}`);
+    }
   }
 
-  // Otherwise, prompt the user to confirm their email (preserve the target).
-  redirect(`/login?confirm=1&redirectTo=${encodeURIComponent(redirectTo)}`);
+  revalidatePath("/", "layout");
+  redirect(redirectTo);
 }
 
 export async function signOut() {
