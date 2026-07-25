@@ -127,6 +127,21 @@ begin
   end;
 end $$;
 
+-- ── Bob (non-member) cannot INSERT an entry into Alice's category ────────────
+reset role;
+set request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';
+set role authenticated;
+do $$
+begin
+  begin
+    insert into public.entries (user_id, category_id, period_start, period_end, raw_value)
+    values ('22222222-2222-2222-2222-222222222222','cccccccc-0000-0000-0000-000000000001','2026-07-13','2026-07-19', 123);
+    raise exception 'FAIL: non-member Bob inserted an entry into Alice''s category';
+  exception when insufficient_privilege or check_violation then
+    raise notice 'PASS: non-member Bob blocked from inserting into Alice''s category';
+  end;
+end $$;
+
 -- ── join_group_by_code: Bob joins Alice's group, then the sharing rule ───────
 reset role;
 set request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';

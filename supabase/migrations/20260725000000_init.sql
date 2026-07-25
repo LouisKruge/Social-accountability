@@ -57,6 +57,23 @@ as $$
   );
 $$;
 
+-- Is the current user a member of the group that owns the given category?
+create or replace function public.is_member_of_category_group(_category_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.categories c
+    join public.group_members gm on gm.group_id = c.group_id
+    where c.id = _category_id
+      and gm.user_id = auth.uid()
+  );
+$$;
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- profiles — extends auth.users
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -191,20 +208,25 @@ create table public.entries (
 );
 alter table public.entries enable row level security;
 
--- owner has full access to their own raw entries
-create policy "entries_owner_full_access" on public.entries
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+-- owner may always read their own entries (even after leaving the group)
+create policy "entries_select_own" on public.entries
+  for select using (user_id = auth.uid());
 -- group members may SELECT entries only where the owner opted to share the value
 create policy "entries_group_shared_only" on public.entries
   for select using (
     share_raw_value = true
-    and exists (
-      select 1
-      from public.categories c
-      where c.id = entries.category_id
-        and public.is_group_member(c.group_id)
-    )
+    and public.is_member_of_category_group(entries.category_id)
   );
+-- owner may only INSERT an entry for a category in a group they belong to
+create policy "entries_insert_own" on public.entries
+  for insert with check (
+    user_id = auth.uid()
+    and public.is_member_of_category_group(entries.category_id)
+  );
+create policy "entries_update_own" on public.entries
+  for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy "entries_delete_own" on public.entries
+  for delete using (user_id = auth.uid());
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- leaderboard_rankings — COMPUTED, derived data (the safe view members see).
@@ -416,6 +438,7 @@ grant execute on function public.preview_group_by_code(text) to authenticated, a
 grant execute on function public.delete_my_account()         to authenticated;
 grant execute on function public.is_group_member(uuid)       to authenticated;
 grant execute on function public.shares_group_with(uuid)     to authenticated;
+grant execute on function public.is_member_of_category_group(uuid) to authenticated;
 
 -- ═════════════════════════════════════════════════════════════════════════════
 -- INDEXES — on foreign keys and hot query paths (Phase 5 rule, applied up-front)
