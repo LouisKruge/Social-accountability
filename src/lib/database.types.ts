@@ -70,7 +70,7 @@ export interface Database {
           metric_type: "percentage_change" | "streak";
           direction: "increase" | "decrease";
           unit: string | null;
-          created_by: string;
+          created_by: string | null;
           created_at: string;
         };
         Insert: {
@@ -80,7 +80,7 @@ export interface Database {
           metric_type: "percentage_change" | "streak";
           direction?: "increase" | "decrease";
           unit?: string | null;
-          created_by: string;
+          created_by?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["categories"]["Insert"]>;

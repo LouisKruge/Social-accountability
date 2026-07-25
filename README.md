@@ -46,9 +46,16 @@ bash supabase/tests/run.sh
 ```
 
 This applies the shim + migration + Supabase-equivalent grants to a throwaway
-database and runs 24 assertions proving User A and User B (in different groups)
-cannot read each other's entries, baselines, groups, members, categories or
-rankings — and that clients cannot write `leaderboard_rankings`.
+database and runs **45 assertions** across two suites:
+
+- **Isolation** — User A and User B (in different groups) cannot read each other's
+  entries, baselines, groups, members, categories or rankings; clients cannot
+  write `leaderboard_rankings`; the opt-in raw-value sharing works; multi-group
+  membership doesn't bleed.
+- **Audit + deletion cascade** — RLS is on for every table, no policy uses
+  `USING (true)`, and a POPIA account deletion removes the user's rows across
+  **every** table (verified by query), while a category created in someone else's
+  group survives (attribution set null).
 
 ### Unit tests
 

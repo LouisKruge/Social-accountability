@@ -167,3 +167,41 @@ reasoning. Newest entries are appended per phase.
 - **`server-only` in the Paystack + admin modules** keeps the secret key out of
   any client bundle (the build fails if imported client-side); the signature test
   mocks `server-only` to exercise the pure crypto.
+
+## Phase 5 — Hardening & polish
+
+- **Found and fixed a deletion-blocking FK bug.** `groups.owner_id` and
+  `categories.created_by` referenced `profiles` with **NO ACTION**, so deleting an
+  account that owned a group or created a category would have been *blocked* by the
+  FK — POPIA erasure would silently fail. Fixes: `groups.owner_id ON DELETE
+  CASCADE` (erase your groups when you erase your account) and
+  `categories.created_by ON DELETE SET NULL` + nullable (a category you created in
+  *someone else's* group survives, losing only attribution). Both paths are now
+  proven by query in `supabase/tests/audit.test.sql`.
+- **Deletion cascade verified across every table** (10 assertions): after deleting
+  the auth user, zero rows remain in profiles, groups, group_members, categories,
+  baselines, entries, rankings, share_cards, and subscriptions.
+- **RLS audit is automated, not eyeballed** (`audit.test.sql`): asserts RLS is on
+  for every public table, that **no** policy uses `USING (true)`/`WITH CHECK
+  (true)`, and that every table has at least one policy. Runs on every
+  `supabase/tests/run.sh` (45 assertions total across the suite).
+- **Indexes** cover every foreign key and hot query path, including the two added
+  in this phase (`groups(owner_id)`, `categories(created_by)`), plus the
+  spec-named `group_members(user_id)`, `entries(category_id, period_start)`, and
+  `leaderboard_rankings(group_id, category_id, period_start)`.
+- **Mobile-first + error states.** Layout uses a single `max-w-lg` column, relative
+  units, and comfortable tap targets. Every form surfaces failures via `ErrorNote`
+  (auth, group create/join, category, entry, profile) and friendly messages for
+  invalid/expired invite codes; leaderboard and billing render query-param error
+  states. Small JS bundles (first-load ≈ 96–98 kB) keep it fast on mobile data.
+
+## Known follow-ups (flagged, not built — out of current scope)
+
+- **Momentum score** (spec's optional v2): exponential-decay weighting so
+  acceleration beats a single early jump. Deferred as specified.
+- **Mixed absolute/percentage ranking** within one category (some users baseline-0)
+  is ranked by raw score with the absolute entries flagged; a fairer normalization
+  is a future refinement.
+- **Phone OTP auth** (spec's fast-follow) — email/password ships now.
+- **Live provisioning** (Supabase project, Vercel, n8n, Paystack keys) is a
+  user-owned step; see the top-of-file environment note.

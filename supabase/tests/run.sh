@@ -45,4 +45,7 @@ run -d "$DB" -f - < "$HERE/_grants.sql" >/dev/null
 echo "▶ running RLS isolation test"
 run -d "$DB" -f - < "$HERE/rls_isolation.test.sql" 2>&1 | grep -E "PASS:|FAIL:|PASSED" || true
 
+echo "▶ running Phase 5 audit + deletion-cascade test"
+run -d "$DB" -f - < "$HERE/audit.test.sql" 2>&1 | grep -E "PASS:|FAIL:|PASSED" || true
+
 echo "✔ done"

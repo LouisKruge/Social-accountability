@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { AppShell, Brand, Card, Button, EmptyState } from "@/components/ui";
+import { AppShell, Brand, Card, Button, EmptyState, ErrorNote } from "@/components/ui";
 import { joinByCode } from "@/app/groups/actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function JoinPage({ params }: { params: { code: string } }) {
+export default async function JoinPage({
+  params,
+  searchParams,
+}: {
+  params: { code: string };
+  searchParams: { error?: string };
+}) {
   const code = params.code.toLowerCase();
   const supabase = createClient();
 
@@ -21,6 +27,12 @@ export default async function JoinPage({ params }: { params: { code: string } })
       <div className="mb-8 mt-4">
         <Brand />
       </div>
+
+      {searchParams.error && (
+        <div className="mb-4">
+          <ErrorNote>We couldn&apos;t add you to that group. Please try the link again.</ErrorNote>
+        </div>
+      )}
 
       {!group ? (
         <EmptyState

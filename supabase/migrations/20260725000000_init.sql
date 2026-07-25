@@ -103,7 +103,9 @@ create policy "profiles_update_self" on public.profiles
 create table public.groups (
   id          uuid primary key default gen_random_uuid(),
   name        text not null,
-  owner_id    uuid not null references public.profiles(id),
+  -- deleting the owner's account deletes their groups (POPIA erasure); the
+  -- group's members/categories/entries then cascade from here.
+  owner_id    uuid not null references public.profiles(id) on delete cascade,
   invite_code text unique not null default substr(md5(random()::text), 1, 8),
   created_at  timestamptz not null default now()
 );
@@ -158,7 +160,9 @@ create table public.categories (
   -- (savings, steps) or a LOWER one (debt paydown, weight loss)? drives ranking.
   direction   text not null default 'increase' check (direction in ('increase','decrease')),
   unit        text,  -- e.g. 'ZAR', 'steps', 'kg', 'days'
-  created_by  uuid not null references public.profiles(id),
+  -- keep the category if its creator deletes their account (others may use it);
+  -- just drop the attribution.
+  created_by  uuid references public.profiles(id) on delete set null,
   created_at  timestamptz not null default now()
 );
 alter table public.categories enable row level security;
@@ -445,7 +449,9 @@ grant execute on function public.is_member_of_category_group(uuid) to authentica
 -- ═════════════════════════════════════════════════════════════════════════════
 create index idx_group_members_user       on public.group_members(user_id);
 create index idx_group_members_group       on public.group_members(group_id);
+create index idx_groups_owner              on public.groups(owner_id);
 create index idx_categories_group          on public.categories(group_id);
+create index idx_categories_created_by     on public.categories(created_by);
 create index idx_baselines_user_category   on public.category_baselines(user_id, category_id);
 create index idx_entries_category_period   on public.entries(category_id, period_start);
 create index idx_entries_user              on public.entries(user_id);
