@@ -19,7 +19,7 @@ export default function LoginPage({
           </SuccessNote>
         </div>
       )}
-      <LoginForm redirectTo={searchParams.redirectTo ?? "/groups"} />
+      <LoginForm redirectTo={searchParams.redirectTo ?? "/home"} />
     </AppShell>
   );
 }

@@ -12,7 +12,7 @@ export default function SignupPage({
         <Brand />
       </div>
       <Header title="Create your account" subtitle="Join a group and start climbing this week." />
-      <SignupForm redirectTo={searchParams.redirectTo ?? "/groups"} />
+      <SignupForm redirectTo={searchParams.redirectTo ?? "/home"} />
     </AppShell>
   );
 }

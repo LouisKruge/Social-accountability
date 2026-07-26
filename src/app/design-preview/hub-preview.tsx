@@ -10,12 +10,12 @@ export function HubPreview() {
       status: "#3 this week · +23.4%", accent: "text-ice", ring: "ring-ice/25", glow: "rgba(127,220,192,0.13)",
     },
     {
-      href: "/commit", eyebrow: "Bet on yourself", title: "Stakes",
+      href: "/commit", eyebrow: "Bet on yourself", title: "Commit",
       body: "Put money on a 30-day target. Hit it and you share the pool with the others who did.",
-      status: "1 active challenge", accent: "text-summit", ring: "ring-summit/25", glow: "rgba(232,184,75,0.14)",
+      status: "1 active challenge", accent: "text-ice", ring: "ring-ice/20", glow: "rgba(127,220,192,0.10)",
     },
     {
-      href: "/elevate", eyebrow: "Coaching", title: "Glow Up",
+      href: "/elevate", eyebrow: "Coaching", title: "Elevate",
       body: "A private styling, grooming and photo review of your own photos, for a goal you set.",
       status: "Your report is ready", accent: "text-snow", ring: "ring-scree", glow: "rgba(243,241,234,0.08)",
     },
@@ -25,8 +25,7 @@ export function HubPreview() {
       <div className="mb-8 flex items-center justify-between">
         <Brand />
         <div className="flex items-center gap-4">
-          <span className="text-sm text-sage">Profile</span>
-          <span className="text-sm text-sage">Sign out</span>
+          <span className="text-sm text-sage">You</span>
         </div>
       </div>
       <header className="mb-7">
