@@ -29,9 +29,9 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       />
       <ErrorNote>{state.error}</ErrorNote>
       <Submit />
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-sage">
         New here?{" "}
-        <Link href="/signup" className="font-semibold text-brand-600">
+        <Link href="/signup" className="font-semibold text-ice">
           Create an account
         </Link>
       </p>

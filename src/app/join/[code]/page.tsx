@@ -39,16 +39,16 @@ export default async function JoinPage({
           title="Invite not found"
           body="This invite link doesn’t match any group. Ask your friend to resend it."
           cta={
-            <Link href="/groups" className="font-semibold text-brand-600">
+            <Link href="/groups" className="font-semibold text-ice">
               Go to your groups
             </Link>
           }
         />
       ) : (
         <Card className="text-center">
-          <p className="text-sm text-slate-500">You’ve been invited to join</p>
-          <p className="mt-1 text-2xl font-black tracking-tight text-slate-900">{group.name}</p>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="text-sm text-sage">You’ve been invited to join</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-snow">{group.name}</p>
+          <p className="mt-1 text-sm text-sage">
             {group.member_count} member{Number(group.member_count) === 1 ? "" : "s"}
           </p>
 
@@ -62,13 +62,13 @@ export default async function JoinPage({
               <div className="space-y-3">
                 <Link
                   href={`/signup?redirectTo=${encodeURIComponent(`/join/${code}`)}`}
-                  className="inline-flex w-full items-center justify-center rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white"
+                  className="inline-flex w-full items-center justify-center rounded-field bg-summit px-4 py-3.5 text-sm font-semibold text-valley transition hover:bg-summit-soft"
                 >
                   Sign up &amp; join
                 </Link>
                 <Link
                   href={`/login?redirectTo=${encodeURIComponent(`/join/${code}`)}`}
-                  className="inline-flex w-full items-center justify-center rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800"
+                  className="inline-flex w-full items-center justify-center rounded-field bg-ridge px-4 py-3.5 text-sm text-snow ring-1 ring-scree transition hover:bg-scree"
                 >
                   I already have an account
                 </Link>

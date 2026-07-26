@@ -1,22 +1,27 @@
 import type { Metadata, Viewport } from "next";
+import { AscentDefs } from "@/components/ascent";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ascend — climb the leaderboard",
+  title: "Ascend — start low, climb fast",
   description:
-    "Compete with friends and family on your rate of improvement — savings, debt paydown, fitness and habits. Start low, climb fast.",
+    "Private groups that compete on how fast you improve — savings, debt paydown, fitness, habits. You race your own baseline, so everyone starts level.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#4f46e5",
+  themeColor: "#0E1712",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen">
+        {/* Shared gradient sprite for every ascent line (keeps them zero-JS). */}
+        <AscentDefs />
+        {children}
+      </body>
     </html>
   );
 }

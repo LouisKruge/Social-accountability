@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/database.types";
 import { supabaseAnonKey, supabaseUrl } from "./env";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/share", "/auth", "/api/share-card"];
+const PUBLIC_PATHS = ["/login", "/signup", "/share", "/auth", "/api/share-card", "/design-preview"];
 
 /**
  * Refreshes the Supabase auth session on every request and gates private routes.

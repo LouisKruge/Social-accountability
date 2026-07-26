@@ -33,17 +33,15 @@ export async function generateMetadata({
   if (!data) return { title: "Ascend" };
 
   const imageUrl = `${siteUrl()}/api/share-card/${data.rankingId}`;
-  const title = `${data.displayName} is ${ordinal(data.rank)} in ${data.categoryName} on Ascend`;
-  const description = `${valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit)} this week in ${data.groupName}. Start low, climb fast.`;
+  const value = valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit);
+  // A flex, not a tagline.
+  const title = `${data.displayName} — ${value} in ${data.categoryName} this week`;
+  const description = `${ordinal(data.rank)} in ${data.groupName}. Ranked on rate of improvement, so everyone climbs from their own baseline.`;
 
   return {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      images: [{ url: imageUrl, width: 1200, height: 630 }],
-    },
+    openGraph: { title, description, images: [{ url: imageUrl, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title, description, images: [imageUrl] },
   };
 }
@@ -53,46 +51,48 @@ export default async function SharePage({ params }: { params: { cardId: string }
   if (!data) notFound();
 
   const imageUrl = `/api/share-card/${data.rankingId}`;
-  const positive = data.metricType === "streak" || data.pctChange >= 0;
+  const value = valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit);
+  const climbing = data.metricType === "streak" || data.pctChange >= 0;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-lg flex-col items-center px-4 py-10">
-      <div className="mb-6 self-start">
+    <div className="mx-auto flex min-h-screen w-full max-w-[34rem] flex-col px-5 py-8">
+      <div className="mb-8">
         <Brand />
       </div>
 
-      {/* Rendered rank card image */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imageUrl}
-        alt={`${data.displayName} — ${ordinal(data.rank)} in ${data.categoryName}`}
-        className="w-full rounded-2xl border border-slate-200 shadow-md"
+        alt={`${data.displayName}: ${value} in ${data.categoryName}, ${ordinal(data.rank)} in ${data.groupName}`}
+        className="w-full rounded-card ring-1 ring-scree"
         width={1200}
         height={630}
       />
 
-      <div className="mt-6 text-center">
-        <p className="text-2xl font-black tracking-tight text-slate-900">
-          {data.displayName} is {ordinal(data.rank)} in {data.categoryName}
+      <div className="mt-8">
+        <p
+          className={`font-display text-4xl font-semibold leading-none tracking-tightest ${
+            climbing ? "text-summit" : "text-fall"
+          }`}
+        >
+          {value}
         </p>
-        <p className={`mt-1 text-lg font-bold ${positive ? "text-accent-600" : "text-red-500"}`}>
-          {valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit)} this week
+        <p className="mt-3 text-lg leading-snug text-snow">
+          {data.displayName} is {ordinal(data.rank)} in {data.groupName} this week.
         </p>
-        <p className="mt-1 text-sm text-slate-500">
-          in {data.groupName} — ranked by rate of improvement, not absolute numbers.
+        <p className="mt-3 text-sm leading-relaxed text-sage">
+          Ascend ranks on rate of improvement, not who started ahead — everyone climbs from their
+          own baseline.
         </p>
       </div>
 
-      <div className="mt-8 w-full space-y-3">
+      <div className="mt-9">
         <Link
           href="/signup"
-          className="inline-flex w-full items-center justify-center rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white"
+          className="inline-flex w-full items-center justify-center rounded-field bg-summit px-4 py-4 text-sm font-semibold text-valley transition hover:bg-summit-soft"
         >
           Start your own climb
         </Link>
-        <p className="text-center text-xs text-slate-400">
-          Ascend — compete with friends on how fast you improve.
-        </p>
       </div>
     </div>
   );

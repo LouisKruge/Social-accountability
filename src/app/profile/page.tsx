@@ -34,12 +34,12 @@ export default async function ProfilePage({
       <Header title="Profile" back="/groups" subtitle={user?.email ?? undefined} />
 
       <Link href="/billing" className="mb-5 block">
-        <Card className="flex items-center justify-between hover:border-brand-300">
+        <Card className="flex items-center justify-between transition hover:bg-ridge">
           <div>
-            <p className="text-sm font-semibold text-slate-800">Plan &amp; billing</p>
-            <p className="text-xs text-slate-400">Manage your subscription</p>
+            <p className="text-sm font-semibold text-snow">Plan &amp; billing</p>
+            <p className="text-xs text-sage">Manage your subscription</p>
           </div>
-          <Badge tone={subscription?.tier === "premium" ? "brand" : "slate"}>
+          <Badge tone={subscription?.tier === "premium" ? "summit" : "muted"}>
             {subscription?.tier === "premium" ? "Premium" : "Free"}
           </Badge>
         </Card>
@@ -60,7 +60,7 @@ export default async function ProfilePage({
       </Card>
 
       <form action={signOut} className="mb-8">
-        <button className="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+        <button className="w-full rounded-field bg-ridge px-4 py-3.5 text-sm text-snow ring-1 ring-scree transition hover:bg-scree">
           Sign out
         </button>
       </form>

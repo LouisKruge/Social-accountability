@@ -35,16 +35,16 @@ export function ProfileForm({
         placeholder="+2782 123 4567"
         hint="Used for weekly result messages and reminders."
       />
-      <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
+      <label className="flex items-start gap-3 rounded-field bg-slope ring-1 ring-scree p-3">
         <input
           type="checkbox"
           name="notify_whatsapp"
           defaultChecked={notifyWhatsapp}
-          className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600"
+          className="mt-1 h-4 w-4 rounded border-scree text-ice"
         />
-        <span className="text-sm text-slate-700">
+        <span className="text-sm text-snow/90">
           Send me WhatsApp results &amp; reminders
-          <span className="block text-xs text-slate-400">You can turn this off anytime.</span>
+          <span className="block text-xs text-sage">You can turn this off anytime.</span>
         </span>
       </label>
       <ErrorNote>{state.error}</ErrorNote>

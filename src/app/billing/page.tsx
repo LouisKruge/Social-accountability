@@ -47,16 +47,16 @@ export default async function BillingPage({
 
       <Card className="mb-5">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-slate-800">Current plan</span>
-          <Badge tone={isPremium ? "brand" : "slate"}>{isPremium ? "Premium" : "Free"}</Badge>
+          <span className="text-sm font-semibold text-snow">Current plan</span>
+          <Badge tone={isPremium ? "summit" : "muted"}>{isPremium ? "Premium" : "Free"}</Badge>
         </div>
         {isPremium && sub?.current_period_end && (
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-sage">
             Renews {new Date(sub.current_period_end).toLocaleDateString("en-ZA")}
           </p>
         )}
         {sub?.status === "past_due" && (
-          <p className="mt-2 text-xs text-amber-600">
+          <p className="mt-2 text-xs text-summit">
             Your last payment failed — update your card to keep premium.
           </p>
         )}
@@ -64,8 +64,8 @@ export default async function BillingPage({
 
       <div className="grid gap-4">
         <Card>
-          <p className="font-bold text-slate-900">Free</p>
-          <ul className="mt-2 space-y-1 text-sm text-slate-600">
+          <p className="font-display text-base font-medium text-snow">Free</p>
+          <ul className="mt-2 space-y-1 text-sm text-sage">
             <li>• {FREE_LIMITS.ownedGroups} group you own</li>
             <li>• {FREE_LIMITS.ownedCategories} category</li>
             <li>• Join unlimited friends&apos; groups</li>
@@ -73,24 +73,24 @@ export default async function BillingPage({
           </ul>
         </Card>
 
-        <Card className="border-brand-300 ring-1 ring-brand-100">
+        <Card className="ring-1 ring-summit/25">
           <div className="flex items-center justify-between">
-            <p className="font-bold text-brand-700">Premium</p>
-            <Badge tone="brand">Most popular</Badge>
+            <p className="font-display text-base font-medium text-ice">Premium</p>
+            <Badge tone="ice">Most popular</Badge>
           </div>
-          <ul className="mt-2 space-y-1 text-sm text-slate-700">
+          <ul className="mt-2 space-y-1 text-sm text-snow/90">
             <li>• Unlimited groups &amp; categories</li>
             <li>• Historical trend charts</li>
             <li>• Everything in Free</li>
           </ul>
-          <p className="mt-3 text-xs text-slate-400">Billed monthly in ZAR via Paystack.</p>
+          <p className="mt-3 text-xs text-sage">Billed monthly in ZAR via Paystack.</p>
 
           {!isPremium ? (
             <form action={startPremiumCheckout} className="mt-4">
               <Button type="submit">Upgrade to Premium</Button>
             </form>
           ) : (
-            <p className="mt-4 text-sm font-medium text-accent-600">You&apos;re on Premium 🎉</p>
+            <p className="mt-4 text-sm font-medium text-summit">You&apos;re on Premium</p>
           )}
         </Card>
       </div>

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AppShell, Brand, LinkButton, Card } from "@/components/ui";
+import { AppShell, Brand, LinkButton } from "@/components/ui";
+import { AscentLine } from "@/components/ascent";
 
 export default async function LandingPage() {
   const supabase = createClient();
@@ -12,31 +13,35 @@ export default async function LandingPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-1 flex-col justify-center gap-8 py-10">
-        <Brand />
+      <div className="flex flex-1 flex-col justify-center gap-9 py-8">
+        <Brand size="lg" />
+
         <div>
-          <h1 className="text-4xl font-black leading-tight tracking-tight text-slate-900">
+          <h1 className="font-display text-[2.75rem] font-semibold leading-[0.98] tracking-tightest text-snow">
             Start low.
             <br />
-            <span className="text-brand-600">Climb fast.</span>
+            <span className="text-summit">Climb fast.</span>
           </h1>
-          <p className="mt-4 text-base text-slate-600">
-            Ascend ranks your private group on <strong>rate of improvement</strong>, not
-            absolute numbers. Whether it&apos;s savings in ZAR, debt paydown, steps or a
-            daily habit — everyone competes on equal footing, because you race your own
-            baseline.
+          <p className="mt-5 max-w-[26rem] text-[0.95rem] leading-relaxed text-sage">
+            Ascend ranks your group on how fast you improve — not who started ahead. You race your
+            own baseline, so the person saving their first R200 can out-climb someone with R20 000.
           </p>
         </div>
 
-        <Card className="bg-brand-50/60">
-          <ul className="space-y-2 text-sm text-slate-700">
-            <li>📈 Weekly leaderboard by % change from your baseline</li>
-            <li>🔒 Your raw numbers stay private unless you choose to share</li>
-            <li>💬 WhatsApp results &amp; reminders keep the group honest</li>
-          </ul>
-        </Card>
+        {/* the signature, doing the explaining */}
+        <div className="relative overflow-hidden rounded-card bg-slope px-5 py-6 ring-1 ring-scree/70">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-20 h-36 bg-[radial-gradient(ellipse_at_top,rgba(232,184,75,0.14),transparent_70%)]"
+          />
+          <AscentLine values={[4, 9, 8, 15, 23]} height={120} label="An example climb" />
+          <div className="relative mt-3 flex items-center justify-between text-xs">
+            <span className="text-ice">Your baseline</span>
+            <span className="tnum text-summit">+23% this week</span>
+          </div>
+        </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <LinkButton href="/signup">Create your account</LinkButton>
           <LinkButton href="/login" variant="secondary">
             I already have an account

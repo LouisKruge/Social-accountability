@@ -21,38 +21,35 @@ export function CreateOrJoin() {
 
   return (
     <Card>
-      <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1">
-        <button
-          onClick={() => setTab("create")}
-          className={`rounded-lg py-2 text-sm font-semibold transition ${
-            tab === "create" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500"
-          }`}
-        >
-          Create
-        </button>
-        <button
-          onClick={() => setTab("join")}
-          className={`rounded-lg py-2 text-sm font-semibold transition ${
-            tab === "join" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500"
-          }`}
-        >
-          Join
-        </button>
+      <div className="mb-5 grid grid-cols-2 gap-1 rounded-field bg-valley p-1">
+        {(["create", "join"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            aria-pressed={tab === t}
+            className={`rounded-[0.65rem] py-2.5 text-sm transition ${
+              tab === t ? "bg-ridge font-medium text-snow" : "text-sage hover:text-snow"
+            }`}
+          >
+            {t === "create" ? "Create" : "Join"}
+          </button>
+        ))}
       </div>
 
       {tab === "create" ? (
-        <form action={createAction} className="space-y-3">
+        <form action={createAction} className="space-y-4">
           <Field label="Group name" name="name" placeholder="Payday Warriors" required />
           <ErrorNote>{createState.error}</ErrorNote>
           <Submit label="Create group" pendingLabel="Creating…" />
         </form>
       ) : (
-        <form action={joinAction} className="space-y-3">
+        <form action={joinAction} className="space-y-4">
           <Field
             label="Invite code"
             name="invite_code"
-            placeholder="e.g. a1b2c3d4"
+            placeholder="a1b2c3d4"
             autoCapitalize="none"
+            autoComplete="off"
             required
           />
           <ErrorNote>{joinState.error}</ErrorNote>

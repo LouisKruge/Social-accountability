@@ -1,9 +1,17 @@
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/inter";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  --font-display: "Space Grotesk Variable";
+  --font-body: "Inter Variable";
+  --font-mono: "IBM Plex Mono";
+  color-scheme: dark;
 }
 
 html,
@@ -13,12 +21,47 @@ body {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-valley text-snow antialiased;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
-/* Mobile-first: comfortable tap targets everywhere. */
+/* Every number that appears in a column must align. */
+.tnum {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Comfortable thumb targets on mobile. */
 button,
 a[role="button"],
 input[type="submit"] {
   touch-action: manipulation;
+}
+
+/* Visible focus on every interactive element, on the dark terrain. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid theme("colors.ice.DEFAULT");
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * Reduced motion: the ascent line must still READ correctly — so instead of
+ * merely disabling the draw, we snap it to its finished state (dashoffset 0)
+ * and drop the transition. Static equivalent, not a missing element.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .ascent-path {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
 }

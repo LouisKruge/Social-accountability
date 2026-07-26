@@ -228,3 +228,74 @@ reasoning. Newest entries are appended per phase.
   trigger functions + `delete_my_account` from `anon` (and the triggers from
   `authenticated`) so they're off the REST RPC surface. The remaining advisor
   WARNs are the intentional, `auth.uid()`-scoped RLS helpers and invite RPCs.
+
+---
+
+## Visual identity — the ascent line (design pass)
+
+### Where the design came from
+The palette and motif are derived from the product's own mechanic, not from a
+generic "social/leaderboard app" template. Ascend's distinguishing feature is
+that **nobody competes on absolute standing** — everyone shares one starting
+line at 0% and only distance travelled from it counts. Two consequences:
+
+1. **The ascent line is the data model drawn literally**, not decoration. Every
+   line — hero, row sparkline, share card — starts at a shared left-hand origin
+   and climbs. A faint origin rule appears on each row so a column of them
+   visibly climbs from one common baseline.
+2. **Colour encodes altitude.** A cold dark valley floor (`valley #0E1712`)
+   warming to summit light (`summit #E8B84B`), with `ice #7FDCC0` as the cold
+   start. Line strokes run ice → gold along their length, so gold only ever
+   appears at the point you have climbed to.
+
+### Self-critique that changed the plan
+- The starting palette (near-black + a green accent) sat one step from the
+  generic "dark mode + one acid accent" look. Kept the hex values (all pass AA,
+  see below) but changed how they deploy: gold renders as *light* (soft blooms,
+  gradient tips), never a flat neon fill; two accents with fixed meanings rather
+  than one; a green-tinted rather than neutral base.
+- Dropped the generic dashboard hero ("big stat + supporting stats row"). The
+  hero **is** the trajectory, with rank as a number beside its leading tip. No
+  gridlines, axes or legends — these read as trajectories, not plotted charts.
+- Dropped emoji medals (🥇) — carnival, not trophy room. Rank 1 earns summit
+  light (warm ring + crest glow) instead.
+
+### Critique after building, from screenshots
+- **Gold had degraded into "any positive number"** — every positive % rendered
+  gold, which destroys the restraint rule. Fixed: only rank 1 gets gold in the
+  list; everyone else's climb reads in plain snow. Verified in `leaderboard3.png`.
+- The hero's summit bloom was **clipped by the SVG viewport**, leaving a
+  hard-edged patch. Fixed with `overflow-visible` and a smaller radius.
+- Row sparklines were too small to differentiate; enlarged to 68×28 with more
+  amplitude. Note they are **self-normalised** — they show the shape of a climb,
+  not magnitude relative to others; the % column does the comparing.
+- At 320px, names truncated to "Tha…". The sparkline now steps aside below
+  360px so names stay whole.
+- The share card's first composition ran **the ascent line straight through the
+  headline number**. Recomposed into split zones (type left, climb right).
+
+### Type
+Space Grotesk Variable (display/numbers), Inter Variable (body), IBM Plex Mono
+with `tabular-nums` for every columnar figure. Self-hosted via fontsource so the
+build never depends on a runtime font fetch. Clash Display / General Sans from
+the original brief are Fontshare-only and not reliably installable here; Space
+Grotesk was chosen as the closest available geometric display face with real
+character.
+
+### Verified, not assumed
+- Contrast (computed): gold-on-pine **9.90**, mint-on-pine **11.22**,
+  snow-on-pine **16.16**, sage-on-pine **6.18**, and both accent-as-button
+  pairings ≥ 9.9 — all pass WCAG AA for normal text.
+- 320px viewport: no horizontal overflow; all names render in full.
+- `prefers-reduced-motion`: measured `strokeDashoffset: 0px` — the line is fully
+  drawn as a static equivalent rather than simply hidden.
+- Focus states: 2px `#7FDCC0` outline on interactive elements.
+- Satori note: the share card needs `gradientUnits="userSpaceOnUse"`. With the
+  default `objectBoundingBox`, satori silently drops the stroked path (browsers
+  render it fine, which is why in-app lines were unaffected).
+
+### Design harness
+`/design-preview` renders the real leaderboard components with fixed data for
+screenshotting, and `/api/share-card/demo` renders a sample card. Both are gated
+behind `ALLOW_DESIGN_PREVIEW=1`, which is only ever set locally — neither exists
+on the deployed site.
