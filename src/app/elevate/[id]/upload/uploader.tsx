@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { registerPhoto } from "@/app/glow-up/new/actions";
+import { registerPhoto } from "@/app/elevate/new/actions";
 import { Card, Button, ErrorNote } from "@/components/ui";
 
 /**

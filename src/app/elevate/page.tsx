@@ -43,7 +43,7 @@ export default async function GlowUpPage() {
     <AppShell>
       <SectionHeader
         eyebrow="Coaching"
-        title="Glow Up"
+        title="Elevate"
         blurb="A private review of your own photos — lighting, grooming, styling and how you're framing yourself for a goal you choose."
         accent="snow"
       />
@@ -53,7 +53,7 @@ export default async function GlowUpPage() {
       ) : (
         <>
           <section className="mb-8">
-            <Link href="/glow-up/new" className="block">
+            <Link href="/elevate/new" className="block">
               <Card className="relative overflow-hidden ring-1 ring-scree transition hover:bg-ridge">
                 <div
                   aria-hidden
@@ -83,7 +83,7 @@ export default async function GlowUpPage() {
             ) : (
               <div className="space-y-2.5">
                 {reports!.map((r) => (
-                  <Link key={r.id} href={`/glow-up/${r.id}`} className="block">
+                  <Link key={r.id} href={`/elevate/${r.id}`} className="block">
                     <Card className="flex items-center justify-between gap-3 transition hover:bg-ridge">
                       <div className="min-w-0">
                         <p className="truncate text-sm text-snow">

@@ -51,8 +51,8 @@ export async function joinCohort(_prev: StakeState, formData: FormData): Promise
     return { error: "We couldn't add you to this challenge. Try again." };
   }
 
-  revalidatePath(`/challenges/${cohortId}`);
-  revalidatePath("/challenges");
+  revalidatePath(`/commit/${cohortId}`);
+  revalidatePath("/commit");
   return {};
 }
 
@@ -97,6 +97,6 @@ export async function logSteps(_prev: StakeState, formData: FormData): Promise<S
 
   if (error) return { error: "We couldn't save that. Try again." };
 
-  revalidatePath(`/challenges/${cohortId}`);
+  revalidatePath(`/commit/${cohortId}`);
   return {};
 }

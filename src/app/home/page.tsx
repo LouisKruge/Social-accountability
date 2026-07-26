@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell, Brand } from "@/components/ui";
-import { signOut } from "@/app/auth/actions";
 import { currentPeriod } from "@/lib/period";
 
 export const dynamic = "force-dynamic";
@@ -65,22 +64,22 @@ export default async function HomePage() {
       glow: "rgba(127,220,192,0.13)",
     },
     {
-      href: "/challenges",
+      href: "/commit",
       eyebrow: "Bet on yourself",
-      title: "Stakes",
+      title: "Commit",
       body: "Put money on a 30-day target. Hit it and you share the pool with the others who did.",
       status:
         (myStakes?.length ?? 0) > 0
           ? `${myStakes!.length} active ${myStakes!.length === 1 ? "challenge" : "challenges"}`
           : `${openCohorts?.length ?? 0} open to join`,
-      accent: "text-summit",
-      ring: "ring-summit/25",
-      glow: "rgba(232,184,75,0.14)",
+      accent: "text-ice",
+      ring: "ring-ice/20",
+      glow: "rgba(127,220,192,0.10)",
     },
     {
-      href: "/glow-up",
+      href: "/elevate",
       eyebrow: "Coaching",
-      title: "Glow Up",
+      title: "Elevate",
       body: "A private styling, grooming and photo review of your own photos, for a goal you set.",
       status: latestReport
         ? latestReport.status === "ready"
@@ -98,12 +97,9 @@ export default async function HomePage() {
       <div className="mb-8 flex items-center justify-between">
         <Brand />
         <div className="flex items-center gap-4">
-          <Link href="/profile" className="text-sm text-sage transition hover:text-ice">
-            Profile
+          <Link href="/you" className="text-sm text-sage transition hover:text-ice">
+            You
           </Link>
-          <form action={signOut}>
-            <button className="text-sm text-sage transition hover:text-ice">Sign out</button>
-          </form>
         </div>
       </div>
 

@@ -59,7 +59,7 @@ export default async function CohortPage({ params }: { params: { id: string } })
     <AppShell>
       <Header
         title={cohort.name}
-        back="/challenges"
+        back="/commit"
         subtitle={`${fmtDate(cohort.start_date)} – ${fmtDate(cohort.end_date)} · ${Number(cohort.target_value).toLocaleString("en-ZA")} steps`}
       />
 

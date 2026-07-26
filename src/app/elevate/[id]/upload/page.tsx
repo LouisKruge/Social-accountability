@@ -26,7 +26,7 @@ export default async function UploadPage({
     .eq("id", params.id)
     .maybeSingle();
   if (!report) notFound();
-  if (report.status === "ready") redirect(`/glow-up/${report.id}`);
+  if (report.status === "ready") redirect(`/elevate/${report.id}`);
 
   const { data: photos } = await supabase
     .from("glowup_photos")
@@ -39,7 +39,7 @@ export default async function UploadPage({
     <AppShell>
       <Header
         title="Your photos"
-        back="/glow-up"
+        back="/elevate"
         subtitle="Two shots of yourself is plenty. Only you will ever see them."
       />
 

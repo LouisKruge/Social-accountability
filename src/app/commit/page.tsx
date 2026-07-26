@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell, Card, Badge, EmptyState } from "@/components/ui";
 import { SectionHeader } from "@/components/section-header";
+import { Pool } from "@/components/pool";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,14 @@ export default async function ChallengesPage() {
   const mine = (cohorts ?? []).filter((c) => myCohortIds.includes(c.id));
   const open = (cohorts ?? []).filter((c) => !myCohortIds.includes(c.id) && c.status === "open");
 
+  // How full is each pool? Counts only — never anyone's amount. Uses the safe
+  // derived view, which cannot carry money columns.
+  const poolByCohort = new Map<string, number>();
+  for (const c of [...mine, ...open]) {
+    const { data } = await supabase.rpc("cohort_progress", { _cohort_id: c.id });
+    poolByCohort.set(c.id, (data ?? []).length);
+  }
+
   // Progress for the cohorts I'm in, via the safe derived view.
   const progressByCohort = new Map<string, { progress: number; target: number; rank: number }>();
   for (const c of mine) {
@@ -60,9 +69,9 @@ export default async function ChallengesPage() {
     <AppShell>
       <SectionHeader
         eyebrow="Bet on yourself"
-        title="Stakes"
+        title="Commit"
         blurb="Put money on a target. Hit it and you share the pool with everyone else who did."
-        accent="summit"
+        accent="ice"
       />
 
       <section className="mb-8">
@@ -79,7 +88,7 @@ export default async function ChallengesPage() {
               const pct = p ? Math.min(100, (p.progress / p.target) * 100) : 0;
               const stake = myStakes?.find((s) => s.cohort_id === c.id);
               return (
-                <Link key={c.id} href={`/challenges/${c.id}`} className="block">
+                <Link key={c.id} href={`/commit/${c.id}`} className="block">
                   <Card className="transition hover:bg-ridge">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -131,7 +140,7 @@ export default async function ChallengesPage() {
         ) : (
           <div className="space-y-2.5">
             {open.map((c) => (
-              <Link key={c.id} href={`/challenges/${c.id}`} className="block">
+              <Link key={c.id} href={`/commit/${c.id}`} className="block">
                 <Card className="transition hover:bg-ridge">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -141,7 +150,24 @@ export default async function ChallengesPage() {
                         {daysBetween(c.start_date, c.end_date)} days
                       </p>
                     </div>
-                    <Badge tone="summit">{fmtZar(Number(c.stake_amount))}</Badge>
+                    <Badge tone="muted">{fmtZar(Number(c.stake_amount))} stake</Badge>
+                  </div>
+
+                  <div className="mt-4">
+                    <Pool
+                      filled={(poolByCohort.get(c.id) ?? 0) * Number(c.stake_amount)}
+                      capacity={Math.max(20, poolByCohort.get(c.id) ?? 0) * Number(c.stake_amount)}
+                      participants={poolByCohort.get(c.id) ?? 0}
+                      height={72}
+                    />
+                    <p className="mt-2 flex justify-between text-xs">
+                      <span className="tnum text-snow/90">
+                        {fmtZar((poolByCohort.get(c.id) ?? 0) * Number(c.stake_amount))} in the pool
+                      </span>
+                      <span className="tnum text-sage">
+                        {poolByCohort.get(c.id) ?? 0} staked
+                      </span>
+                    </p>
                   </div>
                 </Card>
               </Link>

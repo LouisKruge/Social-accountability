@@ -21,7 +21,7 @@ export async function confirmAge(_prev: GateState, _formData: FormData): Promise
 
   if (error) return { error: "We couldn't save that. Try again." };
 
-  revalidatePath("/glow-up");
+  revalidatePath("/elevate");
   return {};
 }
 
@@ -52,7 +52,7 @@ export async function deleteGlowupData() {
     await supabase.storage.from("glowup").remove(toRemove);
   }
 
-  revalidatePath("/glow-up");
+  revalidatePath("/elevate");
   revalidatePath("/profile");
   redirect("/profile?glowup_delete=ok");
 }

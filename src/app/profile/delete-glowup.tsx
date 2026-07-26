@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { deleteGlowupData } from "@/app/glow-up/actions";
+import { deleteGlowupData } from "@/app/elevate/actions";
 import { Button, Card } from "@/components/ui";
 
 /**

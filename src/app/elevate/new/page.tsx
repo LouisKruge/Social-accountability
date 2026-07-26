@@ -18,13 +18,13 @@ export default async function NewReportPage() {
     .maybeSingle();
 
   // 18+ gate is enforced in front of the whole feature.
-  if (!profile?.glowup_age_confirmed_at) redirect("/glow-up");
+  if (!profile?.glowup_age_confirmed_at) redirect("/elevate");
 
   return (
     <AppShell>
       <Header
         title="Start a report"
-        back="/glow-up"
+        back="/elevate"
         subtitle="Three questions, then a couple of photos of yourself."
       />
       <NewReportForm />

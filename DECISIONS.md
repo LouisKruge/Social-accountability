@@ -299,3 +299,52 @@ character.
 screenshotting, and `/api/share-card/demo` renders a sample card. Both are gated
 behind `ALLOW_DESIGN_PREVIEW=1`, which is only ever set locally — neither exists
 on the deployed site.
+
+---
+
+## One identity, three modes (Climb / Commit / Elevate)
+
+The three tracks are now named for what they emotionally do, and share one token
+system. What differs between them is **usage discipline and pacing**, never the
+palette or type.
+
+| | Signature | Gold | Motion | Surface |
+| --- | --- | --- | --- | --- |
+| Climb | ascent line | rank 1 + your leading tip | fast, orchestrated | slope |
+| Commit | the pool | **confirmed money only** | slow, deliberate | slope |
+| Elevate | the unlock | never | gentle, ceremonial | ridge (lighter) |
+
+### Design decisions
+- **The pool** is derived from the same altitude logic as the ascent line rather
+  than being a generic progress bar: staked money POOLS IN THE VALLEY and CLIMBS
+  to whoever hit their target. It fills in ice (staked, at rest, not yours yet);
+  only a confirmed payout is ever drawn in gold. The vessel always sits beside
+  the exact rand figures — it illustrates, it never replaces the number.
+- **Gold was pulled out of Commit's chrome entirely**, including the hub card and
+  the section header, which previously used it decoratively. Inside Commit the
+  only gold is the payout figure itself. This is what keeps gold meaning "real
+  money, confirmed" rather than degrading into "this is the money section".
+- **The unlock** reveals report sections one at a time, but never withholds:
+  "Show everything" is available from the first section, and under
+  prefers-reduced-motion every section renders expanded immediately.
+- **The payout receipt shows the whole calculation**, fee included, in the order
+  it happens. Burying the fee is what makes a mechanic like this feel rigged.
+- **`/you` replaces three scattered settings screens** with one hub. Its reason
+  to exist is the ledger: every money event across all three modes reconciled
+  into one signed column, so "where has my money gone" is answerable at a glance.
+- Sections were renamed on disk (`/challenges` → `/commit`, `/glow-up` →
+  `/elevate`, `/profile` → `/you`) with redirects kept so existing links survive.
+
+### Self-critique after screenshotting all three side by side
+`supabase/../shots/three-modes.png`, via the dev-only `/design-preview/compare`.
+- Shared DNA confirmed: identical palette, type, radii, spacing language and nav.
+- Registers read correctly: Climb is loudest (gold rank-1, sparklines, ranks);
+  Commit is a receipt with one gold figure; Elevate has no numbers, no gold, no
+  ranks and sits on the lighter surface.
+- **Fixed on review:** the first pool draft read as a flat trapezoid — the empty
+  portion wasn't visible, so "11 of 20 staked" didn't land, and the payout state
+  became a solid gold block (far too much gold for this section). Redrawn with
+  visible walls, a dark unfilled portion and a single bright surface line.
+- **Known weakness:** the pool is still the least distinctive of the three
+  signatures. The ascent line and the unlock carry more character. Worth another
+  pass — possibly showing each staker as a discrete unit rather than a level.

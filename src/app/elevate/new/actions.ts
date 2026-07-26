@@ -69,8 +69,8 @@ export async function createReport(
 
   if (error || !report) return { error: "We couldn't start that report. Try again." };
 
-  revalidatePath("/glow-up");
-  redirect(`/glow-up/${report.id}/upload`);
+  revalidatePath("/elevate");
+  redirect(`/elevate/${report.id}/upload`);
 }
 
 /** Records an uploaded photo against the report, after the browser has stored it. */
@@ -96,5 +96,5 @@ export async function registerPhoto(formData: FormData) {
     photo_type: photoType === "outfit" ? "outfit" : "face",
   });
 
-  revalidatePath(`/glow-up/${reportId}/upload`);
+  revalidatePath(`/elevate/${reportId}/upload`);
 }

@@ -24,17 +24,17 @@ export async function generateReport(formData: FormData) {
     .eq("id", reportId)
     .eq("user_id", user.id)
     .maybeSingle();
-  if (!owned) redirect("/glow-up");
+  if (!owned) redirect("/elevate");
 
   const result = await runGlowupReport(reportId);
 
-  revalidatePath(`/glow-up/${reportId}`);
-  revalidatePath("/glow-up");
+  revalidatePath(`/elevate/${reportId}`);
+  revalidatePath("/elevate");
 
   if (!result.ok) {
     const code = result.error.includes("isn't configured") ? "not_configured" : "failed";
-    redirect(`/glow-up/${reportId}/upload?error=${code}`);
+    redirect(`/elevate/${reportId}/upload?error=${code}`);
   }
 
-  redirect(`/glow-up/${reportId}`);
+  redirect(`/elevate/${reportId}`);
 }
