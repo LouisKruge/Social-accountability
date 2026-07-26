@@ -41,7 +41,9 @@ export default async function GroupsPage() {
   return (
     <AppShell>
       <div className="mb-8 flex items-center justify-between">
-        <Brand />
+        <Link href="/home" aria-label="All sections">
+          <Brand />
+        </Link>
         <div className="flex items-center gap-4">
           <Link href="/profile" className="text-sm text-sage transition hover:text-ice">
             Profile
@@ -52,7 +54,8 @@ export default async function GroupsPage() {
         </div>
       </div>
 
-      <h1 className="mb-5 font-display text-[1.75rem] font-semibold leading-none tracking-tightest text-snow">
+      <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">Self improvement</p>
+      <h1 className="mb-5 mt-1.5 font-display text-[1.75rem] font-semibold leading-none tracking-tightest text-snow">
         Your groups
       </h1>
 

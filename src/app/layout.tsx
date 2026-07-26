@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { AscentDefs } from "@/components/ascent";
+import { NavGate } from "@/components/nav-gate";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Shared gradient sprite for every ascent line (keeps them zero-JS). */}
         <AscentDefs />
         {children}
+        <NavGate />
       </body>
     </html>
   );

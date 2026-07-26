@@ -9,7 +9,7 @@ export type AuthState = { error?: string };
 function safeRedirectTo(raw: FormDataEntryValue | null): string {
   const value = typeof raw === "string" ? raw : "";
   // Only allow same-origin relative paths to avoid open-redirect.
-  return value.startsWith("/") && !value.startsWith("//") ? value : "/groups";
+  return value.startsWith("/") && !value.startsWith("//") ? value : "/home";
 }
 
 export async function signIn(_prev: AuthState, formData: FormData): Promise<AuthState> {

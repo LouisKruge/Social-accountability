@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { AppShell, Header, Card, Badge, EmptyState } from "@/components/ui";
 import { AscentLine } from "@/components/ascent";
 import { LeaderboardRow, type ClimbRow } from "@/components/leaderboard-row";
+import { HubPreview } from "./hub-preview";
 
 /**
  * DESIGN HARNESS — renders the real leaderboard components with fixed data so
@@ -21,8 +22,9 @@ const ROWS: ClimbRow[] = [
   { userId: "6", displayName: "Lerato", rank: 6, pctChange: -6.3, isAbsolute: false, series: [5, 2, -1, -6.3] },
 ];
 
-export default function DesignPreview() {
+export default function DesignPreview({ searchParams }: { searchParams: { view?: string } }) {
   if (process.env.ALLOW_DESIGN_PREVIEW !== "1") notFound();
+  if (searchParams.view === "hub") return <HubPreview />;
 
   const viewer = ROWS[2];
 

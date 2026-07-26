@@ -5,7 +5,7 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[30rem] flex-col px-5 pb-28 pt-6">
+    <div className="mx-auto flex min-h-screen w-full max-w-[30rem] flex-col px-5 pb-32 pt-6">
       {children}
     </div>
   );

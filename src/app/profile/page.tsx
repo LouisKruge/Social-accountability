@@ -4,6 +4,7 @@ import { AppShell, Header, Card, Badge, ErrorNote } from "@/components/ui";
 import { signOut } from "@/app/auth/actions";
 import { ProfileForm } from "./profile-form";
 import { DeleteAccount } from "./delete-account";
+import { DeleteGlowupData } from "./delete-glowup";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,10 @@ export default async function ProfilePage({
           Sign out
         </button>
       </form>
+
+      <div className="mb-5">
+        <DeleteGlowupData />
+      </div>
 
       <DeleteAccount />
     </AppShell>

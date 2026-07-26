@@ -13,6 +13,8 @@ export interface Database {
           avatar_url: string | null;
           phone_number: string | null;
           notify_whatsapp: boolean;
+          glowup_age_confirmed_at: string | null;
+          glowup_consent_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -21,6 +23,8 @@ export interface Database {
           avatar_url?: string | null;
           phone_number?: string | null;
           notify_whatsapp?: boolean;
+          glowup_age_confirmed_at?: string | null;
+          glowup_consent_at?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
@@ -200,6 +204,152 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["subscriptions"]["Insert"]>;
         Relationships: [];
       };
+      // ── Feature track A: habit stakes ──────────────────────────────────────
+      stake_cohorts: {
+        Row: {
+          id: string;
+          name: string;
+          habit_type: "steps";
+          target_value: number;
+          start_date: string;
+          end_date: string;
+          stake_amount: number;
+          fee_rate: number;
+          status: "open" | "active" | "completed" | "cancelled";
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name?: string;
+          habit_type?: "steps";
+          target_value: number;
+          start_date: string;
+          end_date: string;
+          stake_amount: number;
+          fee_rate?: number;
+          status?: "open" | "active" | "completed" | "cancelled";
+          created_by: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["stake_cohorts"]["Insert"]>;
+        Relationships: [];
+      };
+      stakes: {
+        Row: {
+          id: string;
+          cohort_id: string;
+          user_id: string;
+          amount: number;
+          payment_reference: string | null;
+          payment_confirmed: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          cohort_id: string;
+          user_id: string;
+          amount: number;
+          payment_reference?: string | null;
+          payment_confirmed?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["stakes"]["Insert"]>;
+        Relationships: [];
+      };
+      daily_verification_logs: {
+        Row: {
+          id: string;
+          stake_id: string;
+          log_date: string;
+          verified_value: number | null;
+          source: "manual" | "google_fit" | "apple_health" | "fitbit";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          stake_id: string;
+          log_date: string;
+          verified_value?: number | null;
+          source?: "manual" | "google_fit" | "apple_health" | "fitbit";
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["daily_verification_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      payouts: {
+        Row: {
+          id: string;
+          cohort_id: string;
+          user_id: string;
+          amount: number;
+          kind: "winnings" | "refund";
+          status: "pending" | "paid" | "failed";
+          paid_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          cohort_id: string;
+          user_id: string;
+          amount: number;
+          kind?: "winnings" | "refund";
+          status?: "pending" | "paid" | "failed";
+          paid_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["payouts"]["Insert"]>;
+        Relationships: [];
+      };
+      // ── Feature track B: glow-up coaching ──────────────────────────────────
+      glowup_reports: {
+        Row: {
+          id: string;
+          user_id: string;
+          goal: "dating_profile" | "job_interview" | "general_confidence";
+          budget_tier: "low" | "mid" | "high";
+          style_preference: string | null;
+          report_json: Json | null;
+          status: "pending" | "ready" | "failed";
+          payment_reference: string | null;
+          payment_status: "pending" | "paid" | "refunded";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          goal: "dating_profile" | "job_interview" | "general_confidence";
+          budget_tier: "low" | "mid" | "high";
+          style_preference?: string | null;
+          report_json?: Json | null;
+          status?: "pending" | "ready" | "failed";
+          payment_reference?: string | null;
+          payment_status?: "pending" | "paid" | "refunded";
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["glowup_reports"]["Insert"]>;
+        Relationships: [];
+      };
+      glowup_photos: {
+        Row: {
+          id: string;
+          user_id: string;
+          report_id: string | null;
+          storage_path: string;
+          photo_type: "face" | "outfit";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          report_id?: string | null;
+          storage_path: string;
+          photo_type: "face" | "outfit";
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["glowup_photos"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -210,6 +360,22 @@ export interface Database {
       };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
       whoami: { Args: Record<string, never>; Returns: string };
+      is_cohort_member: { Args: { _cohort_id: string }; Returns: boolean };
+      cohort_progress: {
+        Args: { _cohort_id: string };
+        Returns: {
+          user_id: string;
+          display_name: string;
+          current_progress: number;
+          target_value: number;
+          hit_target: boolean;
+          rank: number;
+        }[];
+      };
+      delete_my_glowup_data: {
+        Args: Record<string, never>;
+        Returns: { deleted_path: string }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
