@@ -1,6 +1,6 @@
 import type { ServerClient } from "@/lib/supabase/server";
 import { num } from "@/lib/format";
-import type { ActiveBetData, ChallengeCardData, ChallengeIcon } from "@/components/commit-cards";
+import type { ActiveBetData, ChallengeCardData } from "@/components/commit-cards";
 
 /**
  * COMMIT DASHBOARD — the whole view model, assembled in one place.
@@ -294,41 +294,6 @@ export interface CommitDashboard {
   cohortsJoined: number;
 }
 
-export function emptyDashboard(): CommitDashboard {
-  return {
-    hero: {
-      atStake: 0,
-      awaitingEft: 0,
-      lifetimeWon: 0,
-      net: 0,
-      activeCount: 0,
-      targetsHit: 0,
-      cohortsCompleted: 0,
-      winRate: null,
-      streak: 0,
-      totalLogged: 0,
-    },
-    active: [],
-    open: [],
-    activity: [],
-    standings: null,
-    climbers: [],
-    analytics: null,
-    achievements: buildAchievements({
-      stakeCount: 0,
-      confirmedStakes: 0,
-      bestStreak: 0,
-      targetsHit: 0,
-      totalLogged: 0,
-      paidPayouts: 0,
-      cohortsCompleted: 0,
-    }),
-    history: [],
-    feeRate: 0.1,
-    cohortsJoined: 0,
-  };
-}
-
 export async function loadCommitDashboard(
   supabase: ServerClient,
   userId: string,
@@ -446,7 +411,6 @@ export async function loadCommitDashboard(
         open.push({
           id: c.id,
           name: c.name,
-          icon: iconFor(c.name),
           difficulty: difficultyFor(target, totalDays),
           targetLabel: `${num(target)} steps · ${totalDays}d`,
           stakeAmount,
@@ -651,13 +615,4 @@ export function difficultyFor(
   if (perDay < 9_000) return "Steady";
   if (perDay < 13_000) return "Serious";
   return "Elite";
-}
-
-export function iconFor(name: string): ChallengeIcon {
-  const n = name.toLowerCase();
-  if (n.includes("run") || n.includes("hill")) return "run";
-  if (n.includes("walk") || n.includes("step")) return "steps";
-  if (n.includes("gym") || n.includes("lift")) return "lift";
-  if (n.includes("ride") || n.includes("cycl")) return "ride";
-  return "target";
 }

@@ -7,40 +7,41 @@ import { Pool } from "./pool";
 import type { Achievement, BoardRow, HistoryItem } from "@/lib/commitDashboard";
 import { num, zar } from "@/lib/format";
 
-export type ChallengeIcon = "steps" | "run" | "ride" | "lift" | "target";
-
 /**
- * Challenge marks, drawn rather than picked from the emoji set. Full-colour
- * emoji sit outside the palette entirely and pull the eye away from the
- * figures, which on this page are the point.
+ * The challenge mark — a stair whose rise IS the difficulty.
+ *
+ * It used to be an icon guessed from a substring of the challenge's name, which
+ * gave two unrelated challenges the same mark and told the reader nothing.
+ * `habit_type` is constrained to 'steps' in the schema, so an activity icon
+ * would be speculative anyway. A stair that gets steeper as the daily demand
+ * rises carries real information, derived from the terms on the card.
  */
-function ChallengeGlyph({ icon }: { icon: ChallengeIcon }) {
-  const p = { fill: "none", stroke: "#7FDCC0", strokeWidth: 1.7, strokeLinecap: "round" as const };
+function ChallengeGlyph({ difficulty }: { difficulty: ChallengeCardData["difficulty"] }) {
+  const treads = { Starter: 2, Steady: 3, Serious: 4, Elite: 5 }[difficulty];
+  const stroke = {
+    Starter: "#8A9A90",
+    Steady: "#7FDCC0",
+    Serious: "#F3F1EA",
+    Elite: "#E06D5A",
+  }[difficulty];
+
+  // One stair, drawn bottom-left to top-right, with `treads` steps in it.
+  const span = 16 / treads;
+  let d = `M 4 20`;
+  for (let i = 0; i < treads; i += 1) {
+    d += ` v -${span.toFixed(2)} h ${span.toFixed(2)}`;
+  }
+
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      {/* a stair: the plainest possible reading of "steps" */}
-      {icon === "steps" && <path d="M4 19h4v-4.5h4V10h4V5.5h4" {...p} strokeLinejoin="round" />}
-      {/* a steep climb, for the challenges that ask for pace rather than volume */}
-      {icon === "run" && (
-        <>
-          <path d="M4 18.5 19 5.5" {...p} strokeLinejoin="round" />
-          <path d="M13.5 5.5H19V11" {...p} strokeLinejoin="round" />
-        </>
-      )}
-      {icon === "ride" && (
-        <>
-          <circle cx="6" cy="16.5" r="3.5" {...p} />
-          <circle cx="18" cy="16.5" r="3.5" {...p} />
-          <path d="M6 16.5 11 8h4l3 8.5M9.5 8h3" {...p} />
-        </>
-      )}
-      {icon === "lift" && <path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10" {...p} />}
-      {icon === "target" && (
-        <>
-          <circle cx="12" cy="12" r="7.5" {...p} />
-          <circle cx="12" cy="12" r="3.5" {...p} />
-        </>
-      )}
+      <path
+        d={d}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -48,7 +49,6 @@ function ChallengeGlyph({ icon }: { icon: ChallengeIcon }) {
 export interface ChallengeCardData {
   id: string;
   name: string;
-  icon: ChallengeIcon;
   difficulty: "Starter" | "Steady" | "Serious" | "Elite";
   targetLabel: string;
   stakeAmount: number;
@@ -119,7 +119,7 @@ export function ChallengeCard({
                 aria-hidden
                 className="grid h-11 w-11 shrink-0 place-items-center rounded-[0.8rem] bg-valley ring-1 ring-scree"
               >
-                <ChallengeGlyph icon={c.icon} />
+                <ChallengeGlyph difficulty={c.difficulty} />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
@@ -143,14 +143,22 @@ export function ChallengeCard({
               </div>
             </div>
 
-            {/* the pool, with the figures beside it — never instead of them */}
+            {/* The pool, with the figures beside it — never instead of them.
+                A brand-new challenge has an empty vessel, which is three-quarters
+                of dead space saying nothing; say it in words instead. */}
             <div className="mt-4">
-              <Pool
-                filled={c.poolTotal}
-                capacity={Math.max(scale, c.poolTotal)}
-                participants={c.participants}
-                height={62}
-              />
+              {c.participants === 0 ? (
+                <p className="rounded-field bg-valley/70 px-4 py-2.5 text-center text-xs text-sage ring-1 ring-scree/70">
+                  Nobody&apos;s staked yet — be the first in
+                </p>
+              ) : (
+                <Pool
+                  filled={c.poolTotal}
+                  capacity={Math.max(scale, c.poolTotal)}
+                  participants={c.participants}
+                  height={62}
+                />
+              )}
             </div>
 
             <dl className="mt-3 grid grid-cols-3 gap-2 text-center">

@@ -106,6 +106,57 @@ select public._assert(
   (select count(*) from public.cohort_progress(:'cohort')) = 0,
   'a NON-member sees nothing on the cohort board');
 
+-- ── Creating a challenge: anyone may, but only as themselves ────────────────
+reset role;
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+set role authenticated;
+insert into public.stake_cohorts (name, target_value, start_date, end_date, stake_amount, created_by)
+values ('B''s own challenge', 240000, '2026-09-01', '2026-09-30', 100, :'uidB');
+select public._assert(
+  (select count(*) from public.stake_cohorts where created_by = :'uidB') = 1,
+  'a signed-in user CAN publish a challenge of their own');
+-- Creating one must not stake anything: publishing terms is not committing money.
+select public._assert(
+  (select count(*) from public.stakes s
+     join public.stake_cohorts c on c.id = s.cohort_id
+    where c.created_by = :'uidB' and c.name = 'B''s own challenge') = 0,
+  'publishing a challenge stakes NOTHING on its creator');
+do $$
+begin
+  begin
+    insert into public.stake_cohorts (name, target_value, start_date, end_date, stake_amount, created_by)
+    values ('forged', 240000, '2026-09-01', '2026-09-30', 100,
+            'aaaa1111-0000-0000-0000-00000000aaaa');
+    raise exception 'FAIL: B published a challenge attributed to A';
+  exception when insufficient_privilege then
+    raise notice 'PASS: B CANNOT publish a challenge attributed to someone else';
+  end;
+end $$;
+-- The schema, not just the form, refuses an out-of-range stake.
+do $$
+begin
+  begin
+    insert into public.stake_cohorts (name, target_value, start_date, end_date, stake_amount, created_by)
+    values ('too rich', 240000, '2026-09-01', '2026-09-30', 501,
+            'bbbb2222-0000-0000-0000-00000000bbbb');
+    raise exception 'FAIL: a stake above R500 was accepted';
+  exception when check_violation then
+    raise notice 'PASS: the schema refuses a stake outside R50-R500';
+  end;
+  begin
+    insert into public.stake_cohorts (name, target_value, start_date, end_date, stake_amount, created_by)
+    values ('backwards', 240000, '2026-09-30', '2026-09-01', 100,
+            'bbbb2222-0000-0000-0000-00000000bbbb');
+    raise exception 'FAIL: a challenge ending before it starts was accepted';
+  exception when check_violation then
+    raise notice 'PASS: the schema refuses a window that ends before it starts';
+  end;
+end $$;
+
+reset role;
+set request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000ff","role":"authenticated"}';
+set role authenticated;
+
 -- ── cohort_market(): how full a challenge is, WITHOUT any money ─────────────
 -- A browsing user must be able to see that a challenge has people in it before
 -- joining. That is a COUNT. It must never become a window onto amounts.

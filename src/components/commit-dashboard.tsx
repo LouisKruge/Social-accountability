@@ -139,7 +139,7 @@ export function CommitDashboardView({ data }: { data: CommitDashboard }) {
         <div className="mb-7">
           <EmptyState
             title="Nothing on the line yet"
-            body="Pick a challenge, stake what it costs, and the only thing standing between you and the pool is your own step count."
+            body="Pick a challenge below, stake what it costs, and the only thing between you and the pool is your own step count."
           />
         </div>
       )}
@@ -148,7 +148,7 @@ export function CommitDashboardView({ data }: { data: CommitDashboard }) {
       <div className="mb-7 grid grid-cols-3 gap-2">
         {[
           { href: primary ? `/commit/${primary.cohortId}` : "/commit", label: "Log steps", glyph: "＋" },
-          { href: "#open", label: "Browse", glyph: "◎" },
+          { href: "/commit/new", label: "Start one", glyph: "◎" },
           { href: "/you", label: "Ledger", glyph: "≡" },
         ].map((a) => (
           <Link
@@ -169,15 +169,23 @@ export function CommitDashboardView({ data }: { data: CommitDashboard }) {
         <DashSection
           title="Open to join"
           action={
-            open.length > 0 ? (
-              <span className="tnum text-[0.68rem] text-sage">{open.length} available</span>
-            ) : undefined
+            <Link href="/commit/new" className="text-[0.68rem] text-ice transition hover:text-snow">
+              Start one →
+            </Link>
           }
         >
           {open.length === 0 ? (
             <EmptyState
               title="Nothing open right now"
-              body="New challenges open regularly. When one does, its terms, its pool and how full it is all show up here before you commit a cent."
+              body="Set a target and a stake, share it with the people who will actually hold you to it, and it shows up here for them to join."
+              cta={
+                <Link
+                  href="/commit/new"
+                  className="inline-flex w-full items-center justify-center rounded-field bg-ice px-4 py-3.5 text-sm font-semibold text-valley transition hover:bg-ice-soft"
+                >
+                  Start a challenge
+                </Link>
+              }
             />
           ) : (
             <div className="space-y-3">

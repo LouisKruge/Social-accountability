@@ -114,7 +114,6 @@ export const COMMIT_PREVIEW_DATA: CommitDashboard = {
     {
       id: "open-1",
       name: "August 10k a day",
-      icon: "steps",
       difficulty: "Serious",
       targetLabel: "310,000 steps · 31d",
       stakeAmount: 200,
@@ -129,7 +128,6 @@ export const COMMIT_PREVIEW_DATA: CommitDashboard = {
     {
       id: "open-2",
       name: "Weekend hills",
-      icon: "run",
       difficulty: "Elite",
       targetLabel: "180,000 steps · 12d",
       stakeAmount: 500,
@@ -144,7 +142,6 @@ export const COMMIT_PREVIEW_DATA: CommitDashboard = {
     {
       id: "open-3",
       name: "Easy does it",
-      icon: "target",
       difficulty: "Starter",
       targetLabel: "120,000 steps · 30d",
       stakeAmount: 50,
