@@ -204,6 +204,120 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["subscriptions"]["Insert"]>;
         Relationships: [];
       };
+      // ── Commit platform: ledger, payouts, integrity, trust ─────────────────
+      wallet_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: "stake_locked" | "stake_refunded" | "winnings_credited" | "fee_charged" | "adjustment";
+          amount: number;
+          currency: string;
+          status: "pending" | "cleared" | "failed" | "reversed";
+          cohort_id: string | null;
+          stake_id: string | null;
+          payout_id: string | null;
+          memo: string;
+          bank_reference: string | null;
+          created_at: string;
+          effective_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      payout_events: {
+        Row: {
+          id: string;
+          payout_id: string;
+          user_id: string;
+          from_state: string | null;
+          to_state: string;
+          reason: string;
+          actor: "system" | "operator" | "user";
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      payout_destinations: {
+        Row: {
+          id: string;
+          user_id: string;
+          account_holder: string;
+          bank_name: string;
+          account_number: string;
+          account_last4: string;
+          branch_code: string | null;
+          verified: boolean;
+          is_default: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          account_holder: string;
+          bank_name: string;
+          account_number: string;
+          branch_code?: string | null;
+          verified?: boolean;
+          is_default?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["payout_destinations"]["Insert"]>;
+        Relationships: [];
+      };
+      verification_flags: {
+        Row: {
+          id: string;
+          log_id: string;
+          user_id: string;
+          code: string;
+          severity: number;
+          detail: string;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      security_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: string;
+          city: string | null;
+          country: string | null;
+          user_agent: string | null;
+          device_id: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      trusted_devices: {
+        Row: {
+          id: string;
+          user_id: string;
+          device_id: string;
+          label: string;
+          last_seen: string;
+          trusted: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          device_id: string;
+          label: string;
+          last_seen?: string;
+          trusted?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["trusted_devices"]["Insert"]>;
+        Relationships: [];
+      };
       // ── Feature track A: habit stakes ──────────────────────────────────────
       stake_cohorts: {
         Row: {
@@ -216,6 +330,7 @@ export interface Database {
           stake_amount: number;
           fee_rate: number;
           status: "open" | "active" | "completed" | "cancelled";
+          visibility: "public" | "link" | "private";
           created_by: string;
           created_at: string;
         };
@@ -229,6 +344,7 @@ export interface Database {
           stake_amount: number;
           fee_rate?: number;
           status?: "open" | "active" | "completed" | "cancelled";
+          visibility?: "public" | "link" | "private";
           created_by: string;
           created_at?: string;
         };
@@ -284,8 +400,10 @@ export interface Database {
           user_id: string;
           amount: number;
           kind: "winnings" | "refund";
-          status: "pending" | "paid" | "failed";
+          status: import("./payoutLifecycle").PayoutState | "pending";
           paid_at: string | null;
+          expected_by: string | null;
+          failure_reason: string | null;
           created_at: string;
         };
         Insert: {
@@ -294,7 +412,7 @@ export interface Database {
           user_id: string;
           amount: number;
           kind?: "winnings" | "refund";
-          status?: "pending" | "paid" | "failed";
+          status?: import("./payoutLifecycle").PayoutState | "pending";
           paid_at?: string | null;
           created_at?: string;
         };
@@ -370,6 +488,19 @@ export interface Database {
           target_value: number;
           hit_target: boolean;
           rank: number;
+        }[];
+      };
+      wallet_positions: {
+        Args: Record<string, never>;
+        Returns: {
+          locked: number;
+          awaiting_eft: number;
+          pending_in: number;
+          paid_out: number;
+          lifetime_staked: number;
+          lifetime_won: number;
+          lifetime_lost: number;
+          net: number;
         }[];
       };
       cohort_market: {

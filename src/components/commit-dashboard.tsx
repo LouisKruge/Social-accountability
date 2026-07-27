@@ -97,13 +97,16 @@ export function CommitDashboardView({ data }: { data: CommitDashboard }) {
                 </p>
               )}
             </div>
-            <div className="shrink-0 text-right">
+            <Link href="/commit/wallet" className="group/paid shrink-0 text-right">
               <p className="text-[0.65rem] uppercase tracking-[0.16em] text-sage">Paid to you</p>
               {/* the one gold figure up here: money that actually landed */}
               <p className="tnum mt-1.5 font-display text-2xl font-semibold leading-none text-summit">
                 <Counter value={hero.lifetimeWon} prefix="R" />
               </p>
-            </div>
+              <p className="mt-1 text-[0.62rem] text-sage transition group-hover/paid:text-ice">
+                Your money →
+              </p>
+            </Link>
           </div>
 
           <dl className="mt-5 grid grid-cols-4 gap-2 border-t border-scree/50 pt-4 text-center">
@@ -149,7 +152,7 @@ export function CommitDashboardView({ data }: { data: CommitDashboard }) {
         {[
           { href: primary ? `/commit/${primary.cohortId}` : "/commit", label: "Log steps", glyph: "＋" },
           { href: "/commit/new", label: "Start one", glyph: "◎" },
-          { href: "/you", label: "Ledger", glyph: "≡" },
+          { href: "/commit/wallet", label: "Your money", glyph: "≡" },
         ].map((a) => (
           <Link
             key={a.label}
