@@ -161,6 +161,22 @@ const PROHIBITED_PATTERNS: { pattern: RegExp; reason: string }[] = [
  * Screens a rendered report for prohibited content. Returns every reason found
  * so a rejection can be logged specifically rather than as a generic failure.
  */
+/**
+ * Scan arbitrary text against the prohibition list.
+ *
+ * Exposed so every Elevate surface — coaching reports, garment cataloguing,
+ * anything added later — screens against the SAME patterns. A second copy of
+ * this list somewhere else would drift, and the surface with the stale copy
+ * would be the one that leaks.
+ */
+export function scanText(text: string): string[] {
+  const reasons = new Set<string>();
+  for (const { pattern, reason } of PROHIBITED_PATTERNS) {
+    if (pattern.test(text)) reasons.add(reason);
+  }
+  return [...reasons];
+}
+
 export function findProhibitedContent(report: GlowupReport): string[] {
   const text = [
     ...report.photo_feedback,
@@ -170,11 +186,7 @@ export function findProhibitedContent(report: GlowupReport): string[] {
     ...report.wardrobe_capsule.flatMap((i) => [i.category, i.suggestion, i.where_to_look]),
   ].join("\n");
 
-  const reasons = new Set<string>();
-  for (const { pattern, reason } of PROHIBITED_PATTERNS) {
-    if (pattern.test(text)) reasons.add(reason);
-  }
-  return [...reasons];
+  return scanText(text);
 }
 
 /**

@@ -318,6 +318,151 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["trusted_devices"]["Insert"]>;
         Relationships: [];
       };
+      // ── Elevate: the five studios ──────────────────────────────────────────
+      style_profiles: {
+        Row: {
+          user_id: string;
+          direction: string;
+          goal_mode: string;
+          budget_tier: "low" | "mid" | "high";
+          notes: string | null;
+          avoid: string[];
+          updated_at: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          direction?: string;
+          goal_mode?: string;
+          budget_tier?: "low" | "mid" | "high";
+          notes?: string | null;
+          avoid?: string[];
+          updated_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["style_profiles"]["Insert"]>;
+        Relationships: [];
+      };
+      wardrobe_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          storage_path: string | null;
+          category: "top" | "bottom" | "outerwear" | "footwear" | "accessory" | "formal" | "activewear";
+          name: string;
+          colour: string | null;
+          material: string | null;
+          detected: Json | null;
+          seasons: string[];
+          occasions: string[];
+          price_zar: number | null;
+          wear_count: number;
+          last_worn: string | null;
+          archived: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          storage_path?: string | null;
+          category: "top" | "bottom" | "outerwear" | "footwear" | "accessory" | "formal" | "activewear";
+          name: string;
+          colour?: string | null;
+          material?: string | null;
+          detected?: Json | null;
+          seasons?: string[];
+          occasions?: string[];
+          price_zar?: number | null;
+          wear_count?: number;
+          last_worn?: string | null;
+          archived?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["wardrobe_items"]["Insert"]>;
+        Relationships: [];
+      };
+      looks: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          occasion: string | null;
+          rationale: string | null;
+          item_ids: string[];
+          favourite: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          occasion?: string | null;
+          rationale?: string | null;
+          item_ids?: string[];
+          favourite?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["looks"]["Insert"]>;
+        Relationships: [];
+      };
+      coach_actions: {
+        Row: {
+          id: string;
+          user_id: string;
+          report_id: string | null;
+          studio: "style" | "look" | "photo" | "confidence";
+          title: string;
+          detail: string;
+          impact: number;
+          effort: number;
+          cost_zar: number | null;
+          status: "open" | "doing" | "done" | "dismissed";
+          dismissed_reason: string | null;
+          completed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          report_id?: string | null;
+          studio: "style" | "look" | "photo" | "confidence";
+          title: string;
+          detail: string;
+          impact?: number;
+          effort?: number;
+          cost_zar?: number | null;
+          status?: "open" | "doing" | "done" | "dismissed";
+          dismissed_reason?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["coach_actions"]["Insert"]>;
+        Relationships: [];
+      };
+      timeline_entries: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: string;
+          title: string;
+          detail: string | null;
+          storage_path: string | null;
+          occurred_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kind: string;
+          title: string;
+          detail?: string | null;
+          storage_path?: string | null;
+          occurred_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["timeline_entries"]["Insert"]>;
+        Relationships: [];
+      };
       // ── Feature track A: habit stakes ──────────────────────────────────────
       stake_cohorts: {
         Row: {
