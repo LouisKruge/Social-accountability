@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { AppShell, Header } from "@/components/ui";
+import { ModulePage } from "@/components/module-shell";
+import { loadExchange } from "@/lib/exchange";
 import { DashSection } from "@/components/dash";
-import { LedgerTable, PayoutTracker, PositionTile, RoiBar, TrustPanel } from "@/components/wallet-ui";
-import { loadWallet } from "@/lib/wallet";
+import { LedgerTable, PayoutTracker, PositionTile, RoiBar } from "@/components/wallet-ui";
 import { isOutstanding } from "@/lib/payoutLifecycle";
 
 export const dynamic = "force-dynamic";
@@ -23,18 +23,26 @@ export default async function WalletPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { positions, payouts, ledger, trust } = await loadWallet(supabase, user!.id);
+  const state = await loadExchange(supabase, user!.id);
+  const { positions, payouts, ledger, trust } = state.wallet;
   const outstanding = payouts.filter((p) => isOutstanding(p.state));
   const settled = payouts.filter((p) => !isOutstanding(p.state));
 
   return (
-    <AppShell>
-      <Header
-        title="Your money"
-        back="/commit"
-        subtitle="Every rand you've staked, what's coming back, and where it is right now."
-      />
-
+    <ModulePage
+      state={state}
+      moduleKey="treasury"
+      action={
+        ledger.length > 0 ? (
+          <a
+            href="/api/commit/statement"
+            className="shrink-0 text-xs text-ice transition hover:text-snow"
+          >
+            Statement
+          </a>
+        ) : undefined
+      }
+    >
       {/* ── Positions ────────────────────────────────────────────────────── */}
       <div className="mb-3 grid grid-cols-2 gap-2">
         <PositionTile
@@ -123,25 +131,25 @@ export default async function WalletPage() {
         </DashSection>
       )}
 
-      {/* ── Trust ────────────────────────────────────────────────────────── */}
-      <DashSection
-        title="Trust & security"
-        action={
-          <Link
-            href="/commit/wallet/bank"
-            className="text-[0.68rem] text-ice transition hover:text-snow"
-          >
-            Bank details →
-          </Link>
-        }
-      >
-        <TrustPanel trust={trust} integrityScore={null} />
-      </DashSection>
+      <div className="mb-7 flex gap-2">
+        <Link
+          href="/commit/wallet/bank"
+          className="flex-1 rounded-field bg-ridge px-4 py-3 text-center text-xs text-snow ring-1 ring-scree transition hover:bg-scree"
+        >
+          Bank details
+        </Link>
+        <Link
+          href="/commit/trust"
+          className="flex-1 rounded-field bg-ridge px-4 py-3 text-center text-xs text-snow ring-1 ring-scree transition hover:bg-scree"
+        >
+          Trust centre
+        </Link>
+      </div>
 
       <p className="mt-2 text-center text-xs leading-relaxed text-sage/80">
         Stakes and payouts move by manual EFT while Ascend is in beta. Every movement above is a
         real bank transfer, recorded here when it happens.
       </p>
-    </AppShell>
+    </ModulePage>
   );
 }

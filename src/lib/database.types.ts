@@ -380,6 +380,9 @@ export interface Database {
           log_date: string;
           verified_value: number | null;
           source: "manual" | "google_fit" | "apple_health" | "fitbit";
+          recorded_at: string;
+          device_id: string | null;
+          confidence: number | null;
           created_at: string;
         };
         Insert: {

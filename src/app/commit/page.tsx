@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { CommitDashboardView } from "@/components/commit-dashboard";
-import { loadCommitDashboard } from "@/lib/commitDashboard";
+import { ExchangeHome } from "@/components/exchange-home";
+import { loadExchange } from "@/lib/exchange";
 
 export const dynamic = "force-dynamic";
 
@@ -10,5 +10,5 @@ export default async function CommitPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return <CommitDashboardView data={await loadCommitDashboard(supabase, user!.id)} />;
+  return <ExchangeHome state={await loadExchange(supabase, user!.id)} />;
 }

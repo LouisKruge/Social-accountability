@@ -20,11 +20,60 @@ Three properties follow from that sentence and constrain everything below.
    Gambling Act and a licensing regime Ascend does not have.
 2. **Nobody sees anybody else's money.** Not their stake, not their winnings,
    not their balance. This is enforced in the database, not in the UI.
-3. **Ascend does not hold customer funds.** See §4.
+3. **Ascend does not hold customer funds.** See §5.
 
 ---
 
-## 1. What was built in this pass
+## 1. Information architecture — the Discipline Exchange
+
+Commit is no longer a page. It is an exchange of seven modules, each named for
+what it is and carrying the one question it exists to answer. A module that
+cannot name its question should not be a module.
+
+| Module | Route | Answers |
+|---|---|---|
+| Portfolio | `/commit/portfolio` | What am I holding? |
+| Market | `/commit/market` | What can I take on? |
+| Treasury | `/commit/wallet` | Where is my money? |
+| Lab | `/commit/lab` | Am I actually improving? |
+| Floor | `/commit/floor` | Who am I up against? |
+| Trust | `/commit/trust` | Can this be verified? |
+| Standing | `/commit/standing` | What have I earned? |
+
+### Why the old page was deleted rather than improved
+
+The previous Commit was twelve sections stacked vertically on one route. That
+architecture degrades as the product improves: every new capability pushes the
+last one further below the fold, and the only way to reach anything is to scroll
+past everything. It cannot hold seven modules.
+
+### Two navigation primitives replace the stack
+
+- **The rail** — a persistent horizontal strip of modules, each carrying its own
+  live figure, rendered inside every module. You can read the state of the whole
+  exchange from anywhere and switch in one tap. It is deliberately *absent* from
+  the exchange home, where the floor-plan tiles already are the navigation and a
+  rail would be pure duplication.
+- **The command bar** — ⌘K on a keyboard, a tap target on a phone. Jumps to any
+  module, any challenge, or any action by name. It is the only navigation that
+  does not get slower as the product grows.
+
+**Deliberately not built: radial menus and gesture shortcuts.** Both are
+undiscoverable without an onboarding overlay, both fight the browser's own
+gestures on mobile web, and neither has a keyboard or screen-reader equivalent.
+The command bar does the same job and is reachable three ways.
+
+### The home screen has two heroes, not one
+
+With an open position, the hero is the exposure — one number at editorial scale,
+because that is what the user came to check. With nothing at stake, a giant
+**R0** answers nothing, so the hero becomes the way in: *"Put money on
+yourself — 3 challenges open, from R50."* An empty state that states a real
+price is worth more than a true but useless zero.
+
+---
+
+## 2. What was built in this pass
 
 | Area | Artefact | State |
 |---|---|---|
@@ -37,13 +86,15 @@ Three properties follow from that sentence and constrain everything below.
 | Statement export | `/api/commit/statement` | Built |
 | Trust surface | `TrustPanel` | Built |
 | Challenge creation | `/commit/new` | Built, 20 tests |
+| Exchange shell | `exchange-shell.tsx` (rail, ⌘K, sheet) | Built |
+| Seven modules | `/commit/{portfolio,market,wallet,lab,floor,trust,standing}` | Built |
 | Marketplace visibility | `stake_cohorts.visibility` | Applied |
 
 Totals: **191 unit tests**, **78 SQL isolation assertions**, zero failures.
 
 ---
 
-## 2. Data architecture
+## 3. Data architecture
 
 ```
 profiles
@@ -81,7 +132,7 @@ append to their own ledger could manufacture a balance. Only the settlement job
 
 ---
 
-## 3. Challenge lifecycle
+## 4. Challenge lifecycle
 
 ```
 draft ── publish ──▶ open ── start_date ──▶ active ── end_date ──▶ settling ──▶ completed
@@ -109,7 +160,7 @@ Two named outcomes, not emergent behaviour:
 
 ---
 
-## 4. Money: what is deliberately NOT built
+## 5. Money: what is deliberately NOT built
 
 **The brief asked for: Available Balance, Deposit, Withdraw, Payment Methods,
 Cards, Instant EFT, Apple Pay, Google Pay, Crypto, Withdrawal Queue.**
@@ -146,7 +197,7 @@ be discovered.
 
 ---
 
-## 5. Payout lifecycle
+## 6. Payout lifecycle
 
 ```
 pending_verification ─▶ verified ─▶ queued ─▶ scheduled ─▶ processing ─▶ paid
@@ -176,7 +227,7 @@ Invariants, each covered by a test:
 
 ---
 
-## 6. Verification integrity (anti-cheat)
+## 7. Verification integrity (anti-cheat)
 
 `src/lib/integrity.ts` — pure, no clock, no I/O, 32 tests.
 
@@ -224,12 +275,12 @@ for the last is already in place.
 
 ---
 
-## 7. Where the brief was not followed, and why
+## 8. Where the brief was not followed, and why
 
 | Asked for | Built instead | Reason |
 |---|---|---|
 | "Top Earners" leaderboard | Progress-based standings only | Publishes other users' winnings — violates the locked `stakes_owner_only` guarantee, verified by 78 assertions. **See below.** |
-| Available balance, Withdraw, Deposit, Apple/Google Pay, crypto | Ledger + positions; manual EFT | §4 — unlicensed deposit-taking |
+| Available balance, Withdraw, Deposit, Apple/Google Pay, crypto | Ledger + positions; manual EFT | §5 — unlicensed deposit-taking |
 | "Win Probability", "AI Prediction", success-chance % | Pace projection: *"at your current rate you finish 3 days early"* | An odds display reframes a discipline product as a betting one, and a probability we cannot compute is a fabricated number |
 | Confetti, particle effects | Restrained state changes | This is money. Celebrating a payout like a slot machine is the casino register the product is explicitly avoiding |
 | XP, levels, season pass, daily missions | Achievements computed from real behaviour | Season passes and missions require inventing content and fabricating engagement metrics on a financial product |
@@ -252,7 +303,7 @@ publishes people's money without their consent.
 
 ---
 
-## 8. Edge cases handled
+## 9. Edge cases handled
 
 | Case | Behaviour |
 |---|---|
@@ -270,13 +321,13 @@ publishes people's money without their consent.
 
 ---
 
-## 9. Next, in priority order
+## 10. Next, in priority order
 
-1. **Compliance review of the escrow/custody question.** Everything in §4 is
+1. **Compliance review of the escrow/custody question.** Everything in §5 is
    blocked on this and nothing else.
 2. **Rotate the Supabase service-role key** — it was briefly in a public bundle.
 3. **Settlement job** writes `wallet_transactions` + `payout_events` on cohort
    close (service role, `pg_cron`).
 4. **WebAuthn/passkeys + TOTP 2FA** — the buildable half of the security brief.
-5. **Native client** for HealthKit/Google Fit, which unlocks the rest of §6.
-6. **Opt-in earnings sharing**, if you want the Top Earners board (§7).
+5. **Native client** for HealthKit/Google Fit, which unlocks the rest of §7.
+6. **Opt-in earnings sharing**, if you want the Top Earners board (§8).
