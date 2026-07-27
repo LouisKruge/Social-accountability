@@ -3,11 +3,16 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react
 
 // ── App chrome ───────────────────────────────────────────────────────────────
 
+/**
+ * The page frame. One gutter, one max width, one bottom inset that clears the
+ * navigation — set here so no screen has to remember them, and so they cannot
+ * drift apart from each other.
+ */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[30rem] flex-col px-5 pb-32 pt-6">
+    <main className="mx-auto flex min-h-screen w-full max-w-[30rem] flex-col px-gutter pb-32 pt-block">
       {children}
-    </div>
+    </main>
   );
 }
 
@@ -30,10 +35,8 @@ export function Header({
           <span aria-hidden>←</span> Back
         </Link>
       )}
-      <h1 className="font-display text-[1.75rem] font-semibold leading-none tracking-tightest text-snow">
-        {title}
-      </h1>
-      {subtitle && <p className="mt-2 text-sm text-sage">{subtitle}</p>}
+      <h1 className="font-display text-title font-semibold text-snow">{title}</h1>
+      {subtitle && <p className="mt-tight text-body text-sage">{subtitle}</p>}
     </header>
   );
 }
@@ -54,7 +57,7 @@ export function Brand({ size = "md" }: { size?: "md" | "lg" }) {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <circle cx="20" cy="6" r="2" fill="#E8B84B" />
+          <circle cx="20" cy="6" r="2" fill="rgb(var(--summit))" />
         </svg>
       </span>
       <span className={`font-display ${text} font-semibold tracking-tightest text-snow`}>
@@ -66,15 +69,52 @@ export function Brand({ size = "md" }: { size?: "md" | "lg" }) {
 
 // ── Building blocks ──────────────────────────────────────────────────────────
 
+/**
+ * A surface. `elevation` is explicit because "which layer is this on?" is a
+ * design decision, and leaving it to whichever class someone typed is how an
+ * interface ends up with six subtly different cards.
+ */
 export function Card({
   children,
   className = "",
+  elevation = "rest",
+  lit,
 }: {
   children: ReactNode;
   className?: string;
+  elevation?: "flat" | "rest" | "raised";
+  /** Ambient light pooling at the top edge. Use sparingly — it marks a hero. */
+  lit?: "summit" | "ice";
 }) {
+  const layer = {
+    flat: "bg-slope/50 ring-scree/40",
+    rest: "bg-slope ring-scree/70",
+    raised: "bg-ridge shadow-lift ring-scree",
+  }[elevation];
+
   return (
-    <div className={`rounded-card bg-slope p-5 ring-1 ring-scree/70 ${className}`}>{children}</div>
+    <div
+      className={`relative overflow-hidden rounded-card p-gutter ring-1 ${layer} ${
+        lit === "summit" ? "lit-summit" : lit === "ice" ? "lit-ice" : ""
+      } ${className}`}
+    >
+      <div className="relative">{children}</div>
+    </div>
+  );
+}
+
+/**
+ * A loading surface that reads as loading rather than as broken. Matches the
+ * shape of what is arriving, so the layout does not jump when it lands.
+ */
+export function Skeleton({ className = "" }: { className?: string }) {
+  return (
+    <div
+      aria-hidden
+      className={`relative overflow-hidden rounded-field bg-slope/70 ${className}`}
+    >
+      <div className="absolute inset-0 -translate-x-full animate-sheen bg-gradient-to-r from-transparent via-snow/[0.06] to-transparent" />
+    </div>
   );
 }
 
@@ -91,9 +131,11 @@ export function Button({ variant = "primary", className = "", ...props }: Button
     ghost: "bg-transparent text-ice hover:bg-ridge",
     danger: "bg-fall/15 text-fall ring-1 ring-fall/40 hover:bg-fall/25",
   };
+  // active:scale gives a press its weight. 0.98 is the smallest value that is
+  // felt rather than seen — anything larger reads as a bounce.
   return (
     <button
-      className={`inline-flex w-full items-center justify-center rounded-field px-4 py-3.5 text-sm transition disabled:cursor-not-allowed ${styles[variant]} ${className}`}
+      className={`inline-flex min-h-[3rem] w-full items-center justify-center rounded-field px-4 py-3.5 text-body font-medium transition duration-150 ease-ascend active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 ${styles[variant]} ${className}`}
       {...props}
     />
   );
@@ -116,7 +158,7 @@ export function LinkButton({
   return (
     <Link
       href={href}
-      className={`inline-flex w-full items-center justify-center rounded-field px-4 py-3.5 text-sm transition ${styles[variant]}`}
+      className={`inline-flex min-h-[3rem] w-full items-center justify-center rounded-field px-4 py-3.5 text-body font-medium transition duration-150 ease-ascend active:scale-[0.98] ${styles[variant]}`}
     >
       {children}
     </Link>
@@ -132,7 +174,9 @@ export function Field({
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-sage">{label}</span>
       <input
-        className="w-full rounded-field bg-valley px-4 py-3.5 text-base text-snow ring-1 ring-scree transition placeholder:text-sage/50 focus:ring-2 focus:ring-ice"
+        // text-base (16px) is not a style choice: anything smaller makes iOS
+        // Safari zoom the whole page on focus.
+        className="w-full rounded-field bg-valley px-4 py-3.5 text-base text-snow ring-1 ring-scree transition duration-150 ease-ascend placeholder:text-sage/50 focus:ring-2 focus:ring-ice"
         {...props}
       />
       {hint && <span className="mt-2 block text-xs text-sage/80">{hint}</span>}
@@ -170,7 +214,7 @@ export function EmptyState({
   return (
     <Card className="text-center">
       <p className="font-display text-lg font-medium tracking-tight text-snow">{title}</p>
-      <p className="mx-auto mt-2 max-w-[22rem] text-sm leading-relaxed text-sage">{body}</p>
+      <p className="mx-auto mt-2 max-w-[22rem] text-body text-sage">{body}</p>
       {cta && <div className="mt-5">{cta}</div>}
     </Card>
   );
@@ -190,7 +234,7 @@ export function Badge({
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[0.7rem] font-medium ${tones[tone]}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-caption font-medium ${tones[tone]}`}
     >
       {children}
     </span>

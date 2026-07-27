@@ -41,7 +41,7 @@ export default async function StandingPage() {
       <DashSection
         title="Milestones"
         action={
-          <span className="tnum text-[0.68rem] text-sage">
+          <span className="tnum text-caption text-sage">
             {achievements.filter((a) => a.unlocked).length}/{achievements.length}
           </span>
         }
@@ -50,7 +50,7 @@ export default async function StandingPage() {
       </DashSection>
 
       <div className="rounded-card bg-slope/50 p-4 ring-1 ring-scree/50">
-        <p className="text-xs leading-relaxed text-sage">
+        <p className="text-meta text-sage">
           Every milestone here is something you did — days walked, targets reached, challenges seen
           through. There are no points, levels or seasons to grind. On a product where the currency
           is real money, an invented one would only get in the way.

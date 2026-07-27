@@ -76,8 +76,8 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
       {/* ── Masthead ────────────────────────────────────────────────────── */}
       <header className="mb-5 flex items-baseline justify-between gap-4">
         <div>
-          <p className="text-[0.62rem] uppercase tracking-[0.18em] text-sage">The exchange</p>
-          <h1 className="font-display text-[1.7rem] font-semibold leading-none tracking-tightest text-ice">
+          <p className="text-micro uppercase text-sage">The exchange</p>
+          <h1 className="font-display text-title font-semibold text-ice">
             Commit
           </h1>
         </div>
@@ -119,18 +119,18 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
       <section className="relative mb-3 overflow-hidden rounded-card bg-slope px-5 py-6 ring-1 ring-scree/70">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-28 h-48 bg-[radial-gradient(ellipse_at_top_left,rgba(127,220,192,0.14),transparent_65%)]"
+          className="pointer-events-none absolute inset-x-0 -top-28 h-48 bg-[radial-gradient(ellipse_at_top_left,rgb(var(--ice)/0.14),transparent_65%)]"
         />
         <div className="relative">
           {live ? (
             <>
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-sage">
+              <p className="text-micro uppercase text-sage">
                 Riding on your discipline
               </p>
-              <p className="tnum mt-2 font-display text-[3.4rem] font-semibold leading-[0.9] tracking-tightest text-snow">
+              <p className="tnum mt-2 font-display text-hero font-semibold text-snow">
                 <Counter value={wallet.positions.locked} prefix="R" />
               </p>
-              <p className="mt-3 text-sm leading-relaxed text-sage">
+              <p className="mt-3 text-body text-sage">
                 <span className="text-snow/90">{live.name}</span> · day{" "}
                 <span className="tnum text-snow/90">{live.dayNumber}</span> of {live.totalDays} ·{" "}
                 <span className="tnum text-snow/90">
@@ -141,15 +141,15 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
             </>
           ) : cheapest ? (
             <>
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-sage">
+              <p className="text-micro uppercase text-sage">
                 Nothing on the line yet
               </p>
-              <p className="mt-2 font-display text-[2.5rem] font-semibold leading-[0.95] tracking-tightest text-snow">
+              <p className="mt-2 font-display text-display font-semibold text-snow">
                 Put money
                 <br />
                 on yourself
               </p>
-              <p className="mt-3.5 text-sm leading-relaxed text-sage">
+              <p className="mt-3.5 text-body text-sage">
                 {dashboard.open.length} {dashboard.open.length === 1 ? "challenge" : "challenges"}{" "}
                 open, from <span className="tnum text-snow/90">{zar(cheapest.stakeAmount)}</span>.
                 You win it back by walking — never by guessing.
@@ -163,15 +163,15 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
             </>
           ) : (
             <>
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-sage">
+              <p className="text-micro uppercase text-sage">
                 Nothing on the line yet
               </p>
-              <p className="mt-2 font-display text-[2.5rem] font-semibold leading-[0.95] tracking-tightest text-snow">
+              <p className="mt-2 font-display text-display font-semibold text-snow">
                 Set the
                 <br />
                 first target
               </p>
-              <p className="mt-3.5 text-sm leading-relaxed text-sage">
+              <p className="mt-3.5 text-body text-sage">
                 Nothing is open. Publish a challenge and share it with the people who&apos;ll
                 actually hold you to it.
               </p>
@@ -233,7 +233,7 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-[0.62rem] uppercase tracking-[0.14em] text-sage">
+                  <p className="flex items-center gap-1.5 text-micro uppercase text-sage">
                     {m.name}
                     {s.alert && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-fall" />}
                   </p>
@@ -263,7 +263,7 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
                   >
                     {s.value}
                   </p>
-                  <p className="mt-1 text-[0.65rem] leading-tight text-sage">{s.caption}</p>
+                  <p className="mt-1 text-caption leading-tight text-sage">{s.caption}</p>
                 </>
               )}
             </Link>
@@ -271,7 +271,7 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
         })}
       </div>
 
-      <p className="mt-6 text-center text-xs leading-relaxed text-sage/70">
+      <p className="mt-6 text-center text-meta text-sage/70">
         Every outcome here is decided by your own verified effort. No chance, no odds, no
         multipliers.
       </p>

@@ -7,11 +7,122 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ASCEND — the material system.
+
+   Colour lives here as custom properties rather than in the Tailwind config,
+   for one reason: a theme becomes a change of eleven values instead of a change
+   to every component. `bg-slope` resolves through a variable, so light mode is
+   a different set of numbers and nothing else.
+
+   THE PALETTE IS DERIVED FROM ALTITUDE, not from "dark mode". A cold valley
+   floor warming to summit light. That is what gives each accent a fixed job:
+
+     ice     the cold start — in progress, live, yours but not yet won
+     summit  altitude achieved — GOLD, and only ever money confirmed as yours
+     fall    a descent — behind, failed, returned
+     sage    the quiet register — labels, captions, everything secondary
+
+   Four accents, four meanings, no overlap. A fifth and sixth hue would not add
+   expressiveness; it would cost the existing four their meaning, because the
+   eye only learns a colour code that stays small.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
   --font-display: "Space Grotesk Variable";
   --font-body: "Inter Variable";
   --font-mono: "IBM Plex Mono";
+
+  /* ── Terrain ─────────────────────────────────────────────────────────── */
+  --valley: 14 23 18; /* page base */
+  --slope: 22 34 28; /* elevation 1 — resting surface */
+  --ridge: 30 44 37; /* elevation 2 — raised, hovered, selected */
+  --scree: 42 58 50; /* hairlines and inactive strokes */
+
+  /* ── Light ───────────────────────────────────────────────────────────── */
+  --summit: 232 184 75;
+  --summit-soft: 240 206 126;
+  --summit-deep: 185 143 46;
+  --ice: 127 220 192;
+  --ice-soft: 169 233 214;
+  --ice-deep: 79 177 150;
+
+  /* ── Text ────────────────────────────────────────────────────────────── */
+  --snow: 243 241 234;
+  --sage: 138 154 144;
+  --fall: 224 109 90;
+
+  /* ── Ambient light ───────────────────────────────────────────────────── */
+  /* Summit glow pooling at the top of an elevated surface. Rendered as LIGHT,
+     never as a flat fill — that is what keeps gold from reading as neon. */
+  --glow-summit: 232 184 75;
+  --glow-ice: 127 220 192;
+  --glow-strength: 0.14;
+
+  /* ── Depth ───────────────────────────────────────────────────────────── */
+  --shadow-lift: 0 8px 32px -12px rgb(0 0 0 / 0.6);
+  --shadow-float: 0 16px 48px -16px rgb(0 0 0 / 0.7);
+  --hairline: rgb(var(--scree) / 0.7);
+
   color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE — a genuine inversion, not a tint.
+
+   The altitude metaphor survives: the page becomes high, thin, bright air and
+   surfaces sit slightly BELOW it rather than above. So elevation reads by
+   getting darker and more saturated, the opposite of dark mode, which is how
+   real light-mode systems avoid looking like a washed-out dark theme.
+
+   Gold and mint are darkened until they hold contrast against a bright ground.
+   The same token, the same meaning, a different value.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --valley: 247 246 242;
+    --slope: 255 255 255;
+    --ridge: 240 240 235;
+    --scree: 208 212 205;
+
+    --summit: 150 112 24;
+    --summit-soft: 176 134 38;
+    --summit-deep: 120 88 16;
+    --ice: 26 122 98;
+    --ice-soft: 42 148 120;
+    --ice-deep: 18 92 74;
+
+    --snow: 24 34 28;
+    --sage: 96 110 101;
+    --fall: 178 61 44;
+
+    --glow-strength: 0.07;
+    --shadow-lift: 0 8px 24px -12px rgb(24 34 28 / 0.14);
+    --shadow-float: 0 16px 40px -16px rgb(24 34 28 / 0.18);
+
+    color-scheme: light;
+  }
+}
+
+/* An explicit choice always beats the system preference, both directions. */
+:root[data-theme="light"] {
+  --valley: 247 246 242;
+  --slope: 255 255 255;
+  --ridge: 240 240 235;
+  --scree: 208 212 205;
+  --summit: 150 112 24;
+  --summit-soft: 176 134 38;
+  --summit-deep: 120 88 16;
+  --ice: 26 122 98;
+  --ice-soft: 42 148 120;
+  --ice-deep: 18 92 74;
+  --snow: 24 34 28;
+  --sage: 96 110 101;
+  --fall: 178 61 44;
+  --glow-strength: 0.07;
+  --shadow-lift: 0 8px 24px -12px rgb(24 34 28 / 0.14);
+  --shadow-float: 0 16px 40px -16px rgb(24 34 28 / 0.18);
+  color-scheme: light;
 }
 
 html,
@@ -23,6 +134,25 @@ body {
 body {
   @apply bg-valley text-snow antialiased;
   font-family: var(--font-body), system-ui, sans-serif;
+  /* Optical sizing and a touch of tracking at body size — the difference
+     between type that is set and type that is merely rendered. */
+  font-optical-sizing: auto;
+  letter-spacing: -0.006em;
+}
+
+/* ── Editorial type ────────────────────────────────────────────────────────
+   Headlines are set tight and heavy because at display size the default
+   tracking of a geometric sans opens into gaps. Body copy is set loose,
+   because a dark ground eats leading. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 /* Every number that appears in a column must align. */
@@ -30,6 +160,49 @@ body {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
+  letter-spacing: -0.02em;
+}
+
+/* ── Ambient light ─────────────────────────────────────────────────────────
+   One utility, used wherever a surface should feel lit from above rather than
+   filled. Replaces a dozen hand-written radial-gradient strings. */
+.lit-summit::before,
+.lit-ice::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -7rem;
+  height: 12rem;
+  pointer-events: none;
+}
+.lit-summit::before {
+  background: radial-gradient(
+    ellipse at top,
+    rgb(var(--glow-summit) / var(--glow-strength)),
+    transparent 70%
+  );
+}
+.lit-ice::before {
+  background: radial-gradient(
+    ellipse at top left,
+    rgb(var(--glow-ice) / var(--glow-strength)),
+    transparent 65%
+  );
+}
+
+/* ── Depth ─────────────────────────────────────────────────────────────────
+   Restrained glass: a blur strong enough to separate layers, never so strong
+   it becomes the design. Only on surfaces that genuinely float over content. */
+.glass {
+  background: rgb(var(--valley) / 0.82);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass {
+    background: rgb(var(--valley) / 0.98);
+  }
 }
 
 /* Comfortable thumb targets on mobile. */
@@ -39,17 +212,24 @@ input[type="submit"] {
   touch-action: manipulation;
 }
 
-/* Visible focus on every interactive element, on the dark terrain. */
+/* Every interactive element gets a visible focus ring on any ground. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid theme("colors.ice.DEFAULT");
+  outline: 2px solid rgb(var(--ice));
   outline-offset: 2px;
   border-radius: 4px;
 }
 
+/* Overscroll elasticity where the platform gives it to us, and nowhere else —
+   a JavaScript imitation of rubber-banding always feels like an imitation. */
+main,
+.scroll-area {
+  overscroll-behavior-y: contain;
+}
+
 /*
- * Reduced motion: the ascent line must still READ correctly — so instead of
- * merely disabling the draw, we snap it to its finished state (dashoffset 0)
- * and drop the transition. Static equivalent, not a missing element.
+ * Reduced motion: every animated value must still END where it was going. The
+ * travel is removed, never the information — an ascent line snaps to drawn
+ * rather than never appearing.
  */
 @media (prefers-reduced-motion: reduce) {
   *,

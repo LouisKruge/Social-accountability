@@ -105,7 +105,7 @@ export default async function ConfidencePage() {
 
   return (
     <StudioPage state={state} studioKey="confidence">
-      <p className="mb-6 text-sm leading-relaxed text-sage">
+      <p className="mb-6 text-body text-sage">
         Small things you can practise before they matter. Pick one — doing a single drill properly
         beats reading all of them.
       </p>
@@ -121,13 +121,13 @@ export default async function ConfidencePage() {
                 {d.time}
               </span>
             </div>
-            <p className="mt-2.5 text-sm leading-relaxed text-snow/85">{d.practise}</p>
-            <p className="mt-2 text-xs leading-relaxed text-sage">{d.why}</p>
+            <p className="mt-2.5 text-body text-snow/85">{d.practise}</p>
+            <p className="mt-2 text-meta text-sage">{d.why}</p>
           </article>
         ))}
       </div>
 
-      <p className="mt-8 rounded-card bg-slope/40 p-4 text-xs leading-relaxed text-sage ring-1 ring-scree/40">
+      <p className="mt-8 rounded-card bg-slope/40 p-4 text-meta text-sage ring-1 ring-scree/40">
         These are rehearsals for specific situations, not therapy. If what you&apos;re carrying is
         heavier than a nervous interview — and that is common and nothing to be embarrassed by — a
         counsellor is the right person, not a styling app. In South Africa, SADAG is on{" "}

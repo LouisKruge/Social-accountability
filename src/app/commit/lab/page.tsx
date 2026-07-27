@@ -39,7 +39,7 @@ export default async function LabPage() {
           <DashSection title={`Pace · ${a.cohortName}`}>
             <div className="rounded-card bg-slope p-5 ring-1 ring-scree/70">
               <PaceChart actual={a.actual} required={a.required} height={150} />
-              <p className="mt-3 flex items-center justify-center gap-4 text-[0.65rem] text-sage">
+              <p className="mt-3 flex items-center justify-center gap-4 text-caption text-sage">
                 <span className="inline-flex items-center gap-1.5">
                   <span aria-hidden className="h-0.5 w-4 rounded-full bg-ice" /> you
                 </span>
@@ -75,7 +75,7 @@ export default async function LabPage() {
           </DashSection>
 
           <div className="rounded-card bg-slope/50 p-4 ring-1 ring-scree/50">
-            <p className="text-xs leading-relaxed text-sage">
+            <p className="text-meta text-sage">
               <span className="text-snow/90">On this pace</span> is arithmetic, not a prediction:
               your average day so far, multiplied by the length of the window. It moves the moment
               you log. It is not a probability of winning, and Commit deliberately doesn&apos;t show

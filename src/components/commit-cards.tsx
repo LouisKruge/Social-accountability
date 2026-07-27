@@ -19,10 +19,10 @@ import { num, zar } from "@/lib/format";
 function ChallengeGlyph({ difficulty }: { difficulty: ChallengeCardData["difficulty"] }) {
   const treads = { Starter: 2, Steady: 3, Serious: 4, Elite: 5 }[difficulty];
   const stroke = {
-    Starter: "#8A9A90",
-    Steady: "#7FDCC0",
-    Serious: "#F3F1EA",
-    Elite: "#E06D5A",
+    Starter: "rgb(var(--sage))",
+    Steady: "rgb(var(--ice))",
+    Serious: "rgb(var(--snow))",
+    Elite: "rgb(var(--fall))",
   }[difficulty];
 
   // One stair, drawn bottom-left to top-right, with `treads` steps in it.
@@ -110,7 +110,7 @@ export function ChallengeCard({
         <article className="group relative overflow-hidden rounded-card bg-slope p-5 ring-1 ring-scree/70 transition hover:bg-ridge hover:ring-ice/25">
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 -top-24 h-40 bg-[radial-gradient(ellipse_at_top,rgba(127,220,192,0.10),transparent_70%)]"
+            className="pointer-events-none absolute inset-x-0 -top-24 h-40 bg-[radial-gradient(ellipse_at_top,rgb(var(--ice)/0.10),transparent_70%)]"
           />
 
           <div className="relative">
@@ -163,19 +163,19 @@ export function ChallengeCard({
 
             <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
               <div>
-                <dt className="text-[0.6rem] uppercase tracking-wider text-sage">Pool</dt>
+                <dt className="text-micro uppercase text-sage">Pool</dt>
                 <dd className="tnum mt-0.5 text-sm text-snow">
                   <Counter value={c.poolTotal} prefix="R" />
                 </dd>
               </div>
               <div>
-                <dt className="text-[0.6rem] uppercase tracking-wider text-sage">In</dt>
+                <dt className="text-micro uppercase text-sage">In</dt>
                 <dd className="tnum mt-0.5 text-sm text-snow">
                   <Counter value={c.participants} />
                 </dd>
               </div>
               <div>
-                <dt className="text-[0.6rem] uppercase tracking-wider text-sage">Stake</dt>
+                <dt className="text-micro uppercase text-sage">Stake</dt>
                 <dd className="tnum mt-0.5 text-sm text-snow">{zar(c.stakeAmount)}</dd>
               </div>
             </dl>
@@ -191,7 +191,7 @@ export function ChallengeCard({
                 ) : (
                   <p className="text-xs text-sage">Payout depends on how many finish</p>
                 )}
-                <p className="tnum mt-0.5 text-[0.68rem] text-sage">
+                <p className="tnum mt-0.5 text-caption text-sage">
                   {c.daysRemaining > 0 ? `Closes in ${c.daysRemaining}d` : "Closing today"}
                   {c.completionRate !== null && ` · ${Math.round(c.completionRate * 100)}% finish`}
                 </p>
@@ -250,13 +250,13 @@ export function ActiveBet({ b }: { b: ActiveBetData }) {
     <article className="relative overflow-hidden rounded-card bg-slope p-5 ring-1 ring-ice/20">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-28 h-48 bg-[radial-gradient(ellipse_at_top,rgba(127,220,192,0.16),transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 -top-28 h-48 bg-[radial-gradient(ellipse_at_top,rgb(var(--ice)/0.16),transparent_70%)]"
       />
 
       <div className="relative">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[0.65rem] uppercase tracking-[0.16em] text-sage">Your live bet</p>
+            <p className="text-micro uppercase text-sage">Your live bet</p>
             <p className="mt-1 truncate font-display text-xl font-semibold tracking-tight text-snow">
               {b.name}
             </p>
@@ -278,7 +278,7 @@ export function ActiveBet({ b }: { b: ActiveBetData }) {
               <p className="tnum font-display text-2xl font-semibold leading-none text-snow">
                 <Counter value={Math.round(ratio * 100)} suffix="%" />
               </p>
-              <p className="mt-1 text-[0.6rem] uppercase tracking-wider text-sage">done</p>
+              <p className="mt-1 text-micro uppercase text-sage">done</p>
             </div>
           </ProgressRing>
 
@@ -332,7 +332,7 @@ export function ActiveBet({ b }: { b: ActiveBetData }) {
         </div>
 
         <div className="mt-5">
-          <p className="mb-2 text-[0.62rem] uppercase tracking-[0.14em] text-sage">
+          <p className="mb-2 text-micro uppercase text-sage">
             Last {b.recentDays.length} days · target {num(b.dailyTarget)}/day
           </p>
           <DayBars days={b.recentDays} target={b.dailyTarget} />
@@ -410,7 +410,7 @@ export function Standings({
                     transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : i * 0.05 }}
                   />
                 </span>
-                <span className="tnum w-8 text-right text-[0.68rem] text-sage">
+                <span className="tnum w-8 text-right text-caption text-sage">
                   {Math.round(r.pct * 100)}%
                 </span>
               </span>
@@ -421,7 +421,7 @@ export function Standings({
           </li>
         );
       })}
-      <li className="pt-1 text-center text-[0.68rem] text-sage/70">
+      <li className="pt-1 text-center text-caption text-sage/70">
         Ranked on {unit}. Nobody can see anybody&apos;s stake, including yours.
       </li>
     </ol>
@@ -457,7 +457,7 @@ export function Achievements({ items }: { items: Achievement[] }) {
               </span>
             )}
           </div>
-          <p className="mt-1 text-[0.65rem] leading-tight text-sage/80">{a.detail}</p>
+          <p className="mt-1 text-caption leading-tight text-sage/80">{a.detail}</p>
           {!a.unlocked && (
             <span className="mt-2 block h-0.5 overflow-hidden rounded-full bg-scree/60">
               <span
@@ -483,13 +483,13 @@ export function HistoryRow({ h }: { h: HistoryItem }) {
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-snow/90">{h.name}</p>
-        <p className="tnum mt-0.5 text-[0.68rem] text-sage">
+        <p className="tnum mt-0.5 text-caption text-sage">
           {num(h.progress)} of {num(h.target)} ·{" "}
           {new Date(h.endDate).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
         </p>
       </div>
       <div className="shrink-0 text-right">
-        <p className={`text-[0.7rem] ${h.hitTarget ? "text-ice" : "text-sage"}`}>
+        <p className={`text-caption ${h.hitTarget ? "text-ice" : "text-sage"}`}>
           {h.hitTarget ? "Target hit" : "Missed"}
         </p>
         {h.payout !== null && (
@@ -497,7 +497,7 @@ export function HistoryRow({ h }: { h: HistoryItem }) {
           <p className={`tnum text-sm ${paid ? "text-summit" : "text-sage"}`}>
             {paid ? "" : "+"}
             {zar(h.payout)}
-            {!paid && <span className="text-[0.65rem]"> pending</span>}
+            {!paid && <span className="text-caption"> pending</span>}
           </p>
         )}
       </div>

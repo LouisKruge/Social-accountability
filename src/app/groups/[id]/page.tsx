@@ -54,7 +54,7 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
       </div>
 
       <section className="mb-7">
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">What you&apos;re climbing</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">What you&apos;re climbing</h2>
         <div className="space-y-2.5">
           {(categories ?? []).length === 0 ? (
             <EmptyState
@@ -107,7 +107,7 @@ export default async function GroupPage({ params }: { params: { id: string } }) 
       </section>
 
       <section>
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Climbers</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">Climbers</h2>
         <Card className="!py-2">
           <ul className="divide-y divide-scree/60">
             {(members ?? []).map((m) => {

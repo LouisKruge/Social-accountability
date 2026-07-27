@@ -36,7 +36,7 @@ export function StudioPage({
         </Link>
         <div className="flex items-baseline justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-display text-[1.7rem] font-semibold leading-none tracking-tightest text-snow">
+            <h1 className="font-display text-title font-semibold text-snow">
               {def.name}
             </h1>
             <p className="mt-1.5 text-sm text-sage">{def.question}</p>
@@ -55,7 +55,7 @@ export function StudioPage({
               <Link
                 href={s.href}
                 aria-current={s.key === studioKey ? "page" : undefined}
-                className={`block rounded-full px-3.5 py-1.5 text-[0.7rem] ring-1 transition ${
+                className={`block rounded-full px-3.5 py-1.5 text-caption ring-1 transition ${
                   s.key === studioKey
                     ? "bg-snow/10 text-snow ring-snow/25"
                     : "bg-slope/60 text-sage ring-scree/60 hover:text-snow"

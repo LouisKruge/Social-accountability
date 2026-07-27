@@ -29,8 +29,8 @@ export function ElevateHome({ state }: { state: ElevateState }) {
     <AppShell>
       <header className="mb-6 flex items-baseline justify-between gap-4">
         <div>
-          <p className="text-[0.62rem] uppercase tracking-[0.18em] text-sage">Private coaching</p>
-          <h1 className="font-display text-[1.7rem] font-semibold leading-none tracking-tightest text-snow">
+          <p className="text-micro uppercase text-sage">Private coaching</p>
+          <h1 className="font-display text-title font-semibold text-snow">
             Elevate
           </h1>
         </div>
@@ -43,18 +43,18 @@ export function ElevateHome({ state }: { state: ElevateState }) {
       <section className="relative mb-6 overflow-hidden rounded-card bg-slope px-5 py-6 ring-1 ring-scree/70">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-24 h-44 bg-[radial-gradient(ellipse_at_top_right,rgba(243,241,234,0.07),transparent_65%)]"
+          className="pointer-events-none absolute inset-x-0 -top-24 h-44 bg-[radial-gradient(ellipse_at_top_right,rgb(var(--snow)/0.07),transparent_65%)]"
         />
         <div className="relative">
           {profile ? (
             <>
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-sage">
+              <p className="text-micro uppercase text-sage">
                 Getting ready for
               </p>
-              <p className="mt-2 font-display text-[2.1rem] font-semibold leading-[1.05] tracking-tightest text-snow">
+              <p className="mt-2 font-display text-display font-semibold text-snow">
                 {GOAL_LABEL[profile.goalMode] ?? "Your goal"}
               </p>
-              <p className="mt-3 text-sm leading-relaxed text-sage">
+              <p className="mt-3 text-body text-sage">
                 Dressing {DIRECTION_LABEL[profile.direction]?.toLowerCase() ?? "your way"}, at a{" "}
                 {profile.budgetTier === "low"
                   ? "careful"
@@ -72,13 +72,13 @@ export function ElevateHome({ state }: { state: ElevateState }) {
             </>
           ) : (
             <>
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-sage">Start here</p>
-              <p className="mt-2 font-display text-[2.1rem] font-semibold leading-[1.05] tracking-tightest text-snow">
+              <p className="text-micro uppercase text-sage">Start here</p>
+              <p className="mt-2 font-display text-display font-semibold text-snow">
                 What are you
                 <br />
                 getting ready for?
               </p>
-              <p className="mt-3.5 text-sm leading-relaxed text-sage">
+              <p className="mt-3.5 text-body text-sage">
                 An interview needs different advice from a first date. Tell Elevate which, and every
                 studio below tunes itself to it.
               </p>
@@ -119,7 +119,7 @@ export function ElevateHome({ state }: { state: ElevateState }) {
             >
               <span
                 aria-hidden
-                className="tnum shrink-0 font-display text-[0.7rem] text-sage/50"
+                className="tnum shrink-0 font-display text-caption text-sage/50"
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -128,7 +128,7 @@ export function ElevateHome({ state }: { state: ElevateState }) {
                   {s.name}
                 </p>
                 <p className="mt-0.5 text-sm text-sage">{s.question}</p>
-                <p className="mt-1.5 text-[0.68rem] text-sage/70">
+                <p className="mt-1.5 text-caption text-sage/70">
                   {st.value ? (
                     <>
                       <span className="tnum text-snow/80">{st.value}</span> {st.caption}
@@ -152,7 +152,7 @@ export function ElevateHome({ state }: { state: ElevateState }) {
       {/* ── What's open, if anything ────────────────────────────────────── */}
       {actions.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">
+          <h2 className="mb-3 text-micro uppercase text-sage">
             Working on ({actions.length})
           </h2>
           <ul className="space-y-1.5">
@@ -169,7 +169,7 @@ export function ElevateHome({ state }: { state: ElevateState }) {
                 />
                 <div className="min-w-0">
                   <p className="text-sm leading-snug text-snow/90">{a.title}</p>
-                  <p className="mt-0.5 text-[0.68rem] leading-relaxed text-sage">{a.detail}</p>
+                  <p className="mt-0.5 text-caption leading-relaxed text-sage">{a.detail}</p>
                 </div>
               </li>
             ))}
@@ -178,7 +178,7 @@ export function ElevateHome({ state }: { state: ElevateState }) {
       )}
 
       {wardrobeStats.total > 0 && (
-        <p className="mt-8 text-center text-xs leading-relaxed text-sage/70">
+        <p className="mt-8 text-center text-meta text-sage/70">
           {wardrobeStats.total} items catalogued
           {wardrobeStats.neverWornCount > 0 && `, ${wardrobeStats.neverWornCount} never worn`}
           {wardrobeStats.bestValue &&
@@ -186,7 +186,7 @@ export function ElevateHome({ state }: { state: ElevateState }) {
         </p>
       )}
 
-      <p className="mt-6 text-center text-xs leading-relaxed text-sage/60">
+      <p className="mt-6 text-center text-meta text-sage/60">
         Everything here is yours alone. No gallery, no comparison with anyone else, no scores —
         and never a word about your body.
       </p>

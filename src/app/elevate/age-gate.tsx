@@ -23,7 +23,7 @@ export function AgeGate() {
   return (
     <Card className="ring-1 ring-scree">
       <p className="font-display text-lg font-medium text-snow">This one is 18+</p>
-      <p className="mt-2 text-sm leading-relaxed text-sage">
+      <p className="mt-2 text-body text-sage">
         Glow Up reviews photos of you, and is often used for dating profiles, so it&apos;s only
         available to adults. You&apos;ll also confirm at upload that the photos are of you and
         nobody else.

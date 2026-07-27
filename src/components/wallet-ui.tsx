@@ -47,7 +47,7 @@ export function PositionTile({
       >
         <Counter value={amount} prefix="R" />
       </p>
-      {hint && <p className="mt-1.5 text-[0.65rem] leading-tight text-sage/80">{hint}</p>}
+      {hint && <p className="mt-1.5 text-caption leading-tight text-sage/80">{hint}</p>}
     </div>
   );
 }
@@ -74,7 +74,7 @@ export function RoiBar({ roi, staked, won }: { roi: number | null; staked: numbe
   return (
     <div className="rounded-card bg-slope p-4 ring-1 ring-scree/70">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">Return so far</p>
+        <p className="text-micro uppercase text-sage">Return so far</p>
         <p className={`tnum font-display text-lg font-semibold ${up ? "text-ice" : "text-fall"}`}>
           {up ? "+" : ""}
           {pct}%
@@ -92,7 +92,7 @@ export function RoiBar({ roi, staked, won }: { roi: number | null; staked: numbe
         <span aria-hidden className="absolute left-1/2 top-[-3px] h-[calc(100%+6px)] w-px bg-scree" />
       </div>
       <p className="mt-1.5 text-center text-[0.6rem] text-sage/70">break-even</p>
-      <dl className="mt-2.5 flex justify-between text-[0.68rem]">
+      <dl className="mt-2.5 flex justify-between text-caption">
         <div className="flex gap-1.5">
           <dt className="text-sage">Staked</dt>
           <dd className="tnum text-snow/85">{zar(staked)}</dd>
@@ -142,7 +142,7 @@ export function PayoutTracker({ p }: { p: PayoutTracking }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm text-snow/90">{p.cohortName}</p>
-          <p className="mt-0.5 text-[0.68rem] text-sage">
+          <p className="mt-0.5 text-caption text-sage">
             {p.kind === "refund" ? "Stake refund" : "Winnings"}
           </p>
         </div>
@@ -178,25 +178,25 @@ export function PayoutTracker({ p }: { p: PayoutTracking }) {
             // Never keep showing a date that has already gone by as if it were
             // still coming. Saying "later than expected" is what keeps the rest
             // of the page believable.
-            <p className="shrink-0 text-[0.68rem] text-fall">later than expected</p>
+            <p className="shrink-0 text-caption text-fall">later than expected</p>
           ) : (
-            <p className="tnum shrink-0 text-[0.68rem] text-sage">
+            <p className="tnum shrink-0 text-caption text-sage">
               expected{" "}
               {new Date(p.expectedBy).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
             </p>
           )
         ) : (
-          !paid && <p className="shrink-0 text-[0.68rem] text-sage">no date yet</p>
+          !paid && <p className="shrink-0 text-caption text-sage">no date yet</p>
         )}
       </div>
 
-      <p className="mt-2.5 text-xs leading-relaxed text-sage">
+      <p className="mt-2.5 text-meta text-sage">
         {p.blurb}
         {overdue && " This one has taken longer than we estimated — we're on it."}
       </p>
 
       {p.needsUser && (
-        <p className="mt-3 rounded-field bg-fall/10 px-3.5 py-2.5 text-xs leading-relaxed text-fall ring-1 ring-fall/25">
+        <p className="mt-3 rounded-field bg-fall/10 px-3.5 py-2.5 text-meta text-fall ring-1 ring-fall/25">
           We need your bank details checked before this can move.
         </p>
       )}
@@ -204,12 +204,12 @@ export function PayoutTracker({ p }: { p: PayoutTracking }) {
       {/* the audit trail — every state change, with the reason given */}
       {p.history.length > 0 && (
         <details className="mt-3.5 border-t border-scree/50 pt-3">
-          <summary className="cursor-pointer text-[0.68rem] text-sage transition hover:text-snow">
+          <summary className="cursor-pointer text-caption text-sage transition hover:text-snow">
             Full history ({p.history.length})
           </summary>
           <ol className="mt-2.5 space-y-2">
             {p.history.map((h, i) => (
-              <li key={i} className="flex gap-2.5 text-[0.68rem]">
+              <li key={i} className="flex gap-2.5 text-caption">
                 <span className="tnum shrink-0 text-sage">
                   {new Date(h.at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
                 </span>
@@ -258,7 +258,7 @@ export function LedgerTable({ lines }: { lines: LedgerLine[] }) {
           >
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm text-snow/90">{l.label}</p>
-              <p className="tnum mt-0.5 truncate text-[0.65rem] text-sage">
+              <p className="tnum mt-0.5 truncate text-caption text-sage">
                 {new Date(l.at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
                 {l.memo && ` · ${l.memo}`}
               </p>
@@ -303,7 +303,7 @@ export function TrustPanel({
       {integrityScore !== null && (
         <div className="rounded-card bg-slope p-4 ring-1 ring-scree/70">
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">
+            <p className="text-micro uppercase text-sage">
               Verification confidence
             </p>
             <p className="tnum font-display text-lg font-semibold text-snow">
@@ -311,7 +311,7 @@ export function TrustPanel({
               <span className="text-xs font-normal text-sage">/100</span>
             </p>
           </div>
-          <p className="mt-2 text-xs leading-relaxed text-sage">
+          <p className="mt-2 text-meta text-sage">
             How well your logged days can be corroborated. Days we can&apos;t verify are held for a
             person to look at — never thrown away.
           </p>
@@ -320,13 +320,13 @@ export function TrustPanel({
 
       {/* Where money would be sent. Never the full account number. */}
       <div className="rounded-card bg-slope p-4 ring-1 ring-scree/70">
-        <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">Payouts go to</p>
+        <p className="text-micro uppercase text-sage">Payouts go to</p>
         {trust.destination ? (
           <>
             <p className="mt-1.5 text-sm text-snow">
               {trust.destination.bank} ····{trust.destination.last4}
             </p>
-            <p className="mt-0.5 text-[0.68rem] text-sage">
+            <p className="mt-0.5 text-caption text-sage">
               {trust.destination.holder} ·{" "}
               <span className={trust.destination.verified ? "text-ice" : "text-summit"}>
                 {trust.destination.verified ? "verified" : "awaiting verification"}
@@ -334,7 +334,7 @@ export function TrustPanel({
             </p>
           </>
         ) : (
-          <p className="mt-1.5 text-xs leading-relaxed text-sage">
+          <p className="mt-1.5 text-meta text-sage">
             No account on file. Add one before your first challenge settles so a payout
             isn&apos;t held up.
           </p>
@@ -343,7 +343,7 @@ export function TrustPanel({
 
       {trust.flags.length > 0 && (
         <div className="rounded-card bg-slope p-4 ring-1 ring-scree/70">
-          <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">Days under review</p>
+          <p className="text-micro uppercase text-sage">Days under review</p>
           <ul className="mt-2.5 space-y-2.5">
             {trust.flags.map((f, i) => (
               <li key={i} className="flex gap-2.5">
@@ -354,7 +354,7 @@ export function TrustPanel({
                   }`}
                 />
                 <div className="min-w-0">
-                  <p className={`text-xs leading-relaxed ${SEVERITY_TONE[f.severity] ?? "text-sage"}`}>
+                  <p className={`text-meta ${SEVERITY_TONE[f.severity] ?? "text-sage"}`}>
                     {f.detail}
                   </p>
                   <p className="tnum mt-0.5 text-[0.62rem] text-sage/70">
@@ -369,12 +369,12 @@ export function TrustPanel({
 
       {trust.devices.length > 0 && (
         <div className="rounded-card bg-slope p-4 ring-1 ring-scree/70">
-          <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">Your devices</p>
+          <p className="text-micro uppercase text-sage">Your devices</p>
           <ul className="mt-2.5 space-y-2">
             {trust.devices.map((d) => (
               <li key={d.id} className="flex items-center justify-between gap-3 text-xs">
                 <span className="min-w-0 flex-1 truncate text-snow/85">{d.label}</span>
-                <span className="tnum shrink-0 text-[0.65rem] text-sage">
+                <span className="tnum shrink-0 text-caption text-sage">
                   {new Date(d.lastSeen).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
                 </span>
               </li>
@@ -385,7 +385,7 @@ export function TrustPanel({
 
       {trust.events.length > 0 && (
         <div className="rounded-card bg-slope p-4 ring-1 ring-scree/70">
-          <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">Recent account activity</p>
+          <p className="text-micro uppercase text-sage">Recent account activity</p>
           <ul className="mt-2.5 space-y-2">
             {trust.events.map((e, i) => (
               <li key={i} className="flex items-center justify-between gap-3 text-xs">
@@ -393,7 +393,7 @@ export function TrustPanel({
                   {e.kind.replace(/_/g, " ")}
                   {e.city && <span className="text-sage"> · {e.city}</span>}
                 </span>
-                <span className="tnum shrink-0 text-[0.65rem] text-sage">
+                <span className="tnum shrink-0 text-caption text-sage">
                   {new Date(e.at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
                 </span>
               </li>

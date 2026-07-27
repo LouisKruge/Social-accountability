@@ -62,7 +62,7 @@ export function MarketView({ open }: { open: ChallengeCardData[] }) {
               type="button"
               onClick={() => setSort(s.key)}
               aria-pressed={sort === s.key}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-[0.68rem] ring-1 transition ${
+              className={`shrink-0 rounded-full px-3 py-1.5 text-caption ring-1 transition ${
                 sort === s.key
                   ? "bg-ice/12 text-ice ring-ice/30"
                   : "bg-slope/60 text-sage ring-scree/60 hover:text-snow"
@@ -73,17 +73,17 @@ export function MarketView({ open }: { open: ChallengeCardData[] }) {
           ))}
         </div>
       </div>
-      <p className="mb-4 text-[0.68rem] text-sage/80">{active.hint}</p>
+      <p className="mb-4 text-caption text-sage/80">{active.hint}</p>
 
       <div className="mb-5 flex items-center gap-2">
-        <span className="text-[0.68rem] text-sage">Stake up to</span>
+        <span className="text-caption text-sage">Stake up to</span>
         {[null, 100, 250, 500].map((v) => (
           <button
             key={String(v)}
             type="button"
             onClick={() => setMaxStake(v)}
             aria-pressed={maxStake === v}
-            className={`rounded-full px-2.5 py-1 text-[0.68rem] ring-1 transition ${
+            className={`rounded-full px-2.5 py-1 text-caption ring-1 transition ${
               maxStake === v
                 ? "bg-ridge text-snow ring-ice/25"
                 : "bg-slope/50 text-sage ring-scree/50 hover:text-snow"

@@ -135,7 +135,7 @@ export default async function LeaderboardPage({
         />
         <div className="relative flex items-end justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.16em] text-sage">Your position</p>
+            <p className="text-micro uppercase text-sage">Your position</p>
             <p className="mt-1 flex items-baseline gap-2">
               <span className="font-display text-6xl font-semibold leading-none tracking-tightest text-snow">
                 {viewerRanking ? viewerRanking.rank : "—"}
@@ -205,7 +205,7 @@ export default async function LeaderboardPage({
 
       {/* ── THE CLIMB: rows share one origin rule, warm at the summit ────────── */}
       <section>
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">The climb</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">The climb</h2>
 
         {rows.length === 0 ? (
           <EmptyState
@@ -241,7 +241,7 @@ export default async function LeaderboardPage({
       {/* ── Trend (premium) ──────────────────────────────────────────────────── */}
       <section className="mt-7">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xs uppercase tracking-[0.16em] text-sage">Your trend</h2>
+          <h2 className="text-micro uppercase text-sage">Your trend</h2>
           {tier !== "premium" && <Badge tone="summit">Premium</Badge>}
         </div>
         <Card>
@@ -292,7 +292,7 @@ export default async function LeaderboardPage({
       </div>
 
       {rows.some((r) => r.is_absolute) && !isStreak && (
-        <p className="mt-5 text-center text-xs leading-relaxed text-sage/80">
+        <p className="mt-5 text-center text-meta text-sage/80">
           Some climbers started from zero, so their move shows as an absolute change rather than a
           percentage.
         </p>

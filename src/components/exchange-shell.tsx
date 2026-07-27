@@ -257,9 +257,9 @@ export function CommandBar({ targets }: { targets: CommandTarget[] }) {
                       >
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm text-snow">{t.label}</span>
-                          <span className="block truncate text-[0.68rem] text-sage">{t.sub}</span>
+                          <span className="block truncate text-caption text-sage">{t.sub}</span>
                         </span>
-                        <span className="shrink-0 text-[0.6rem] uppercase tracking-wider text-sage/70">
+                        <span className="shrink-0 text-micro uppercase text-sage/70">
                           {t.group}
                         </span>
                       </button>

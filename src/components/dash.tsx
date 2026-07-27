@@ -79,7 +79,7 @@ export function StatTile({
       <p className={`tnum font-display text-xl font-semibold tracking-tight ${toneClass}`}>
         {children}
       </p>
-      {hint && <p className="mt-1 text-[0.65rem] leading-tight text-sage/80">{hint}</p>}
+      {hint && <p className="mt-1 text-caption leading-tight text-sage/80">{hint}</p>}
     </div>
   );
 }
@@ -107,7 +107,7 @@ export function ProgressRing({
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1E2C25" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(var(--ridge))" strokeWidth={stroke} />
         <motion.circle
           cx={size / 2}
           cy={size / 2}
@@ -227,12 +227,12 @@ export function PaceChart({
       aria-label={`Your cumulative total is ${Math.round(last).toLocaleString("en-ZA")} against ${Math.round(owed).toLocaleString("en-ZA")} needed by today`}
     >
       {/* the deal: a straight line from nothing to the target */}
-      <path d={path(required)} fill="none" stroke="#2A3A32" strokeWidth="1.5" strokeDasharray="4 4" />
+      <path d={path(required)} fill="none" stroke="rgb(var(--scree))" strokeWidth="1.5" strokeDasharray="4 4" />
       {/* what you did */}
       <motion.path
         d={path(actual)}
         fill="none"
-        stroke={ahead ? "url(#ascent-up)" : "#E06D5A"}
+        stroke={ahead ? "url(#ascent-up)" : "rgb(var(--fall))"}
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -240,7 +240,7 @@ export function PaceChart({
         animate={{ pathLength: 1 }}
         transition={{ duration: reduce ? 0 : 1.2, ease: [0.22, 0.61, 0.36, 1] }}
       />
-      <circle cx={x(actual.length - 1)} cy={y(last)} r="3.5" fill={ahead ? "#E8B84B" : "#E06D5A"} />
+      <circle cx={x(actual.length - 1)} cy={y(last)} r="3.5" fill={ahead ? "rgb(var(--summit))" : "rgb(var(--fall))"} />
     </svg>
   );
 }
@@ -258,7 +258,7 @@ export function DashSection({
   return (
     <section className="mb-7">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="text-xs uppercase tracking-[0.16em] text-sage">{title}</h2>
+        <h2 className="text-micro uppercase text-sage">{title}</h2>
         {action}
       </div>
       {children}
@@ -293,7 +293,7 @@ export function ActivityFeed({
         >
           <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot[it.kind]}`} />
           <span className="min-w-0 flex-1 truncate text-sm text-snow/85">{it.text}</span>
-          <span className="shrink-0 text-[0.65rem] text-sage">{it.when}</span>
+          <span className="shrink-0 text-caption text-sage">{it.when}</span>
         </motion.li>
       ))}
     </ul>

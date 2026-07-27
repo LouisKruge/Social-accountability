@@ -84,7 +84,7 @@ export default async function WalletPage() {
 
       {/* The custody statement. Stated plainly, high on the page, unprompted. */}
       <div className="mb-7 rounded-card bg-slope/50 p-4 ring-1 ring-scree/50">
-        <p className="text-xs leading-relaxed text-sage">
+        <p className="text-meta text-sage">
           <span className="text-snow/90">Ascend doesn&apos;t hold a balance for you.</span> There is
           no wallet to top up and nothing to withdraw. Your stake goes to the challenge&apos;s pool,
           and anything you win is paid straight to your bank account by EFT. The figures above are a
@@ -110,7 +110,7 @@ export default async function WalletPage() {
           ledger.length > 0 ? (
             <a
               href="/api/commit/statement"
-              className="text-[0.68rem] text-ice transition hover:text-snow"
+              className="text-caption text-ice transition hover:text-snow"
             >
               Download CSV →
             </a>
@@ -146,7 +146,7 @@ export default async function WalletPage() {
         </Link>
       </div>
 
-      <p className="mt-2 text-center text-xs leading-relaxed text-sage/80">
+      <p className="mt-2 text-center text-meta text-sage/80">
         Stakes and payouts move by manual EFT while Ascend is in beta. Every movement above is a
         real bank transfer, recorded here when it happens.
       </p>

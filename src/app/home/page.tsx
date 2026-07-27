@@ -122,13 +122,13 @@ export default async function HomePage() {
                 style={{ background: `radial-gradient(ellipse at top, ${c.glow}, transparent 70%)` }}
               />
               <div className="relative">
-                <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">{c.eyebrow}</p>
+                <p className="text-caption uppercase tracking-[0.16em] text-sage">{c.eyebrow}</p>
                 <h2
                   className={`mt-1.5 font-display text-2xl font-semibold tracking-tightest ${c.accent}`}
                 >
                   {c.title}
                 </h2>
-                <p className="mt-2 max-w-[24rem] text-sm leading-relaxed text-sage">{c.body}</p>
+                <p className="mt-2 max-w-[24rem] text-body text-sage">{c.body}</p>
                 <p className="mt-4 flex items-center gap-2 text-sm text-snow/90">
                   <span>{c.status}</span>
                   <span aria-hidden className="text-sage">

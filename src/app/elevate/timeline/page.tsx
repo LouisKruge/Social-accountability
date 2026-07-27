@@ -44,7 +44,7 @@ export default async function TimelinePage() {
                 aria-hidden
                 className="absolute -left-[1.42rem] top-1.5 h-2 w-2 rounded-full bg-sage ring-4 ring-valley"
               />
-              <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">
+              <p className="text-micro uppercase text-sage">
                 {KIND_LABEL[t.kind] ?? t.kind} ·{" "}
                 {new Date(t.occurredAt).toLocaleDateString("en-ZA", {
                   day: "numeric",
@@ -54,14 +54,14 @@ export default async function TimelinePage() {
               </p>
               <p className="mt-1 text-sm leading-snug text-snow/90">{t.title}</p>
               {t.detail && (
-                <p className="mt-1 text-xs leading-relaxed text-sage">{t.detail}</p>
+                <p className="mt-1 text-meta text-sage">{t.detail}</p>
               )}
             </li>
           ))}
         </ol>
       )}
 
-      <p className="mt-8 text-center text-xs leading-relaxed text-sage/70">
+      <p className="mt-8 text-center text-meta text-sage/70">
         This tracks what you did, not how you looked. There&apos;s no before-and-after grid here —
         comparing photographs of yourself is the habit this app is trying to replace.
       </p>

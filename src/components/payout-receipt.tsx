@@ -56,7 +56,7 @@ export function PayoutReceipt({
     <div>
       {outcome === "no_winners" && (
         <Card className="mb-4">
-          <p className="text-sm leading-relaxed text-snow/90">
+          <p className="text-body text-snow/90">
             Nobody reached the target this round, so there&apos;s nothing to share out. Every stake
             is being refunded in full and no fee was taken.
           </p>
@@ -65,7 +65,7 @@ export function PayoutReceipt({
 
       {outcome === "all_winners" && (
         <Card className="mb-4">
-          <p className="text-sm leading-relaxed text-snow/90">
+          <p className="text-body text-snow/90">
             Everyone hit their goal this round — so there were no forfeited stakes to share out.
             Your share is the pool minus the {Math.round(feeRate * 100)}% fee, which comes back a
             little under what you put in.
@@ -74,7 +74,7 @@ export function PayoutReceipt({
       )}
 
       <Card>
-        <p className="mb-4 text-xs uppercase tracking-[0.16em] text-sage">How this was worked out</p>
+        <p className="mb-4 text-micro uppercase text-sage">How this was worked out</p>
         <dl className="space-y-2.5">
           {rows.map(([k, v]) => (
             <div key={k} className="flex items-baseline justify-between gap-4">

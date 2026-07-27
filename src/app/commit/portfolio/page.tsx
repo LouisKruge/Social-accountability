@@ -49,7 +49,7 @@ export default async function PortfolioPage() {
 
       {bestPossible > 0 && (
         <div className="mb-6 rounded-card bg-slope/60 p-4 ring-1 ring-scree/50">
-          <p className="text-xs leading-relaxed text-sage">
+          <p className="text-meta text-sage">
             If you finish everything you&apos;re holding and the current pools stand, these positions
             return <span className="tnum text-snow/90">{zar(bestPossible)}</span>. That figure moves
             with every person who joins or drops out — it is an estimate, not an offer.

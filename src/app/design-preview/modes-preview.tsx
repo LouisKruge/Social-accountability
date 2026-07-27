@@ -14,7 +14,7 @@ export function CommitPreview() {
         accent="ice"
       />
       <section className="mb-8">
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Open to join</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">Open to join</h2>
         <Card>
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -29,7 +29,7 @@ export function CommitPreview() {
         </Card>
       </section>
       <section>
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Last round</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">Last round</h2>
         <PayoutReceipt
           totalPool={2000} feeRate={0.1} platformFee={200} distributablePool={1800}
           winnerCount={12} participantCount={20} yourAmount={150} outcome="mixed" status="paid"
@@ -49,11 +49,11 @@ export function ElevatePreview() {
         blurb="A private review of your own photos — lighting, grooming, styling and how you're framing yourself."
         accent="snow"
       />
-      <p className="mb-7 text-sm leading-relaxed text-sage">
+      <p className="mb-7 text-body text-sage">
         Prepared for you, one part at a time. Take it in whatever order suits you.
       </p>
       <section className="mb-6">
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Your photos</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">Your photos</h2>
         <Card className="!bg-ridge">
           <ol className="space-y-4">
             {[
@@ -62,7 +62,7 @@ export function ElevatePreview() {
             ].map((t) => (
               <li key={t} className="flex gap-3.5">
                 <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ice/70" />
-                <span className="text-sm leading-relaxed text-snow/90">{t}</span>
+                <span className="text-body text-snow/90">{t}</span>
               </li>
             ))}
           </ol>

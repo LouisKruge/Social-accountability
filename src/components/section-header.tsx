@@ -18,12 +18,6 @@ export function SectionHeader({
 }) {
   const accentClass =
     accent === "ice" ? "text-ice" : accent === "summit" ? "text-summit" : "text-snow";
-  const glow =
-    accent === "ice"
-      ? "rgba(127,220,192,0.12)"
-      : accent === "summit"
-        ? "rgba(232,184,75,0.13)"
-        : "rgba(243,241,234,0.07)";
 
   return (
     <>
@@ -36,20 +30,15 @@ export function SectionHeader({
         </Link>
       </div>
 
-      <header className="relative mb-7 overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-20 h-32"
-          style={{ background: `radial-gradient(ellipse at top left, ${glow}, transparent 70%)` }}
-        />
+      <header className={`relative mb-block overflow-hidden ${accent === "summit" ? "lit-summit" : "lit-ice"}`}>
         <div className="relative">
-          <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">{eyebrow}</p>
+          <p className="text-micro uppercase text-sage">{eyebrow}</p>
           <h1
-            className={`mt-1.5 font-display text-[1.9rem] font-semibold leading-none tracking-tightest ${accentClass}`}
+            className={`mt-tight font-display text-title font-semibold ${accentClass}`}
           >
             {title}
           </h1>
-          <p className="mt-2.5 max-w-[26rem] text-sm leading-relaxed text-sage">{blurb}</p>
+          <p className="mt-tight max-w-[26rem] text-body text-sage">{blurb}</p>
         </div>
       </header>
     </>

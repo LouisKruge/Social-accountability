@@ -67,19 +67,19 @@ export default async function CohortPage({ params }: { params: { id: string } })
       <Card className="mb-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">Stake</p>
+            <p className="text-caption uppercase tracking-[0.16em] text-sage">Stake</p>
             <p className="tnum mt-1 font-display text-xl text-summit">
               {fmtZar(Number(cohort.stake_amount))}
             </p>
           </div>
           <div>
-            <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">Target</p>
+            <p className="text-caption uppercase tracking-[0.16em] text-sage">Target</p>
             <p className="tnum mt-1 font-display text-xl text-snow">
               {Number(cohort.target_value).toLocaleString("en-ZA")}
             </p>
           </div>
         </div>
-        <p className="mt-4 text-xs leading-relaxed text-sage">
+        <p className="mt-4 text-meta text-sage">
           Hit the target by {fmtDate(cohort.end_date)} and you share the pool with everyone else who
           did, after a {Math.round(Number(cohort.fee_rate) * 100)}% platform fee. Miss it and your
           stake goes to those who made it. If nobody hits it, everyone gets a full refund and no fee
@@ -90,7 +90,7 @@ export default async function CohortPage({ params }: { params: { id: string } })
       {!myStake ? (
         cohort.status === "open" ? (
           <section className="mb-8">
-            <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Join this one</h2>
+            <h2 className="mb-3 text-micro uppercase text-sage">Join this one</h2>
             <Card>
               <JoinForm cohortId={cohort.id} stakeAmount={Number(cohort.stake_amount)} />
             </Card>
@@ -112,7 +112,7 @@ export default async function CohortPage({ params }: { params: { id: string } })
             <div className="relative">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">Your total</p>
+                  <p className="text-caption uppercase tracking-[0.16em] text-sage">Your total</p>
                   <p className="tnum mt-1 font-display text-4xl font-semibold tracking-tightest text-snow">
                     {me ? Number(me.current_progress).toLocaleString("en-ZA") : "0"}
                   </p>
@@ -157,7 +157,7 @@ export default async function CohortPage({ params }: { params: { id: string } })
             </div>
             {!myStake.payment_confirmed && (
               <div className="mt-4 rounded-field bg-valley p-4 ring-1 ring-scree">
-                <p className="text-xs leading-relaxed text-sage">
+                <p className="text-meta text-sage">
                   EFT {fmtZar(Number(myStake.amount))} using this reference so we can match it to
                   you. We&apos;ll mark it confirmed by hand once it lands.
                 </p>
@@ -180,7 +180,7 @@ export default async function CohortPage({ params }: { params: { id: string } })
 
           {/* ── The cohort board: progress and rank only ─────────────────── */}
           <section>
-            <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">The cohort</h2>
+            <h2 className="mb-3 text-micro uppercase text-sage">The cohort</h2>
             {rows.length === 0 ? (
               <EmptyState title="Nobody's logged yet" body="Be the first to put steps on the board." />
             ) : (
@@ -220,7 +220,7 @@ export default async function CohortPage({ params }: { params: { id: string } })
                 })}
               </ol>
             )}
-            <p className="mt-4 text-center text-xs leading-relaxed text-sage/80">
+            <p className="mt-4 text-center text-meta text-sage/80">
               You can see everyone&apos;s progress, never their stake. Nobody can see yours.
             </p>
           </section>

@@ -21,7 +21,7 @@ export const SECTIONS = [
 ] as const;
 
 function Glyph({ section, active }: { section: (typeof SECTIONS)[number]["key"]; active: boolean }) {
-  const stroke = active ? "currentColor" : "#8A9A90";
+  const stroke = active ? "currentColor" : "rgb(var(--sage))";
 
   if (section === "climb") {
     return (
@@ -74,7 +74,7 @@ export function SectionNav() {
   return (
     <nav
       aria-label="Sections"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-scree/70 bg-valley/95 backdrop-blur"
+      className="glass fixed inset-x-0 bottom-0 z-40 border-t border-scree/60"
     >
       <ul className="mx-auto flex w-full max-w-[30rem] items-stretch">
         {SECTIONS.map((s) => {
@@ -84,7 +84,7 @@ export function SectionNav() {
               <Link
                 href={s.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center gap-1 px-1 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-3 text-[0.68rem] transition ${
+                className={`flex flex-col items-center gap-1 px-1 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-3 text-caption transition duration-150 ease-ascend active:scale-[0.96] ${
                   active ? `${s.accent} font-medium` : "text-sage hover:text-snow"
                 }`}
               >

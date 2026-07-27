@@ -54,7 +54,7 @@ export default async function GroupsPage() {
         </div>
       </div>
 
-      <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">Self improvement</p>
+      <p className="text-caption uppercase tracking-[0.16em] text-sage">Self improvement</p>
       <h1 className="mb-5 mt-1.5 font-display text-[1.75rem] font-semibold leading-none tracking-tightest text-snow">
         Your groups
       </h1>

@@ -34,7 +34,7 @@ export function ModulePage({
         </Link>
         <div className="flex items-baseline justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-display text-[1.7rem] font-semibold leading-none tracking-tightest text-snow">
+            <h1 className="font-display text-title font-semibold text-snow">
               {def.name}
             </h1>
             <p className="mt-1.5 text-sm text-sage">{def.question}</p>

@@ -22,18 +22,18 @@ export function AscentDefs() {
     <svg width="0" height="0" aria-hidden="true" focusable="false" className="absolute">
       <defs>
         <linearGradient id="ascent-up" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#4FB196" />
-          <stop offset="55%" stopColor="#7FDCC0" />
-          <stop offset="100%" stopColor="#E8B84B" />
+          <stop offset="0%" stopColor="rgb(var(--ice-deep))" />
+          <stop offset="55%" stopColor="rgb(var(--ice))" />
+          <stop offset="100%" stopColor="rgb(var(--summit))" />
         </linearGradient>
         <linearGradient id="ascent-down" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#4FB196" />
-          <stop offset="55%" stopColor="#7FDCC0" />
-          <stop offset="100%" stopColor="#E06D5A" />
+          <stop offset="0%" stopColor="rgb(var(--ice-deep))" />
+          <stop offset="55%" stopColor="rgb(var(--ice))" />
+          <stop offset="100%" stopColor="rgb(var(--fall))" />
         </linearGradient>
         <radialGradient id="summit-glow">
-          <stop offset="0%" stopColor="#E8B84B" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#E8B84B" stopOpacity="0" />
+          <stop offset="0%" stopColor="rgb(var(--summit))" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="rgb(var(--summit))" stopOpacity="0" />
         </radialGradient>
       </defs>
     </svg>
@@ -101,11 +101,11 @@ export function AscentLine({
           y1={mid}
           x2={w - pad}
           y2={mid}
-          stroke="#2A3A32"
+          stroke="rgb(var(--scree))"
           strokeWidth="1"
           strokeDasharray="2 6"
         />
-        <circle cx={pad} cy={mid} r="3" fill="#4FB196" />
+        <circle cx={pad} cy={mid} r="3" fill="rgb(var(--ice-deep))" />
 
         {hasClimb && (
           <>
@@ -122,7 +122,7 @@ export function AscentLine({
               strokeDasharray="1"
               style={{ ["--dash" as string]: "1" }}
             />
-            <circle cx={tip[0]} cy={tip[1]} r="4.5" fill={climbing ? "#E8B84B" : "#E06D5A"} />
+            <circle cx={tip[0]} cy={tip[1]} r="4.5" fill={climbing ? "rgb(var(--summit))" : "rgb(var(--fall))"} />
           </>
         )}
       </svg>
@@ -153,7 +153,7 @@ export function MiniAscent({
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
-      <line x1={pad} y1={pad} x2={pad} y2={height - pad} stroke="#2A3A32" strokeWidth="1" />
+      <line x1={pad} y1={pad} x2={pad} y2={height - pad} stroke="rgb(var(--scree))" strokeWidth="1" />
       <path
         d={d}
         fill="none"
@@ -162,7 +162,7 @@ export function MiniAscent({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx={tip[0]} cy={tip[1]} r="2.5" fill={up ? "#E8B84B" : "#E06D5A"} />
+      <circle cx={tip[0]} cy={tip[1]} r="2.5" fill={up ? "rgb(var(--summit))" : "rgb(var(--fall))"} />
     </svg>
   );
 }
@@ -176,11 +176,11 @@ export function Horizon({ className = "" }: { className?: string }) {
         y1="32"
         x2="306"
         y2="32"
-        stroke="#2A3A32"
+        stroke="rgb(var(--scree))"
         strokeWidth="1"
         strokeDasharray="2 6"
       />
-      <circle cx="14" cy="32" r="3" fill="#4FB196" />
+      <circle cx="14" cy="32" r="3" fill="rgb(var(--ice-deep))" />
     </svg>
   );
 }

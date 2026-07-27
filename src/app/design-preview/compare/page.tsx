@@ -14,7 +14,7 @@ export default function Compare() {
     <div className="flex gap-4 bg-valley p-4">
       {modes.map((m) => (
         <div key={m.label} className="flex flex-col">
-          <p className="mb-2 text-[0.7rem] uppercase tracking-[0.16em] text-sage">{m.label}</p>
+          <p className="mb-2 text-caption uppercase tracking-[0.16em] text-sage">{m.label}</p>
           <iframe
             src={`/design-preview${m.q}`}
             width={390}

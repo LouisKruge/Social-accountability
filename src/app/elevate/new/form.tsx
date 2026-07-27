@@ -37,7 +37,7 @@ export function NewReportForm() {
       <input type="hidden" name="budget_tier" value={tier} />
 
       <fieldset>
-        <legend className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">
+        <legend className="mb-3 text-micro uppercase text-sage">
           What&apos;s this for?
         </legend>
         <div className="space-y-2">
@@ -63,7 +63,7 @@ export function NewReportForm() {
       </fieldset>
 
       <fieldset>
-        <legend className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">
+        <legend className="mb-3 text-micro uppercase text-sage">
           What can you spend?
         </legend>
         <div className="grid grid-cols-3 gap-2">
@@ -80,7 +80,7 @@ export function NewReportForm() {
               <span className={`block text-sm ${tier === t.value ? "text-ice" : "text-snow/90"}`}>
                 {t.label}
               </span>
-              <span className="mt-0.5 block text-[0.65rem] leading-tight text-sage">{t.hint}</span>
+              <span className="mt-0.5 block text-caption leading-tight text-sage">{t.hint}</span>
             </button>
           ))}
         </div>
@@ -99,9 +99,9 @@ export function NewReportForm() {
             name="consent"
             className="mt-0.5 h-4 w-4 shrink-0 rounded border-scree bg-valley accent-ice"
           />
-          <span className="text-sm leading-relaxed text-snow/90">
+          <span className="text-body text-snow/90">
             The photos I upload are of me, and nobody else.
-            <span className="mt-1.5 block text-xs leading-relaxed text-sage">
+            <span className="mt-1.5 block text-meta text-sage">
               Ascend only reviews your own photos. Uploading someone else&apos;s isn&apos;t
               supported and isn&apos;t allowed.
             </span>

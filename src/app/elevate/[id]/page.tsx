@@ -24,7 +24,7 @@ function Points({ items }: { items: string[] }) {
         {items.map((item, i) => (
           <li key={i} className="flex gap-3.5">
             <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ice/70" />
-            <span className="text-sm leading-relaxed text-snow/90">{item}</span>
+            <span className="text-body text-snow/90">{item}</span>
           </li>
         ))}
       </ol>
@@ -76,7 +76,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
         />
       ) : (
         <>
-          <p className="mb-7 text-sm leading-relaxed text-sage">
+          <p className="mb-7 text-body text-sage">
             Prepared for you, one part at a time. Take it in whatever order suits you.
           </p>
 
@@ -105,7 +105,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                           </p>
                           <p className="tnum shrink-0 text-sm text-sage">{item.price_range_zar}</p>
                         </div>
-                        <p className="mt-1.5 text-sm leading-relaxed text-snow/90">
+                        <p className="mt-1.5 text-body text-snow/90">
                           {item.suggestion}
                         </p>
                         <p className="mt-2 text-xs text-sage">Try: {item.where_to_look}</p>
@@ -119,7 +119,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
             ]}
           />
 
-          <p className="mt-8 text-center text-xs leading-relaxed text-sage/80">
+          <p className="mt-8 text-center text-meta text-sage/80">
             This report is private to you. Delete it and your photos any time from{" "}
             <Link href="/profile" className="text-ice">
               Profile

@@ -79,7 +79,7 @@ export function Uploader({
               <p className="mt-0.5 text-xs text-sage">{s.hint}</p>
             </div>
             {has(s.type) ? (
-              <span className="shrink-0 rounded-full bg-ice/10 px-2.5 py-1 text-[0.7rem] font-medium text-ice ring-1 ring-ice/20">
+              <span className="shrink-0 rounded-full bg-ice/10 px-2.5 py-1 text-caption font-medium text-ice ring-1 ring-ice/20">
                 Added
               </span>
             ) : null}
@@ -103,7 +103,7 @@ export function Uploader({
 
       <ErrorNote>{error}</ErrorNote>
 
-      <p className="pt-1 text-xs leading-relaxed text-sage">
+      <p className="pt-1 text-meta text-sage">
         Photos go straight into private storage that only you can read. They&apos;re never public,
         never shown to another user, and you can delete them at any time from Profile.
       </p>

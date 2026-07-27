@@ -26,10 +26,10 @@ export function JoinForm({ cohortId, stakeAmount }: { cohortId: string; stakeAmo
           name="agree"
           className="mt-0.5 h-4 w-4 shrink-0 rounded border-scree bg-valley accent-summit"
         />
-        <span className="text-sm leading-relaxed text-snow/90">
+        <span className="text-body text-snow/90">
           I understand I&apos;m putting R{stakeAmount} on this, and that I lose it if I don&apos;t
           hit the target.
-          <span className="mt-1.5 block text-xs leading-relaxed text-sage">
+          <span className="mt-1.5 block text-meta text-sage">
             Winners are decided only by your own verified steps. If nobody hits the target,
             everyone is refunded in full.
           </span>
@@ -75,7 +75,7 @@ export function LogStepsForm({
         <ErrorNote>{state.error}</ErrorNote>
         <Submit label={existing !== null ? "Update today" : "Log steps"} pendingLabel="Saving…" />
       </form>
-      <p className="mt-3 text-xs leading-relaxed text-sage">
+      <p className="mt-3 text-meta text-sage">
         Self-reported while we finish the wearable sync. Only you can log against your stake.
       </p>
     </Card>

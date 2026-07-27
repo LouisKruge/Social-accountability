@@ -39,8 +39,8 @@ export function Pool({
   const levelY = floor - (floor - top) * ratio;
   const uid = `${confirmed ? "gold" : "ice"}-${height}`;
 
-  const line = confirmed ? "#E8B84B" : "#7FDCC0";
-  const body = confirmed ? "rgba(232,184,75,0.22)" : "rgba(127,220,192,0.20)";
+  const line = confirmed ? "rgb(var(--summit))" : "rgb(var(--ice))";
+  const body = confirmed ? "rgb(var(--summit) / 0.22)" : "rgb(var(--ice) / 0.20)";
   // Past a dozen the pips stop being countable and start reading as a rule.
   const pips = Math.min(participants, 12);
 
@@ -60,8 +60,8 @@ export function Pool({
       </clipPath>
       <path
         d={`M ${inset} ${top} L ${inset + 8} ${floor} L ${W - inset - 8} ${floor} L ${W - inset} ${top} Z`}
-        fill="#0E1712"
-        stroke="#2A3A32"
+        fill="rgb(var(--valley))"
+        stroke="rgb(var(--scree))"
         strokeWidth="1.25"
       />
 

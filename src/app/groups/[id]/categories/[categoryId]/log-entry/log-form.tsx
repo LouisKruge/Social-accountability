@@ -74,7 +74,7 @@ export function LogEntryForm({
       <input type="hidden" name="category_id" value={categoryId} />
 
       {first && (
-        <p className="rounded-field bg-ice/10 px-4 py-3.5 text-sm leading-relaxed text-ice ring-1 ring-ice/20">
+        <p className="rounded-field bg-ice/10 px-4 py-3.5 text-body text-ice ring-1 ring-ice/20">
           This first number is your baseline — the line you climb from. Nobody sees it.
         </p>
       )}
@@ -100,7 +100,7 @@ export function LogEntryForm({
         />
         <span className="text-sm text-snow/90">
           Show my actual number to the group
-          <span className="mt-1 block text-xs leading-relaxed text-sage">
+          <span className="mt-1 block text-meta text-sage">
             Off by default. Your rank and % still show either way.
           </span>
         </span>

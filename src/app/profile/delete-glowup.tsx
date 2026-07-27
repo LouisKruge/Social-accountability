@@ -15,7 +15,7 @@ export function DeleteGlowupData() {
   return (
     <Card>
       <p className="text-sm font-medium text-snow">Delete my Glow Up photos &amp; reports</p>
-      <p className="mt-1.5 text-xs leading-relaxed text-sage">
+      <p className="mt-1.5 text-meta text-sage">
         Removes every photo you uploaded and every report, including the files themselves. Your
         account and your groups stay as they are.
       </p>

@@ -32,7 +32,7 @@ function Choice({
             defaultChecked={value === defaultValue}
             className="peer sr-only"
           />
-          <span className="block rounded-full bg-valley/60 px-3 py-1.5 text-[0.7rem] text-sage ring-1 ring-scree/60 transition peer-checked:bg-snow/12 peer-checked:text-snow peer-checked:ring-snow/30 peer-focus-visible:ring-2 peer-focus-visible:ring-snow">
+          <span className="block rounded-full bg-valley/60 px-3 py-1.5 text-caption text-sage ring-1 ring-scree/60 transition peer-checked:bg-snow/12 peer-checked:text-snow peer-checked:ring-snow/30 peer-focus-visible:ring-2 peer-focus-visible:ring-snow">
             {label}
           </span>
         </label>
@@ -50,7 +50,7 @@ export function ProfileForm({ existing }: { existing: StyleProfile | null }) {
         <legend className="mb-2.5 text-sm font-medium text-snow">
           What are you getting ready for?
         </legend>
-        <p className="mb-3 text-xs leading-relaxed text-sage">
+        <p className="mb-3 text-meta text-sage">
           An interview needs different advice from a first date. This changes every studio.
         </p>
         <Choice
@@ -64,7 +64,7 @@ export function ProfileForm({ existing }: { existing: StyleProfile | null }) {
         <legend className="mb-2.5 text-sm font-medium text-snow">
           How would you like to dress?
         </legend>
-        <p className="mb-3 text-xs leading-relaxed text-sage">
+        <p className="mb-3 text-meta text-sage">
           Your call, not ours — Elevate never infers this from a photo of you.
         </p>
         <Choice

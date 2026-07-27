@@ -80,7 +80,7 @@ export default async function SharePage({ params }: { params: { cardId: string }
         <p className="mt-3 text-lg leading-snug text-snow">
           {data.displayName} is {ordinal(data.rank)} in {data.groupName} this week.
         </p>
-        <p className="mt-3 text-sm leading-relaxed text-sage">
+        <p className="mt-3 text-body text-sage">
           Ascend ranks on rate of improvement, not who started ahead — everyone climbs from their
           own baseline.
         </p>

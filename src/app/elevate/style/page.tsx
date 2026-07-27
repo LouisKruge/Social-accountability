@@ -75,7 +75,7 @@ export default async function StyleStudioPage() {
 
           {plans.map((p) => (
             <section key={p.occasion} className="mb-8">
-              <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">{p.occasion}</h2>
+              <h2 className="mb-3 text-micro uppercase text-sage">{p.occasion}</h2>
 
               {p.outfits.length > 0 ? (
                 <div className="space-y-2.5">
@@ -88,18 +88,18 @@ export default async function StyleStudioPage() {
                         {o.items.map((it) => (
                           <li
                             key={it.id}
-                            className="rounded-full bg-valley/70 px-2.5 py-1 text-[0.68rem] text-snow/90 ring-1 ring-scree/60"
+                            className="rounded-full bg-valley/70 px-2.5 py-1 text-caption text-snow/90 ring-1 ring-scree/60"
                           >
                             {it.name}
                           </li>
                         ))}
                       </ul>
-                      <p className="mt-3 text-xs leading-relaxed text-sage">{o.rationale}</p>
+                      <p className="mt-3 text-meta text-sage">{o.rationale}</p>
                     </article>
                   ))}
                 </div>
               ) : (
-                <p className="rounded-card bg-slope/40 px-4 py-3 text-xs leading-relaxed text-sage ring-1 ring-scree/40">
+                <p className="rounded-card bg-slope/40 px-4 py-3 text-meta text-sage ring-1 ring-scree/40">
                   Not enough catalogued for a complete {p.occasion} outfit yet.
                 </p>
               )}
@@ -112,7 +112,7 @@ export default async function StyleStudioPage() {
                       className="flex gap-2.5 rounded-field bg-valley/50 px-3.5 py-2.5 ring-1 ring-scree/40"
                     >
                       <span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-sage" />
-                      <span className="text-[0.68rem] leading-relaxed text-sage">{g.reason}</span>
+                      <span className="text-caption leading-relaxed text-sage">{g.reason}</span>
                     </li>
                   ))}
                 </ul>
@@ -121,7 +121,7 @@ export default async function StyleStudioPage() {
           ))}
 
           <section>
-            <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Everything you own</h2>
+            <h2 className="mb-3 text-micro uppercase text-sage">Everything you own</h2>
             <ul className="space-y-1.5">
               {wardrobe.map((i) => {
                 const cpw = costPerWear(i.priceZar, i.wearCount);
@@ -132,18 +132,18 @@ export default async function StyleStudioPage() {
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm text-snow/90">{i.name}</p>
-                      <p className="mt-0.5 text-[0.65rem] text-sage">
+                      <p className="mt-0.5 text-caption text-sage">
                         {i.category}
                         {i.colour && ` · ${i.colour}`}
                         {i.occasions.length > 0 && ` · ${i.occasions.join(", ")}`}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="tnum text-[0.68rem] text-sage">
+                      <p className="tnum text-caption text-sage">
                         {i.wearCount === 0 ? "never worn" : `${i.wearCount} wears`}
                       </p>
                       {cpw !== null && (
-                        <p className="tnum text-[0.65rem] text-snow/70">{zar(cpw)}/wear</p>
+                        <p className="tnum text-caption text-snow/70">{zar(cpw)}/wear</p>
                       )}
                     </div>
                   </li>
@@ -154,7 +154,7 @@ export default async function StyleStudioPage() {
         </>
       )}
 
-      <p className="mt-8 text-center text-xs leading-relaxed text-sage/70">
+      <p className="mt-8 text-center text-meta text-sage/70">
         Photographs here are of clothes, not of you — Elevate catalogues the garment and never
         looks at the person wearing it.
       </p>
@@ -165,7 +165,7 @@ export default async function StyleStudioPage() {
 function Tile({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-field bg-slope/60 p-3.5 ring-1 ring-scree/50">
-      <p className="text-[0.6rem] uppercase tracking-[0.14em] text-sage">{label}</p>
+      <p className="text-micro uppercase text-sage">{label}</p>
       <p className="tnum mt-1 font-display text-xl font-semibold text-snow">{value}</p>
       {hint && <p className="mt-0.5 text-[0.62rem] text-sage/80">{hint}</p>}
     </div>

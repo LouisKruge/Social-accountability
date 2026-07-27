@@ -48,7 +48,7 @@ export default async function TrustPage() {
             ].map(([k, v]) => (
               <li key={k} className="flex gap-3">
                 <span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ice/70" />
-                <span className="text-xs leading-relaxed text-sage">
+                <span className="text-meta text-sage">
                   <span className="text-snow/90">{k}.</span> {v}
                 </span>
               </li>
@@ -57,13 +57,13 @@ export default async function TrustPage() {
         </DashSection>
 
         <div className="rounded-card bg-slope/50 p-4 ring-1 ring-scree/50">
-          <p className="text-xs leading-relaxed text-sage">
+          <p className="text-meta text-sage">
             <span className="text-snow/90">A flagged day is never deleted.</span> It is held, and a
             person looks at it. If you genuinely walked 40 000 steps on a hiking day, we want to
             count it — we just want to check first, because everyone else&apos;s money is in the
             same pool.
           </p>
-          <p className="mt-3 text-xs leading-relaxed text-sage">
+          <p className="mt-3 text-meta text-sage">
             <span className="text-snow/90">What we can&apos;t check yet.</span> GPS, motion sensors
             and device tampering need a phone app; a website can&apos;t see any of them. We&apos;d
             rather say so than show you a tick that means nothing.

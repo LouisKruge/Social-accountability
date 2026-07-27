@@ -63,7 +63,7 @@ export default async function LookLabPage() {
 
   return (
     <StudioPage state={state} studioKey="look">
-      <p className="mb-6 rounded-card bg-slope/50 p-4 text-xs leading-relaxed text-sage ring-1 ring-scree/50">
+      <p className="mb-6 rounded-card bg-slope/50 p-4 text-meta text-sage ring-1 ring-scree/50">
         <span className="text-snow/90">There&apos;s no preview here, on purpose.</span> Rendering a
         different haircut onto your face needs the same technology as a deepfake, and showing people
         edited versions of themselves is not what this app is for. What a good barber actually gives
@@ -100,7 +100,7 @@ export default async function LookLabPage() {
         ))}
       </div>
 
-      <p className="mt-8 text-center text-xs leading-relaxed text-sage/70">
+      <p className="mt-8 text-center text-meta text-sage/70">
         These are options, not instructions. Nothing here is about what would &ldquo;suit&rdquo;
         you — that&apos;s your call, and a stranger&apos;s opinion of your face isn&apos;t data.
       </p>
@@ -111,8 +111,8 @@ export default async function LookLabPage() {
 function Line({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[0.6rem] uppercase tracking-[0.14em] text-sage">{label}</p>
-      <p className="mt-1 text-sm leading-relaxed text-snow/85">{children}</p>
+      <p className="text-micro uppercase text-sage">{label}</p>
+      <p className="mt-1 text-body text-snow/85">{children}</p>
     </div>
   );
 }

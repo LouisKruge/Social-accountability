@@ -24,7 +24,7 @@ export function BankForm({
     <form action={formAction} className="space-y-5">
       {existing && (
         <div className="rounded-field bg-valley p-4 ring-1 ring-scree">
-          <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">On file</p>
+          <p className="text-micro uppercase text-sage">On file</p>
           <p className="mt-1 text-sm text-snow">
             {existing.bank} ····{existing.last4}
           </p>
@@ -56,7 +56,7 @@ export function BankForm({
       )}
       <Submit />
 
-      <p className="text-xs leading-relaxed text-sage">
+      <p className="text-meta text-sage">
         These details are visible only to you and to the person who processes payouts. Changing them
         is recorded in your account activity, so you can see it if someone else ever does.
       </p>

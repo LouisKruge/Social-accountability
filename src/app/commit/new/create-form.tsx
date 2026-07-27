@@ -84,11 +84,11 @@ export function CreateCohortForm({ today }: { today: string }) {
       {/* What the creator is actually asking of people. Shown while they type,
           because "300 000 steps" means nothing until it is per-day. */}
       <div className="rounded-field bg-valley p-4 ring-1 ring-scree">
-        <p className="text-[0.62rem] uppercase tracking-[0.14em] text-sage">That works out to</p>
+        <p className="text-micro uppercase text-sage">That works out to</p>
         <p className="tnum mt-1 font-display text-2xl font-semibold text-snow">
           {num(perDay)} <span className="text-sm font-normal text-sage">steps a day</span>
         </p>
-        <p className="mt-1.5 text-xs leading-relaxed text-sage">
+        <p className="mt-1.5 text-meta text-sage">
           {perDay === 0
             ? "Set a target and a window to see the daily pace."
             : perDay < 6_000
@@ -135,7 +135,7 @@ export function CreateCohortForm({ today }: { today: string }) {
 
       <Submit />
 
-      <p className="text-xs leading-relaxed text-sage">
+      <p className="text-meta text-sage">
         Publishing this costs you nothing and stakes you nothing. You join it the same way everyone
         else does, and creating it gives you no advantage in it.
       </p>

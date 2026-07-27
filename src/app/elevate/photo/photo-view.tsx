@@ -105,17 +105,17 @@ export function PhotoView({ defaultGoal }: { defaultGoal: PhotoGoal }) {
 
       {/* ── The one that matters most ───────────────────────────────────── */}
       <div className="mb-6 rounded-card bg-slope p-5 ring-1 ring-snow/20">
-        <p className="text-[0.62rem] uppercase tracking-[0.16em] text-sage">
+        <p className="text-micro uppercase text-sage">
           If you only do one thing
         </p>
         <p className="mt-2 font-display text-lg font-semibold leading-snug tracking-tight text-snow">
           {checklist.headline.instruction}
         </p>
-        <p className="mt-2 text-xs leading-relaxed text-sage">{checklist.headline.because}</p>
+        <p className="mt-2 text-meta text-sage">{checklist.headline.because}</p>
       </div>
 
       {timing && (
-        <p className="mb-6 rounded-field bg-valley/60 px-4 py-3 text-xs leading-relaxed text-sage ring-1 ring-scree/60">
+        <p className="mb-6 rounded-field bg-valley/60 px-4 py-3 text-meta text-sage ring-1 ring-scree/60">
           <span className="text-snow/90">Best time:</span> {timing}
         </p>
       )}
@@ -124,7 +124,7 @@ export function PhotoView({ defaultGoal }: { defaultGoal: PhotoGoal }) {
       <div className="space-y-6">
         {areas.map((area) => (
           <section key={area}>
-            <h2 className="mb-2.5 text-xs uppercase tracking-[0.16em] text-sage">
+            <h2 className="mb-2.5 text-micro uppercase text-sage">
               {AREA_LABEL[area]}
             </h2>
             <ul className="space-y-1.5">
@@ -164,7 +164,7 @@ export function PhotoView({ defaultGoal }: { defaultGoal: PhotoGoal }) {
                         >
                           {s.instruction}
                         </span>
-                        <span className="mt-1 block text-[0.68rem] leading-relaxed text-sage/80">
+                        <span className="mt-1 block text-caption leading-relaxed text-sage/80">
                           {s.because}
                         </span>
                       </span>
@@ -177,7 +177,7 @@ export function PhotoView({ defaultGoal }: { defaultGoal: PhotoGoal }) {
         ))}
       </div>
 
-      <p className="mt-8 text-center text-xs leading-relaxed text-sage/70">
+      <p className="mt-8 text-center text-meta text-sage/70">
         {done.size} of {checklist.steps.length} ticked. This is a camera checklist — it never
         comments on you, only on the light, the lens and the frame.
       </p>
@@ -188,7 +188,7 @@ export function PhotoView({ defaultGoal }: { defaultGoal: PhotoGoal }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-1.5 text-[0.62rem] uppercase tracking-[0.14em] text-sage">{label}</p>
+      <p className="mb-1.5 text-micro uppercase text-sage">{label}</p>
       <div className="flex flex-wrap gap-1.5">{children}</div>
     </div>
   );
@@ -208,7 +208,7 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={on}
-      className={`rounded-full px-3 py-1.5 text-[0.68rem] ring-1 transition ${
+      className={`rounded-full px-3 py-1.5 text-caption ring-1 transition ${
         on ? "bg-snow/12 text-snow ring-snow/25" : "bg-valley/60 text-sage ring-scree/60 hover:text-snow"
       }`}
     >

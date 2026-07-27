@@ -43,7 +43,7 @@ export default async function FloorPage() {
         <>
           <DashSection
             title="Current cohort"
-            action={<span className="truncate text-[0.68rem] text-sage">{standings.cohortName}</span>}
+            action={<span className="truncate text-caption text-sage">{standings.cohortName}</span>}
           >
             <Standings rows={standings.rows} limit={8} />
           </DashSection>
@@ -51,7 +51,7 @@ export default async function FloorPage() {
           {cohortsJoined > 1 && climbers.length > 1 && (
             <DashSection
               title="Best runs, all challenges"
-              action={<span className="text-[0.68rem] text-sage">% of own target</span>}
+              action={<span className="text-caption text-sage">% of own target</span>}
             >
               <Standings rows={climbers} limit={5} />
             </DashSection>

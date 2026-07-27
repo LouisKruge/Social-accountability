@@ -91,7 +91,7 @@ export function LeaderboardRow({
           {formatMetric(metricType, row.pctChange, row.isAbsolute, unit)}
         </span>
         {row.isAbsolute && !isStreak && (
-          <span className="block text-[0.6rem] uppercase tracking-wider text-sage/70">
+          <span className="block text-micro uppercase text-sage/70">
             from zero
           </span>
         )}

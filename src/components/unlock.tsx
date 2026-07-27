@@ -43,7 +43,7 @@ export function Unlock({
             className={instant ? "" : "motion-safe:animate-rise"}
             style={instant ? undefined : { animationDelay: `${Math.min(i, 1) * 60}ms` }}
           >
-            <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">{s.title}</h2>
+            <h2 className="mb-3 text-micro uppercase text-sage">{s.title}</h2>
             {s.node}
           </section>
         ))}

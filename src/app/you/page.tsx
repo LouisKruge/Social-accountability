@@ -64,7 +64,7 @@ export default async function YouPage({
       </div>
 
       <header className="mb-7">
-        <p className="text-[0.7rem] uppercase tracking-[0.16em] text-sage">Your account</p>
+        <p className="text-caption uppercase tracking-[0.16em] text-sage">Your account</p>
         <h1 className="mt-1.5 font-display text-[1.9rem] font-semibold leading-none tracking-tightest text-snow">
           You
         </h1>
@@ -72,20 +72,20 @@ export default async function YouPage({
 
       {/* ── Activity ledger ─────────────────────────────────────────────── */}
       <section className="mb-8">
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Money in this app</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">Money in this app</h2>
 
         <Card className="mb-3">
           <dl className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <dt className="text-[0.65rem] uppercase tracking-wider text-sage">Paid in</dt>
+              <dt className="text-caption uppercase tracking-wider text-sage">Paid in</dt>
               <dd className="tnum mt-1 text-sm text-snow">{zar(ledger.paidOut)}</dd>
             </div>
             <div>
-              <dt className="text-[0.65rem] uppercase tracking-wider text-sage">Received</dt>
+              <dt className="text-caption uppercase tracking-wider text-sage">Received</dt>
               <dd className="tnum mt-1 text-sm text-summit">{zar(ledger.received)}</dd>
             </div>
             <div>
-              <dt className="text-[0.65rem] uppercase tracking-wider text-sage">Net</dt>
+              <dt className="text-caption uppercase tracking-wider text-sage">Net</dt>
               <dd className={`tnum mt-1 text-sm ${ledger.net >= 0 ? "text-snow" : "text-sage"}`}>
                 {ledger.net < 0 ? "−" : ""}
                 {zar(ledger.net)}
@@ -141,7 +141,7 @@ export default async function YouPage({
 
       {/* ── Plan ────────────────────────────────────────────────────────── */}
       <section className="mb-8">
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Plan</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">Plan</h2>
         <Link href="/billing" className="block">
           <Card className="flex items-center justify-between transition hover:bg-ridge">
             <div>
@@ -155,7 +155,7 @@ export default async function YouPage({
 
       {/* ── Linked accounts & notifications ─────────────────────────────── */}
       <section className="mb-8">
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">
+        <h2 className="mb-3 text-micro uppercase text-sage">
           Linked accounts &amp; alerts
         </h2>
         <Card className="mb-3">
@@ -183,7 +183,7 @@ export default async function YouPage({
 
       {/* ── Privacy ─────────────────────────────────────────────────────── */}
       <section>
-        <h2 className="mb-3 text-xs uppercase tracking-[0.16em] text-sage">Your data</h2>
+        <h2 className="mb-3 text-micro uppercase text-sage">Your data</h2>
         {searchParams.glowup_delete === "ok" && (
           <div className="mb-3">
             <Card className="ring-1 ring-ice/25">
