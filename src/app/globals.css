@@ -15,17 +15,20 @@
    to every component. `bg-slope` resolves through a variable, so light mode is
    a different set of numbers and nothing else.
 
-   THE PALETTE IS DERIVED FROM ALTITUDE, not from "dark mode". A cold valley
-   floor warming to summit light. That is what gives each accent a fixed job:
+   THE PALETTE IS MONOCHROME WITH ONE ACCENT. Black, greys, white — and soft
+   amber, which is the only hue on the screen and therefore does not need to
+   shout. Hierarchy is carried by BRIGHTNESS, not by colour:
 
-     ice     the cold start — in progress, live, yours but not yet won
-     summit  altitude achieved — GOLD, and only ever money confirmed as yours
-     fall    a descent — behind, failed, returned
-     sage    the quiet register — labels, captions, everything secondary
+     snow    #FFFFFF  the live thing, the thing you are meant to read first
+     sage    #8E8E8E  the quiet register — labels, captions, secondary
+     scree   #262626  structure — hairlines, inactive strokes
+     summit  amber    money confirmed as yours, and nothing else, ever
+     fall    red      genuine errors only — an error that reads as grey is an
+                      accessibility failure, not restraint
 
-   Four accents, four meanings, no overlap. A fifth and sixth hue would not add
-   expressiveness; it would cost the existing four their meaning, because the
-   eye only learns a colour code that stays small.
+   The previous palette carried a green tint through every surface. That is what
+   made the app read as "another finance dashboard" before a single component
+   was drawn.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -33,35 +36,51 @@
   --font-body: "Inter Variable";
   --font-mono: "IBM Plex Mono";
 
-  /* ── Terrain ─────────────────────────────────────────────────────────── */
-  --valley: 14 23 18; /* page base */
-  --slope: 22 34 28; /* elevation 1 — resting surface */
-  --ridge: 30 44 37; /* elevation 2 — raised, hovered, selected */
-  --scree: 42 58 50; /* hairlines and inactive strokes */
+  /* ── Terrain — true black, and greys that are actually grey ───────────── */
+  /* No hue anywhere. The previous palette carried a green tint through every
+     surface, which is what made the app read as "finance dashboard" before a
+     single component was drawn. Monochrome is not an absence of colour here;
+     it is what makes the one accent mean something. */
+  --valley: 0 0 0; /* #000000 — page base, true black */
+  --slope: 10 10 10; /* #0A0A0A — elevation 1, a resting surface */
+  --ridge: 23 23 23; /* #171717 — elevation 2, raised / hovered / selected */
+  --scree: 38 38 38; /* #262626 — hairlines and inactive strokes */
 
-  /* ── Light ───────────────────────────────────────────────────────────── */
-  --summit: 232 184 75;
-  --summit-soft: 240 206 126;
-  --summit-deep: 185 143 46;
-  --ice: 127 220 192;
-  --ice-soft: 169 233 214;
-  --ice-deep: 79 177 150;
+  /* ── The ONE accent ───────────────────────────────────────────────────── */
+  /* Soft amber, and nothing else has a hue. It is reserved for money that has
+     actually been paid to you, and for the leading tip of an ascent. Because
+     it is the only colour on the screen, it does not need to shout — which is
+     precisely why it reads as expensive rather than as a status pill. */
+  --summit: 226 184 122; /* #E2B87A */
+  --summit-soft: 240 210 165;
+  --summit-deep: 168 133 84;
 
-  /* ── Text ────────────────────────────────────────────────────────────── */
-  --snow: 243 241 234;
-  --sage: 138 154 144;
-  --fall: 224 109 90;
+  /* ── "Live" is white, not a colour ────────────────────────────────────── */
+  /* What used to be mint. In a monochrome system, active/live/in-progress is
+     simply the brightest thing on screen, and inactive recedes to grey. That
+     is a stronger signal than a hue, and it costs nothing. */
+  --ice: 255 255 255;
+  --ice-soft: 255 255 255;
+  --ice-deep: 207 207 207;
 
-  /* ── Ambient light ───────────────────────────────────────────────────── */
-  /* Summit glow pooling at the top of an elevated surface. Rendered as LIGHT,
-     never as a flat fill — that is what keeps gold from reading as neon. */
-  --glow-summit: 232 184 75;
-  --glow-ice: 127 220 192;
-  --glow-strength: 0.14;
+  /* ── Text ─────────────────────────────────────────────────────────────── */
+  --snow: 255 255 255; /* #FFFFFF */
+  --sage: 142 142 142; /* #8E8E8E */
 
-  /* ── Depth ───────────────────────────────────────────────────────────── */
-  --shadow-lift: 0 8px 32px -12px rgb(0 0 0 / 0.6);
-  --shadow-float: 0 16px 48px -16px rgb(0 0 0 / 0.7);
+  /* ── Danger, and only danger ──────────────────────────────────────────── */
+  /* The single exception to "one accent". An error that reads only as grey is
+     an accessibility failure, not restraint. Used for destructive actions and
+     genuine failures — never for "behind pace". */
+  --fall: 255 99 88;
+
+  /* ── Ambient light ────────────────────────────────────────────────────── */
+  --glow-summit: 226 184 122;
+  --glow-ice: 255 255 255;
+  --glow-strength: 0.10;
+
+  /* ── Depth ────────────────────────────────────────────────────────────── */
+  --shadow-lift: 0 8px 32px -12px rgb(0 0 0 / 0.9);
+  --shadow-float: 0 24px 64px -20px rgb(0 0 0 / 1);
   --hairline: rgb(var(--scree) / 0.7);
 
   color-scheme: dark;
@@ -80,48 +99,44 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --valley: 247 246 242;
+    --valley: 250 250 250;
     --slope: 255 255 255;
-    --ridge: 240 240 235;
-    --scree: 208 212 205;
-
-    --summit: 150 112 24;
-    --summit-soft: 176 134 38;
-    --summit-deep: 120 88 16;
-    --ice: 26 122 98;
-    --ice-soft: 42 148 120;
-    --ice-deep: 18 92 74;
-
-    --snow: 24 34 28;
-    --sage: 96 110 101;
-    --fall: 178 61 44;
-
-    --glow-strength: 0.07;
-    --shadow-lift: 0 8px 24px -12px rgb(24 34 28 / 0.14);
-    --shadow-float: 0 16px 40px -16px rgb(24 34 28 / 0.18);
-
+    --ridge: 242 242 242;
+    --scree: 219 219 219;
+    --summit: 138 100 42;
+    --summit-soft: 163 122 60;
+    --summit-deep: 110 78 30;
+    --ice: 10 10 10;
+    --ice-soft: 10 10 10;
+    --ice-deep: 74 74 74;
+    --snow: 10 10 10;
+    --sage: 110 110 110;
+    --fall: 190 48 38;
+    --glow-strength: 0.06;
+    --shadow-lift: 0 8px 24px -12px rgb(0 0 0 / 0.12);
+    --shadow-float: 0 20px 48px -18px rgb(0 0 0 / 0.16);
     color-scheme: light;
   }
 }
 
 /* An explicit choice always beats the system preference, both directions. */
 :root[data-theme="light"] {
-  --valley: 247 246 242;
+  --valley: 250 250 250;
   --slope: 255 255 255;
-  --ridge: 240 240 235;
-  --scree: 208 212 205;
-  --summit: 150 112 24;
-  --summit-soft: 176 134 38;
-  --summit-deep: 120 88 16;
-  --ice: 26 122 98;
-  --ice-soft: 42 148 120;
-  --ice-deep: 18 92 74;
-  --snow: 24 34 28;
-  --sage: 96 110 101;
-  --fall: 178 61 44;
-  --glow-strength: 0.07;
-  --shadow-lift: 0 8px 24px -12px rgb(24 34 28 / 0.14);
-  --shadow-float: 0 16px 40px -16px rgb(24 34 28 / 0.18);
+  --ridge: 242 242 242;
+  --scree: 219 219 219;
+  --summit: 138 100 42;
+  --summit-soft: 163 122 60;
+  --summit-deep: 110 78 30;
+  --ice: 10 10 10;
+  --ice-soft: 10 10 10;
+  --ice-deep: 74 74 74;
+  --snow: 10 10 10;
+  --sage: 110 110 110;
+  --fall: 190 48 38;
+  --glow-strength: 0.06;
+  --shadow-lift: 0 8px 24px -12px rgb(0 0 0 / 0.12);
+  --shadow-float: 0 20px 48px -18px rgb(0 0 0 / 0.16);
   color-scheme: light;
 }
 

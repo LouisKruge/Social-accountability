@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { SectionNav } from "./section-nav";
+import { Dock } from "./dock";
 
 /** Routes that are outside the signed-in app, where the switcher is noise. */
 const HIDDEN_PREFIXES = ["/login", "/signup", "/share", "/join"];
@@ -14,5 +14,5 @@ export function NavGate() {
   const pathname = usePathname() ?? "";
   if (pathname === "/") return null;
   if (HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
-  return <SectionNav />;
+  return <Dock />;
 }

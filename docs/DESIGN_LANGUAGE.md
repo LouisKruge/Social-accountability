@@ -30,15 +30,24 @@ Nobody could point at any one of these. Everybody would feel all of them.
 
 ## 1. The five principles
 
-### 1.1 Editorial, not dashboard
+### 1.1 Surfaces, not cards
 
-The type scale has a **violent jump** between `title` (1.75rem) and `display`
-(2.5rem) and again to `hero` (3.5rem). A gentle scale reads as a settings
-screen. A real gap between "the headline" and "everything else" gives the eye
-somewhere to land first, which is what a magazine does and a dashboard doesn't.
+**A vertical stack of identical rounded rectangles is the default output of
+every UI framework, and the eye stops reading it after about two seconds.** The
+fix is not nicer rectangles — it is three different densities on one screen, so
+there is an order to read in rather than four identical things to choose
+between:
 
-Every size carries its own line-height and tracking, because a size without them
-is half a decision and the other half ends up scattered across components.
+- **The lead** — a hairline rule and a headline. No box at all.
+- **The bed** — two columns, hairline-separated, medium weight.
+- **The tail** — a list, because those are references rather than features.
+
+The hero figure sits **directly on the black** with no card, no border and no
+background, at roughly four times the size of anything near it. That is what
+makes a number read as the subject rather than as a statistic inside a widget.
+
+A card is now something you use when content genuinely needs containing — not
+the default wrapper for everything.
 
 ### 1.2 Cinematic motion
 
@@ -79,28 +88,39 @@ over content. Glass everywhere is a 2013 texture, not depth.
 
 ---
 
-## 2. Colour: four accents, four meanings
+## 2. Colour: monochrome, one accent
 
-| Token | Means | Never means |
+| Token | Value | Means |
 |---|---|---|
-| `ice` | live, in progress, yours but not won | success |
-| `summit` | **money confirmed as yours** | decoration, chrome, "premium" |
-| `fall` | a descent — behind, failed, returned | urgency for its own sake |
-| `sage` | the quiet register — labels, captions | disabled |
+| `valley` | `#000000` | the page — true black |
+| `slope` | `#0A0A0A` | elevation 1, a resting surface |
+| `ridge` | `#171717` | elevation 2 — raised, hovered, selected |
+| `scree` | `#262626` | structure — hairlines, inactive strokes |
+| `snow` | `#FFFFFF` | **live** — the thing you should read first |
+| `sage` | `#8E8E8E` | the quiet register — labels, captions |
+| `summit` | soft amber | **money confirmed as yours.** Nothing else, ever |
+| `fall` | red | genuine errors and destructive actions only |
 
-### On the requested blue and purple
+**Hierarchy is carried by brightness, not hue.** In a monochrome system "active"
+is simply the brightest thing on screen and "inactive" recedes to grey — a
+stronger signal than a colour, and it costs nothing. What used to be mint is now
+white; what used to be four competing hues is now one.
 
-The brief asked for "blue only for analytics, purple only for premium". **Not
-added, and the reasoning is the point of the whole document:** the eye only
-learns a colour code that stays small. Four accents with fixed jobs is a
-language. Six is decoration that *costs the existing four their meaning* —
-gold stops reading as "your money landed" the moment it's competing with two
-more hues for attention.
+### Why the green went
 
-Analytics already reads correctly in `ice` and `sage`. There is no premium tier
-in the product that needs its own colour.
+It tinted every surface, and it was the single thing making the app read as
+"another finance dashboard" before a component was drawn. Green is what every
+fintech reaches for. Removing it is worth more than any amount of card polish.
 
----
+### Why exactly one accent
+
+Because it is the only hue on the screen, the amber does not have to shout to be
+seen — which is the whole mechanism by which restraint reads as expensive. A
+second accent would halve its weight; a third would make it decoration.
+
+**Red is the one exception**, and it is an accessibility requirement rather than
+a style choice: an error that reads only as grey is a failure. It is reserved
+for genuine errors and destructive actions — never for "behind pace".
 
 ## 3. Theming
 
@@ -140,11 +160,12 @@ wrong theme on every cold load.
 
 | Asked for | Why not |
 |---|---|
-| Sounds | A money and coaching app that makes noises is a toy. |
+| Sounds | Asked for twice. A money and coaching app that makes noises is a toy, and on the web there is no equivalent of the OS-level silent switch — a sound you cannot reliably suppress is worse than none. |
 | Confetti, particles | The casino register the product spent three passes avoiding. Celebrating a payout like a slot machine undoes it. |
 | Haptics | `navigator.vibrate` doesn't exist on iOS Safari — the majority of this audience. A feature that silently works for some users isn't a feature. |
-| Blue + purple accents | §2 — dilutes the four meanings that already work. |
+| A second accent | §2 — the amber only reads as expensive because it is alone. |
 | Radial menus, gesture shortcuts | Undiscoverable, fight the browser's own gestures, no accessible equivalent. |
+| A live ticker of other people's activity | Would need fabricated events to look alive — the account currently has one real user and no stakes. It ships when there is genuine activity to show, driven by Supabase realtime, and shows nothing when nothing is happening. |
 | JS overscroll rubber-banding | An imitation always feels like an imitation. `overscroll-behavior` where the platform gives it to us; nothing where it doesn't. |
 
 ---

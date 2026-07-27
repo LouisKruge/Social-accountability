@@ -115,160 +115,184 @@ export function ExchangeHome({ state }: { state: ExchangeState }) {
         </Link>
       )}
 
-      {/* ── Hero: the exposure. One number, editorial scale. ────────────── */}
-      <section className="relative mb-3 overflow-hidden rounded-card bg-slope px-5 py-6 ring-1 ring-scree/70">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-28 h-48 bg-[radial-gradient(ellipse_at_top_left,rgb(var(--ice)/0.14),transparent_65%)]"
-        />
-        <div className="relative">
-          {live ? (
-            <>
-              <p className="text-micro uppercase text-sage">
-                Riding on your discipline
-              </p>
-              <p className="tnum mt-2 font-display text-hero font-semibold text-snow">
-                <Counter value={wallet.positions.locked} prefix="R" />
-              </p>
-              <p className="mt-3 text-body text-sage">
-                <span className="text-snow/90">{live.name}</span> · day{" "}
-                <span className="tnum text-snow/90">{live.dayNumber}</span> of {live.totalDays} ·{" "}
-                <span className="tnum text-snow/90">
-                  {num(Math.max(0, live.target - live.progress))}
-                </span>{" "}
-                still to walk
-              </p>
-            </>
-          ) : cheapest ? (
-            <>
-              <p className="text-micro uppercase text-sage">
-                Nothing on the line yet
-              </p>
-              <p className="mt-2 font-display text-display font-semibold text-snow">
-                Put money
-                <br />
-                on yourself
-              </p>
-              <p className="mt-3.5 text-body text-sage">
-                {dashboard.open.length} {dashboard.open.length === 1 ? "challenge" : "challenges"}{" "}
-                open, from <span className="tnum text-snow/90">{zar(cheapest.stakeAmount)}</span>.
-                You win it back by walking — never by guessing.
-              </p>
-              <Link
-                href="/commit/market"
-                className="mt-5 inline-flex w-full items-center justify-center rounded-field bg-ice px-4 py-3.5 text-sm font-semibold text-valley transition hover:bg-ice-soft"
-              >
-                See what&apos;s open
-              </Link>
-            </>
-          ) : (
-            <>
-              <p className="text-micro uppercase text-sage">
-                Nothing on the line yet
-              </p>
-              <p className="mt-2 font-display text-display font-semibold text-snow">
-                Set the
-                <br />
-                first target
-              </p>
-              <p className="mt-3.5 text-body text-sage">
-                Nothing is open. Publish a challenge and share it with the people who&apos;ll
-                actually hold you to it.
-              </p>
-              <Link
-                href="/commit/new"
-                className="mt-5 inline-flex w-full items-center justify-center rounded-field bg-ice px-4 py-3.5 text-sm font-semibold text-valley transition hover:bg-ice-soft"
-              >
-                Start a challenge
-              </Link>
-            </>
-          )}
+      {/* ── The figure, at the scale of a magazine cover ───────────────── */}
+      <section className="relative mb-chapter">
+        {live ? (
+          <>
+            <p className="text-micro uppercase text-sage">Riding on your discipline</p>
+            {/* No card, no border, no background. The number sits directly on
+                the black and is the largest thing on screen by a factor of
+                four — which is what makes it read as the subject rather than a
+                statistic inside a widget. */}
+            <p className="tnum -ml-1 mt-2 font-display text-hero font-semibold text-snow">
+              <Counter value={wallet.positions.locked} prefix="R" />
+            </p>
+            <p className="mt-3 max-w-[22rem] text-body text-sage">
+              <span className="text-snow">{live.name}</span> · day{" "}
+              <span className="tnum text-snow">{live.dayNumber}</span> of {live.totalDays} ·{" "}
+              <span className="tnum text-snow">
+                {num(Math.max(0, live.target - live.progress))}
+              </span>{" "}
+              still to walk
+            </p>
+          </>
+        ) : cheapest ? (
+          <>
+            <p className="text-micro uppercase text-sage">Nothing on the line yet</p>
+            <h2 className="mt-2 font-display text-display font-semibold text-snow">
+              Put money
+              <br />
+              on yourself
+            </h2>
+            <p className="mt-3.5 max-w-[22rem] text-body text-sage">
+              {dashboard.open.length} {dashboard.open.length === 1 ? "challenge" : "challenges"}{" "}
+              open, from <span className="tnum text-snow">{zar(cheapest.stakeAmount)}</span>. You
+              win it back by walking — never by guessing.
+            </p>
+            <Link
+              href="/commit/market"
+              className="mt-6 inline-flex min-h-[3rem] items-center justify-center rounded-pill bg-snow px-7 text-body font-semibold text-valley transition duration-150 ease-ascend active:scale-[0.98]"
+            >
+              See what&apos;s open
+            </Link>
+          </>
+        ) : (
+          <>
+            <p className="text-micro uppercase text-sage">Nothing on the line yet</p>
+            <h2 className="mt-2 font-display text-display font-semibold text-snow">
+              Set the
+              <br />
+              first target
+            </h2>
+            <p className="mt-3.5 max-w-[22rem] text-body text-sage">
+              Nothing is open. Publish a challenge and share it with the people who&apos;ll
+              actually hold you to it.
+            </p>
+            <Link
+              href="/commit/new"
+              className="mt-6 inline-flex min-h-[3rem] items-center justify-center rounded-pill bg-snow px-7 text-body font-semibold text-valley transition duration-150 ease-ascend active:scale-[0.98]"
+            >
+              Start a challenge
+            </Link>
+          </>
+        )}
 
-          {/* Secondary figures, deliberately small: they are context, not the point. */}
-          {(wallet.positions.comingToYou > 0 || wallet.positions.paidOut > 0 || integrity) && (
-            <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-scree/50 pt-4">
-            <div className="flex items-baseline gap-1.5">
-              <dt className="text-[0.62rem] uppercase tracking-wider text-sage">Coming</dt>
-              <dd className="tnum text-sm text-ice">{zar(wallet.positions.comingToYou)}</dd>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <dt className="text-[0.62rem] uppercase tracking-wider text-sage">Paid</dt>
-              <dd className="tnum text-sm text-summit">{zar(wallet.positions.paidOut)}</dd>
-            </div>
-            {integrity && (
-              <div className="flex items-baseline gap-1.5">
-                <dt className="text-[0.62rem] uppercase tracking-wider text-sage">Verified</dt>
-                <dd
-                  className={`tnum text-sm ${
-                    integrity.tone === "good"
-                      ? "text-snow"
-                      : integrity.tone === "watch"
-                        ? "text-summit"
-                        : "text-fall"
-                  }`}
-                >
-                  {integrity.score}%
+        {(wallet.positions.comingToYou > 0 || wallet.positions.paidOut > 0 || integrity) && (
+          <dl className="mt-block flex flex-wrap gap-x-8 gap-y-3 border-t border-scree/60 pt-4">
+            {wallet.positions.comingToYou > 0 && (
+              <div>
+                <dt className="text-micro uppercase text-sage">Coming</dt>
+                <dd className="tnum mt-1 font-display text-lg text-snow">
+                  {zar(wallet.positions.comingToYou)}
                 </dd>
               </div>
             )}
-            </dl>
-          )}
-        </div>
+            {wallet.positions.paidOut > 0 && (
+              <div>
+                <dt className="text-micro uppercase text-sage">Paid</dt>
+                {/* the only hue on the screen */}
+                <dd className="tnum mt-1 font-display text-lg text-summit">
+                  {zar(wallet.positions.paidOut)}
+                </dd>
+              </div>
+            )}
+            {integrity && (
+              <div>
+                <dt className="text-micro uppercase text-sage">Verified</dt>
+                <dd className="tnum mt-1 font-display text-lg text-snow">{integrity.score}%</dd>
+              </div>
+            )}
+          </dl>
+        )}
       </section>
 
-      {/* ── The floor plan: asymmetric, variable-weight module tiles ────── */}
-      <div className="grid grid-cols-2 gap-2.5">
-        {MODULES.map((m, i) => {
-          const s = modules[m.key];
-          // The first two tiles run full width — they are the two questions a
-          // person opening this app is most likely to have.
-          const wide = i < 2;
-          return (
-            <Link
-              key={m.key}
-              href={m.href}
-              className={`group relative overflow-hidden rounded-card bg-slope/70 p-4 ring-1 transition hover:bg-ridge ${
-                s.alert ? "ring-fall/30" : "ring-scree/60 hover:ring-ice/25"
-              } ${wide ? "col-span-2" : ""}`}
+      {/* ── The modules ──────────────────────────────────────────────────────
+          Not a stack of equal rectangles. A lead module with the weight of a
+          masthead, then a two-column bed, then a hairline list. Three densities
+          on one screen is what a magazine does and a dashboard doesn't: the eye
+          is given an order to read in, rather than four identical things to
+          choose between. Nothing here is a card. */}
+      <div className="mb-chapter">
+        <Link href={MODULES[0].href} className="group block border-t border-snow/25 py-block">
+          <div className="flex items-baseline justify-between gap-4">
+            <span className="text-micro uppercase text-sage">{MODULES[0].name}</span>
+            <span
+              aria-hidden
+              className="text-caption text-sage transition group-hover:translate-x-1 group-hover:text-snow"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-micro uppercase text-sage">
-                    {m.name}
-                    {s.alert && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-fall" />}
-                  </p>
-                  <p className="mt-1 text-xs leading-snug text-sage/80">{m.question}</p>
-                </div>
-                <span
-                  aria-hidden
-                  className="shrink-0 text-sage/50 transition group-hover:translate-x-0.5 group-hover:text-ice"
-                >
-                  →
+              →
+            </span>
+          </div>
+          <p className="mt-2 font-display text-title font-semibold text-snow">
+            {MODULES[0].question}
+          </p>
+          <p className="mt-2 text-body text-sage">
+            {modules[MODULES[0].key].value ? (
+              <>
+                <span className="tnum text-snow">{modules[MODULES[0].key].value}</span>{" "}
+                {modules[MODULES[0].key].caption}
+              </>
+            ) : (
+              modules[MODULES[0].key].caption
+            )}
+          </p>
+        </Link>
+
+        <div className="grid grid-cols-2 gap-x-gutter border-t border-scree/60">
+          {MODULES.slice(1, 5).map((m, i) => {
+            const st = modules[m.key];
+            return (
+              <Link
+                key={m.key}
+                href={m.href}
+                className={`group py-5 ${i % 2 === 0 ? "pr-3" : "border-l border-scree/60 pl-5"} ${
+                  i >= 2 ? "border-t border-scree/60" : ""
+                }`}
+              >
+                <span className="flex items-center gap-1.5 text-micro uppercase text-sage">
+                  {m.name}
+                  {st.alert && <span aria-hidden className="h-1 w-1 rounded-full bg-fall" />}
                 </span>
-              </div>
-              {s.value === null ? (
-                <p className="mt-3 text-xs leading-snug text-sage/70">{s.caption}</p>
-              ) : (
-                <>
-                  <p
-                    className={`tnum mt-3 font-display font-semibold leading-none ${
-                      wide ? "text-2xl" : "text-xl"
-                    } ${
-                      s.tone === "money"
-                        ? "text-summit"
-                        : s.tone === "warn"
-                          ? "text-fall"
-                          : "text-snow"
-                    }`}
+                <p
+                  className={`tnum mt-2 font-display font-semibold leading-none ${
+                    st.value ? "text-2xl text-snow" : "text-base text-sage/60"
+                  }`}
+                >
+                  {st.value ?? "—"}
+                </p>
+                <p className="mt-1.5 text-caption text-sage">{st.caption}</p>
+              </Link>
+            );
+          })}
+        </div>
+
+        <ul className="border-t border-scree/60">
+          {MODULES.slice(5).map((m) => {
+            const st = modules[m.key];
+            return (
+              <li key={m.key} className="border-b border-scree/40 last:border-0">
+                <Link href={m.href} className="group flex items-center gap-4 py-4">
+                  <span className="w-24 shrink-0 text-micro uppercase text-sage">{m.name}</span>
+                  <span className="min-w-0 flex-1 truncate text-body text-sage">
+                    {st.value ? (
+                      <>
+                        <span className="tnum text-snow">{st.value}</span> {st.caption}
+                      </>
+                    ) : (
+                      st.caption
+                    )}
+                  </span>
+                  <span
+                    aria-hidden
+                    className="shrink-0 text-caption text-sage transition group-hover:translate-x-1 group-hover:text-snow"
                   >
-                    {s.value}
-                  </p>
-                  <p className="mt-1 text-caption leading-tight text-sage">{s.caption}</p>
-                </>
-              )}
-            </Link>
-          );
-        })}
+                    →
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       <p className="mt-6 text-center text-meta text-sage/70">
