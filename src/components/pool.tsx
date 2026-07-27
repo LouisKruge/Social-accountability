@@ -40,8 +40,9 @@ export function Pool({
   const uid = `${confirmed ? "gold" : "ice"}-${height}`;
 
   const line = confirmed ? "#E8B84B" : "#7FDCC0";
-  const body = confirmed ? "rgba(232,184,75,0.14)" : "rgba(127,220,192,0.12)";
-  const pips = Math.min(participants, 20);
+  const body = confirmed ? "rgba(232,184,75,0.22)" : "rgba(127,220,192,0.20)";
+  // Past a dozen the pips stop being countable and start reading as a rule.
+  const pips = Math.min(participants, 12);
 
   return (
     <svg

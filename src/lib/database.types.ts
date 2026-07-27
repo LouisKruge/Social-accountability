@@ -372,6 +372,14 @@ export interface Database {
           rank: number;
         }[];
       };
+      cohort_market: {
+        Args: Record<string, never>;
+        Returns: {
+          cohort_id: string;
+          participant_count: number;
+          confirmed_count: number;
+        }[];
+      };
       delete_my_glowup_data: {
         Args: Record<string, never>;
         Returns: { deleted_path: string }[];

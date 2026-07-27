@@ -106,6 +106,50 @@ select public._assert(
   (select count(*) from public.cohort_progress(:'cohort')) = 0,
   'a NON-member sees nothing on the cohort board');
 
+-- ── cohort_market(): how full a challenge is, WITHOUT any money ─────────────
+-- A browsing user must be able to see that a challenge has people in it before
+-- joining. That is a COUNT. It must never become a window onto amounts.
+select public._assert(
+  (select participant_count from public.cohort_market() where cohort_id = :'cohort') = 2,
+  'cohort_market() shows a NON-member how many people are in a challenge');
+select public._assert(
+  (select confirmed_count from public.cohort_market() where cohort_id = :'cohort') = 2,
+  'cohort_market() reports how many stakes are confirmed');
+select public._assert(
+  not exists (
+    select 1 from information_schema.routines r
+    join information_schema.parameters p on p.specific_name = r.specific_name
+    where r.routine_name = 'cohort_market'
+      and p.parameter_name in ('amount','payment_reference','payment_confirmed','user_id')
+  ),
+  'cohort_market() projection contains NO money columns and NO user identity');
+-- A staked 100, B staked 250, so the true sum is 350. The pool figure the UI
+-- derives is count x the cohort''s PUBLIC stake_amount = 2 x 100 = 200. The two
+-- disagreeing is the proof that nothing here reads anybody''s amount.
+select public._assert(
+  (select participant_count * c.stake_amount
+     from public.cohort_market() m
+     join public.stake_cohorts c on c.id = m.cohort_id
+    where m.cohort_id = :'cohort') = 200,
+  'the pool figure comes from PUBLIC terms, not from summing anyone''s stake');
+
+reset role;
+set request.jwt.claims = '{"role":"anon"}';
+set role anon;
+do $$
+begin
+  begin
+    perform * from public.cohort_market();
+    raise exception 'FAIL: anon executed cohort_market()';
+  exception when insufficient_privilege then
+    raise notice 'PASS: anon CANNOT execute cohort_market()';
+  end;
+end $$;
+
+reset role;
+set request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000ff","role":"authenticated"}';
+set role authenticated;
+
 -- ── Payouts are owner-read-only and client-unwritable ───────────────────────
 reset role;
 set role service_role;

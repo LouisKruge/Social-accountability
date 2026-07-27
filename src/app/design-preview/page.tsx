@@ -4,6 +4,7 @@ import { AscentLine } from "@/components/ascent";
 import { LeaderboardRow, type ClimbRow } from "@/components/leaderboard-row";
 import { HubPreview } from "./hub-preview";
 import { CommitPreview, ElevatePreview } from "./modes-preview";
+import { CommitDashPreview } from "./commit-dash-preview";
 
 /**
  * DESIGN HARNESS — renders the real leaderboard components with fixed data so
@@ -27,6 +28,7 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
   if (process.env.ALLOW_DESIGN_PREVIEW !== "1") notFound();
   if (searchParams.view === "hub") return <HubPreview />;
   if (searchParams.view === "commit") return <CommitPreview />;
+  if (searchParams.view === "commit-dash") return <CommitDashPreview />;
   if (searchParams.view === "elevate") return <ElevatePreview />;
 
   const viewer = ROWS[2];
