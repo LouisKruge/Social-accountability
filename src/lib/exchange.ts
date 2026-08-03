@@ -1,8 +1,15 @@
+// Server only. A client component importing a value from this file would drag
+// the database client and node: built-ins into the browser bundle — which is
+// exactly what happened before src/lib/modules.ts and src/lib/studios.ts
+// existed, and it only surfaced as a build error once a node: import appeared.
+// This import turns that mistake into a build failure naming the culprit.
+import "server-only";
 import type { ServerClient } from "@/lib/supabase/server";
 import { loadCommitDashboard, type CommitDashboard } from "@/lib/commitDashboard";
 import { loadWallet, type Wallet } from "@/lib/wallet";
 import { assessWindow, integrityLabel, type DayLog } from "@/lib/integrity";
 import { isOutstanding } from "@/lib/payoutLifecycle";
+import type { ModuleKey } from "@/lib/modules";
 import { logReport, timed } from "@/lib/timing";
 
 /**
@@ -19,37 +26,8 @@ import { logReport, timed } from "@/lib/timing";
  * number.
  */
 
-export type ModuleKey =
-  | "market"
-  | "portfolio"
-  | "treasury"
-  | "lab"
-  | "trust"
-  | "floor"
-  | "standing";
-
-export interface ModuleDef {
-  key: ModuleKey;
-  href: string;
-  name: string;
-  /** What question this module answers. Shown under the name. */
-  question: string;
-}
-
-/**
- * The seven modules. Each is named for what it IS rather than what it does,
- * and each carries the single question it exists to answer — if a module can't
- * name its question it shouldn't be a module.
- */
-export const MODULES: ModuleDef[] = [
-  { key: "portfolio", href: "/commit/portfolio", name: "Portfolio", question: "What am I holding?" },
-  { key: "market", href: "/commit/market", name: "Market", question: "What can I take on?" },
-  { key: "treasury", href: "/commit/wallet", name: "Treasury", question: "Where is my money?" },
-  { key: "lab", href: "/commit/lab", name: "Lab", question: "Am I actually improving?" },
-  { key: "floor", href: "/commit/floor", name: "Floor", question: "Who am I up against?" },
-  { key: "trust", href: "/commit/trust", name: "Trust", question: "Can this be verified?" },
-  { key: "standing", href: "/commit/standing", name: "Standing", question: "What have I earned?" },
-];
+export { MODULES } from "@/lib/modules";
+export type { ModuleDef, ModuleKey } from "@/lib/modules";
 
 export interface ModuleStatus {
   key: ModuleKey;

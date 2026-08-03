@@ -1,6 +1,13 @@
+// Server only. A client component importing a value from this file would drag
+// the database client and node: built-ins into the browser bundle — which is
+// exactly what happened before src/lib/modules.ts and src/lib/studios.ts
+// existed, and it only surfaced as a build error once a node: import appeared.
+// This import turns that mistake into a build failure naming the culprit.
+import "server-only";
 import type { ServerClient } from "@/lib/supabase/server";
 import { costPerWear, neverWorn, type Occasion, type WardrobeItem } from "@/lib/wardrobe";
 import { logReport, timed } from "@/lib/timing";
+import type { StudioKey, StyleProfile } from "@/lib/studios";
 
 /**
  * ELEVATE — five studios under one roof.
@@ -17,72 +24,8 @@ import { logReport, timed } from "@/lib/timing";
  * query below is `.eq("user_id", userId)` against an owner-only table.
  */
 
-export type StudioKey = "style" | "look" | "photo" | "confidence" | "timeline";
-
-export interface StudioDef {
-  key: StudioKey;
-  href: string;
-  name: string;
-  /** The question someone walks in with. */
-  question: string;
-}
-
-export const STUDIOS: StudioDef[] = [
-  {
-    key: "style",
-    href: "/elevate/style",
-    name: "Style Studio",
-    question: "What do I wear?",
-  },
-  {
-    key: "look",
-    href: "/elevate/look",
-    name: "Look Lab",
-    question: "What do I ask the barber for?",
-  },
-  {
-    key: "photo",
-    href: "/elevate/photo",
-    name: "Photo Coach",
-    question: "How do I take this shot?",
-  },
-  {
-    key: "confidence",
-    href: "/elevate/confidence",
-    name: "Confidence Coach",
-    question: "What do I practise today?",
-  },
-  {
-    key: "timeline",
-    href: "/elevate/timeline",
-    name: "Timeline",
-    question: "What have I actually changed?",
-  },
-];
-
-export const GOAL_LABEL: Record<string, string> = {
-  interview: "Interview",
-  professional: "Professional brand",
-  dating_profile: "Dating profile",
-  wedding: "Wedding",
-  vacation: "Vacation",
-  general_confidence: "General confidence",
-  content_creator: "Content creator",
-  university: "University",
-  networking: "Networking",
-};
-
-export const DIRECTION_LABEL: Record<string, string> = {
-  minimal: "Minimal",
-  classic: "Classic",
-  streetwear: "Streetwear",
-  business: "Business",
-  athleisure: "Athleisure",
-  smart_casual: "Smart casual",
-  creative: "Creative",
-  outdoor: "Outdoor",
-  formal: "Formal",
-};
+export { DIRECTION_LABEL, GOAL_LABEL, STUDIOS } from "@/lib/studios";
+export type { StudioDef, StudioKey, StyleProfile } from "@/lib/studios";
 
 export interface StudioStatus {
   key: StudioKey;
@@ -108,14 +51,6 @@ export interface TimelineEntry {
   title: string;
   detail: string | null;
   occurredAt: string;
-}
-
-export interface StyleProfile {
-  direction: string;
-  goalMode: string;
-  budgetTier: "low" | "mid" | "high";
-  notes: string | null;
-  avoid: string[];
 }
 
 export interface ElevateState {

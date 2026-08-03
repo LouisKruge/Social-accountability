@@ -2,7 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import { Button, ErrorNote, Field } from "@/components/ui";
-import { DIRECTION_LABEL, GOAL_LABEL, type StyleProfile } from "@/lib/elevate";
+import { DIRECTION_LABEL, GOAL_LABEL, type StyleProfile } from "@/lib/studios";
 import { saveStyleProfile, type ProfileState } from "./actions";
 
 function Submit() {

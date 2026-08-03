@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { MODULES, type ModuleKey } from "@/lib/exchange";
+import { MODULES, type ModuleKey } from "@/lib/modules";
 
 /**
  * THE EXCHANGE SHELL.

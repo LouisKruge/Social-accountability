@@ -1,3 +1,9 @@
+// Server only. A client component importing a value from this file would drag
+// the database client and node: built-ins into the browser bundle — which is
+// exactly what happened before src/lib/modules.ts and src/lib/studios.ts
+// existed, and it only surfaced as a build error once a node: import appeared.
+// This import turns that mistake into a build failure naming the culprit.
+import "server-only";
 import * as React from "react";
 import type { ServerClient } from "@/lib/supabase/server";
 import { timed } from "@/lib/timing";

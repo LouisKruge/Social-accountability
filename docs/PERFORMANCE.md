@@ -7,6 +7,46 @@ and *not* the same claim as "it got faster". This is how to find out.
 
 ---
 
+## The finding that mattered most
+
+**Vercel functions ran in `iad1` (Washington DC). Supabase is in `eu-west-3`
+(Paris).** Every query was a transatlantic round trip — roughly 80–100ms each,
+before Postgres did any work at all.
+
+The first real measurement was `wall_ms: 681.9` to load an account holding
+**one** stake and two open challenges. That is not a query problem; there is
+almost nothing to query. It is ~12 round trips × the Atlantic.
+
+`vercel.json` now pins functions to `cdg1` (Paris), the same city as the
+database. That shortens both legs at once for a South African user:
+
+| leg | before | after |
+|---|---|---|
+| browser (ZA) → function | ~230ms to Washington | ~150ms to Paris |
+| function → database | ~85ms **per query** | ~1–5ms per query |
+
+**If you ever move the Supabase project, move `vercel.json` with it.** A region
+mismatch is invisible in code review, survives every optimisation, and costs
+more than all of them combined.
+
+## The second finding: server code in the client bundle
+
+Adding `node:async_hooks` to the timing module broke the build — and that break
+was a symptom, not the problem. Two **client** components imported *values* from
+server-loader modules:
+
+- `exchange-shell.tsx` → `MODULES` from `lib/exchange.ts`
+- `profile-form.tsx` → `GOAL_LABEL` from `lib/elevate.ts`
+
+Both files also export loaders that open a database connection. Importing one
+constant dragged the whole server graph toward the browser bundle. It had been
+doing that silently; the `node:` import merely made it loud.
+
+The constants now live in `lib/modules.ts` and `lib/studios.ts`, which import
+nothing server-side. Every server module carries `import "server-only"`, so the
+same mistake is now a **build failure that names the culprit** rather than
+silent bundle weight.
+
 ## The endpoint
 
 Signed in, in production:
@@ -93,4 +133,4 @@ production forever.
 | First contentful paint | Yes | 652ms at 6× throttle |
 | Middleware redirect | Yes | ~4ms after dropping the auth round trip |
 | Query round-trip count | Yes | static — one query site per table |
-| **Real query latency** | **No** | **needs this endpoint, in production** |
+| **Real query latency** | **Partly** | first measurement: 682ms wall for a near-empty account, which is what exposed the region mismatch |

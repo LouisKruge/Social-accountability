@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { loadExchange } from "@/lib/exchange";
 import { loadElevate } from "@/lib/elevate";
-import { report, serverTimingHeader, record } from "@/lib/timing";
+import { record, serverTimingHeader, withTiming } from "@/lib/timing";
 
 export const dynamic = "force-dynamic";
 
@@ -36,44 +36,59 @@ export async function GET(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Sign in to profile your own requests." }, { status: 401 });
   }
-  record("auth.getUser", performance.now() - started);
+  // Recorded before the scope exists, so it is reported on its own line. It is
+  // its own round trip to Supabase Auth and worth seeing separately.
+  const authMs = Math.round((performance.now() - started) * 10) / 10;
+  record("auth.getUser", authMs);
 
   const which = new URL(request.url).searchParams.get("load") ?? "exchange";
 
   const t0 = performance.now();
   let shape: Record<string, number> = {};
+  let timing;
   try {
-    if (which === "elevate") {
-      const state = await loadElevate(supabase, user.id);
-      shape = {
-        wardrobe_items: state.wardrobe.length,
-        open_actions: state.actions.length,
-        timeline_entries: state.timeline.length,
-      };
-    } else {
+    // withTiming establishes the async scope. Without it the spans recorded
+    // inside the loaders land somewhere this handler cannot read — which is
+    // exactly what this endpoint did on its first deploy, returning real row
+    // counts beside an empty span list.
+    const run = await withTiming(async (): Promise<Record<string, number>> => {
+      if (which === "elevate") {
+        const state = await loadElevate(supabase, user.id);
+        return {
+          wardrobe_items: state.wardrobe.length,
+          open_actions: state.actions.length,
+          timeline_entries: state.timeline.length,
+        };
+      }
       const state = await loadExchange(supabase, user.id);
-      shape = {
+      return {
         active_positions: state.dashboard.active.length,
         open_challenges: state.dashboard.open.length,
         ledger_lines: state.wallet.ledger.length,
         payouts: state.wallet.payouts.length,
       };
-    }
+    });
+    shape = run.result;
+    timing = run.timing;
   } catch (err) {
     return NextResponse.json(
-      { error: "Loader threw", message: err instanceof Error ? err.message : String(err), timing: report() },
+      {
+        error: "Loader threw",
+        message: err instanceof Error ? err.message : String(err),
+      },
       { status: 500 },
     );
   }
   const wallMs = Math.round((performance.now() - t0) * 10) / 10;
 
-  const r = report();
+  const r = timing;
   return NextResponse.json(
     {
       load: which,
       // Wall time is what the user waits. The db total is the sum of every
       // span, and it EXCEEDS wall time whenever queries ran in parallel —
       // the ratio between them is how much parallelism is actually happening.
+      auth_ms: authMs,
       wall_ms: wallMs,
       db_total_ms: r.totalMs,
       parallelism: r.totalMs > 0 ? Math.round((r.totalMs / Math.max(wallMs, 0.1)) * 100) / 100 : 0,

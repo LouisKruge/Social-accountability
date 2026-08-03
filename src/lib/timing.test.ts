@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { record, report, serverTimingHeader, spans, timed } from "./timing";
+import { record, report, serverTimingHeader, spans, timed, withTiming } from "./timing";
 
 // Each test starts from a clean slate: without React's cache, `spans()` returns
 // a fresh array per call in this environment, so we clear explicitly.
@@ -108,5 +108,77 @@ describe("serverTimingHeader", () => {
     record("stakes", 10, 3);
     const h = serverTimingHeader();
     expect(h).toMatch(/^[a-zA-Z0-9_;=.,\- ]+$/);
+  });
+});
+
+describe("withTiming — the scope that makes a report trustworthy", () => {
+  it("reports exactly the spans its own callback produced", async () => {
+    const { result, timing } = await withTiming(async () => {
+      await timed("a", async () => null);
+      await timed("b", async () => null);
+      return "done";
+    });
+    expect(result).toBe("done");
+    expect(timing.spanCount).toBe(2);
+    expect(timing.byName.map((x) => x.name).sort()).toEqual(["a", "b"]);
+  });
+
+  it("collects spans recorded deep inside anything it awaits", async () => {
+    // THE BUG THIS EXISTS FOR: the first version scoped spans with React's
+    // cache(), which only establishes a scope inside a Server Component
+    // render. In a route handler every collector call returned a fresh array,
+    // so the endpoint reported ZERO spans on a request that had demonstrably
+    // hit the database. An empty report looks exactly like a fast request.
+    async function threeLayersDown() {
+      await timed("deep.query", async () => null);
+    }
+    async function middle() {
+      await threeLayersDown();
+    }
+    const { timing } = await withTiming(async () => {
+      await middle();
+      return null;
+    });
+    expect(timing.spanCount).toBe(1);
+    expect(timing.spans[0].name).toBe("deep.query");
+  });
+
+  it("does not inherit spans from a previous run", async () => {
+    // Serverless containers are reused. A report that accumulated across
+    // requests would overstate every request after the first.
+    await withTiming(async () => {
+      await timed("first", async () => null);
+      return null;
+    });
+    const { timing } = await withTiming(async () => {
+      await timed("second", async () => null);
+      return null;
+    });
+    expect(timing.spanCount).toBe(1);
+    expect(timing.spans[0].name).toBe("second");
+  });
+
+  it("keeps concurrent runs from bleeding into each other", async () => {
+    const [a, b] = await Promise.all([
+      withTiming(async () => {
+        await timed("run-a", async () => new Promise((r) => setTimeout(r, 10)));
+        return null;
+      }),
+      withTiming(async () => {
+        await timed("run-b", async () => null);
+        return null;
+      }),
+    ]);
+    expect(a.timing.spans.map((s) => s.name)).toEqual(["run-a"]);
+    expect(b.timing.spans.map((s) => s.name)).toEqual(["run-b"]);
+  });
+
+  it("still reports what it captured when the work throws", async () => {
+    await expect(
+      withTiming(async () => {
+        await timed("ok", async () => null);
+        throw new Error("boom");
+      }),
+    ).rejects.toThrow("boom");
   });
 });
