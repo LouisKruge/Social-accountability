@@ -3,6 +3,7 @@ import { loadCommitDashboard, type CommitDashboard } from "@/lib/commitDashboard
 import { loadWallet, type Wallet } from "@/lib/wallet";
 import { assessWindow, integrityLabel, type DayLog } from "@/lib/integrity";
 import { isOutstanding } from "@/lib/payoutLifecycle";
+import { logReport, timed } from "@/lib/timing";
 
 /**
  * THE DISCIPLINE EXCHANGE.
@@ -75,8 +76,8 @@ export async function loadExchange(
   userId: string,
 ): Promise<ExchangeState> {
   const [dashboard, wallet] = await Promise.all([
-    loadCommitDashboard(supabase, userId),
-    loadWallet(supabase, userId),
+    timed("loader.dashboard", () => loadCommitDashboard(supabase, userId)),
+    timed("loader.wallet", () => loadWallet(supabase, userId)),
   ]);
 
   // Integrity is assessed from logs the dashboard has ALREADY fetched. This
@@ -168,6 +169,8 @@ export async function loadExchange(
       tone: "default",
     },
   };
+
+  logReport("exchange");
 
   return {
     dashboard,

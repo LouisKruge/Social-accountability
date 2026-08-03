@@ -7,6 +7,7 @@ import {
   type PayoutState,
 } from "@/lib/payoutLifecycle";
 import { getCohorts, getMyPayouts, getMyStakes } from "@/lib/queries";
+import { timed } from "@/lib/timing";
 
 /**
  * THE WALLET — Ascend's money, from the user's side.
@@ -186,39 +187,39 @@ export async function loadWallet(supabase: ServerClient, userId: string): Promis
     { data: eventRows },
     { data: deviceRows },
   ] = await Promise.all([
-    supabase.rpc("wallet_positions"),
+    timed("rpc.wallet_positions", async () => supabase.rpc("wallet_positions")),
     getMyPayouts(supabase, userId),
-    supabase
+    timed("wallet_transactions", async () => supabase
       .from("wallet_transactions")
       .select("id, kind, amount, status, memo, bank_reference, effective_at, stake_id")
       .eq("user_id", userId)
       .order("effective_at", { ascending: false })
-      .limit(200),
+      .limit(200)),
     getMyStakes(supabase, userId),
     getCohorts(supabase),
-    supabase
+    timed("payout_destinations", async () => supabase
       .from("payout_destinations")
       .select("account_holder, bank_name, account_last4, verified")
       .eq("user_id", userId)
       .eq("is_default", true)
-      .maybeSingle(),
-    supabase
+      .maybeSingle()),
+    timed("verification_flags", async () => supabase
       .from("verification_flags")
       .select("code, severity, detail, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(20),
-    supabase
+      .limit(20)),
+    timed("security_events", async () => supabase
       .from("security_events")
       .select("kind, created_at, city, user_agent")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(10),
-    supabase
+      .limit(10)),
+    timed("trusted_devices", async () => supabase
       .from("trusted_devices")
       .select("id, label, last_seen, trusted")
       .eq("user_id", userId)
-      .order("last_seen", { ascending: false }),
+      .order("last_seen", { ascending: false })),
   ]);
 
   const p = positionRows?.[0];
@@ -245,11 +246,11 @@ export async function loadWallet(supabase: ServerClient, userId: string): Promis
     .map((r) => r.id);
 
   const { data: histRows } = outstandingIds.length
-    ? await supabase
+    ? await timed("payout_events", async () => supabase
         .from("payout_events")
         .select("payout_id, to_state, reason, actor, created_at")
         .in("payout_id", outstandingIds)
-        .order("created_at", { ascending: true })
+        .order("created_at", { ascending: true }))
     : { data: [] };
 
   const histByPayout = new Map<string, PayoutTracking["history"]>();

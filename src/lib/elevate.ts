@@ -1,5 +1,6 @@
 import type { ServerClient } from "@/lib/supabase/server";
 import { costPerWear, neverWorn, type Occasion, type WardrobeItem } from "@/lib/wardrobe";
+import { logReport, timed } from "@/lib/timing";
 
 /**
  * ELEVATE — five studios under one roof.
@@ -149,35 +150,37 @@ export async function loadElevate(
     { count: reportCount },
     { count: looksCount },
   ] = await Promise.all([
-    supabase.from("profiles").select("glowup_age_confirmed_at").eq("id", userId).maybeSingle(),
-    supabase
+    timed("profiles", async () =>
+      supabase.from("profiles").select("glowup_age_confirmed_at").eq("id", userId).maybeSingle()),
+    timed("style_profiles", async () => supabase
       .from("style_profiles")
       .select("direction, goal_mode, budget_tier, notes, avoid")
       .eq("user_id", userId)
-      .maybeSingle(),
-    supabase
+      .maybeSingle()),
+    timed("wardrobe_items", async () => supabase
       .from("wardrobe_items")
       .select("id, name, category, colour, seasons, occasions, price_zar, wear_count")
       .eq("user_id", userId)
-      .eq("archived", false),
-    supabase
+      .eq("archived", false)),
+    timed("coach_actions", async () => supabase
       .from("coach_actions")
       .select("id, studio, title, detail, impact, effort, cost_zar, status")
       .eq("user_id", userId)
       .in("status", ["open", "doing"])
       .order("impact", { ascending: false })
-      .limit(20),
-    supabase
+      .limit(20)),
+    timed("timeline_entries", async () => supabase
       .from("timeline_entries")
       .select("id, kind, title, detail, occurred_at")
       .eq("user_id", userId)
       .order("occurred_at", { ascending: false })
-      .limit(20),
-    supabase
+      .limit(20)),
+    timed("glowup_reports.count", async () => supabase
       .from("glowup_reports")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", userId),
-    supabase.from("looks").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      .eq("user_id", userId)),
+    timed("looks.count", async () =>
+      supabase.from("looks").select("id", { count: "exact", head: true }).eq("user_id", userId)),
   ]);
 
   const wardrobe: WardrobeItem[] = (itemRows ?? []).map((r) => ({
@@ -249,6 +252,8 @@ export async function loadElevate(
       alert: false,
     },
   };
+
+  logReport("elevate");
 
   return {
     ageConfirmed: Boolean(profileRow?.glowup_age_confirmed_at),

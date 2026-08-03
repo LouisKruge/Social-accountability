@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { ServerClient } from "@/lib/supabase/server";
+import { timed } from "@/lib/timing";
 
 /**
  * `cache` ships in the React canary that Next vendors for the App Router, not
@@ -30,35 +31,43 @@ const cache: <T extends (...args: never[]) => unknown>(fn: T) => T =
  * query belongs in this file.
  */
 
-export const getMyStakes = cache(async (supabase: ServerClient, userId: string) => {
+export const getMyStakes = cache((supabase: ServerClient, userId: string) =>
+  timed("stakes", async () => {
   const { data } = await supabase
     .from("stakes")
     .select("id, cohort_id, amount, payment_confirmed, payment_reference, created_at")
     .eq("user_id", userId);
   return data ?? [];
-});
+  }, (r) => r.length),
+);
 
-export const getCohorts = cache(async (supabase: ServerClient) => {
+export const getCohorts = cache((supabase: ServerClient) =>
+  timed("cohorts", async () => {
   const { data } = await supabase
     .from("stake_cohorts")
     .select("id, name, target_value, start_date, end_date, stake_amount, fee_rate, status")
     .order("start_date", { ascending: true });
   return data ?? [];
-});
+  }, (r) => r.length),
+);
 
-export const getMyPayouts = cache(async (supabase: ServerClient, userId: string) => {
+export const getMyPayouts = cache((supabase: ServerClient, userId: string) =>
+  timed("payouts", async () => {
   const { data } = await supabase
     .from("payouts")
     .select("id, cohort_id, amount, kind, status, created_at, paid_at, expected_by")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   return data ?? [];
-});
+  }, (r) => r.length),
+);
 
-export const getMarket = cache(async (supabase: ServerClient) => {
-  const { data } = await supabase.rpc("cohort_market");
-  return data ?? [];
-});
+export const getMarket = cache((supabase: ServerClient) =>
+  timed("rpc.cohort_market", async () => {
+    const { data } = await supabase.rpc("cohort_market");
+    return data ?? [];
+  }, (r) => r.length),
+);
 
 /**
  * Every verification log the caller owns, with the provenance the integrity
@@ -68,6 +77,7 @@ export const getMarket = cache(async (supabase: ServerClient) => {
 export const getMyLogs = cache(async (supabase: ServerClient, userId: string) => {
   const stakes = await getMyStakes(supabase, userId);
   if (stakes.length === 0) return [];
+  return timed("verification_logs", async () => {
   const { data } = await supabase
     .from("daily_verification_logs")
     .select("stake_id, log_date, verified_value, source, recorded_at, device_id, created_at")
@@ -77,6 +87,7 @@ export const getMyLogs = cache(async (supabase: ServerClient, userId: string) =>
     )
     .order("log_date", { ascending: true });
   return data ?? [];
+  }, (r) => r.length);
 });
 
 /**
@@ -86,10 +97,16 @@ export const getMyLogs = cache(async (supabase: ServerClient, userId: string) =>
 export const getMyBoards = cache(async (supabase: ServerClient, userId: string) => {
   const stakes = await getMyStakes(supabase, userId);
   const entries = await Promise.all(
-    stakes.map(async (s) => {
-      const { data } = await supabase.rpc("cohort_progress", { _cohort_id: s.cohort_id });
-      return [s.cohort_id, data ?? []] as const;
-    }),
+    stakes.map((s) =>
+      timed(
+        "rpc.cohort_progress",
+        async () => {
+          const { data } = await supabase.rpc("cohort_progress", { _cohort_id: s.cohort_id });
+          return [s.cohort_id, data ?? []] as const;
+        },
+        ([, rows]) => rows.length,
+      ),
+    ),
   );
   return new Map(entries);
 });
