@@ -1,5 +1,6 @@
 import type { ServerClient } from "@/lib/supabase/server";
 import { num } from "@/lib/format";
+import { getCohorts, getMarket, getMyBoards, getMyLogs, getMyPayouts, getMyStakes } from "@/lib/queries";
 import type { ActiveBetData, ChallengeCardData } from "@/components/commit-cards";
 
 /**
@@ -289,6 +290,14 @@ export interface CommitDashboard {
   achievements: Achievement[];
   history: HistoryItem[];
   feeRate: number;
+  /** Raw logs with provenance, so the integrity pass needs no second query. */
+  rawLogs: {
+    log_date: string;
+    verified_value: number | null;
+    source: "manual" | "google_fit" | "apple_health" | "fitbit";
+    recorded_at: string;
+    device_id: string | null;
+  }[];
   /** How many cohorts the caller has been in. Below two, the cross-cohort
    *  board is just the cohort board again, so the page hides it. */
   cohortsJoined: number;
@@ -301,41 +310,22 @@ export async function loadCommitDashboard(
 ): Promise<CommitDashboard> {
   const today = todayIso(now);
 
-  const [{ data: stakes }, { data: cohorts }, { data: payouts }, { data: market }] =
-    await Promise.all([
-      supabase
-        .from("stakes")
-        .select("id, cohort_id, amount, payment_confirmed, created_at")
-        .eq("user_id", userId),
-      supabase
-        .from("stake_cohorts")
-        .select("id, name, target_value, start_date, end_date, stake_amount, fee_rate, status")
-        .order("start_date", { ascending: true }),
-      supabase
-        .from("payouts")
-        .select("id, cohort_id, amount, kind, status, created_at, paid_at")
-        .eq("user_id", userId),
-      supabase.rpc("cohort_market"),
-    ]);
-
-  const myStakes = stakes ?? [];
-  const allCohorts = cohorts ?? [];
-  const myPayouts = payouts ?? [];
+  // All five reads go out at once and are deduped across the other loaders on
+  // this request (see src/lib/queries.ts) — previously these fired again inside
+  // loadWallet and loadExchange on the very same page.
+  const [myStakes, allCohorts, myPayouts, market, logRows, boardsRaw] = await Promise.all([
+    getMyStakes(supabase, userId),
+    getCohorts(supabase),
+    getMyPayouts(supabase, userId),
+    getMarket(supabase),
+    getMyLogs(supabase, userId),
+    getMyBoards(supabase, userId),
+  ]);
 
   const headcount = new Map<string, number>();
   for (const m of market ?? []) headcount.set(m.cohort_id, Number(m.participant_count));
 
   const stakeByCohort = new Map(myStakes.map((s) => [s.cohort_id, s]));
-  const stakeIds = myStakes.map((s) => s.id);
-
-  const { data: logRows } = stakeIds.length
-    ? await supabase
-        .from("daily_verification_logs")
-        .select("stake_id, log_date, verified_value, created_at")
-        .in("stake_id", stakeIds)
-        .order("log_date", { ascending: true })
-    : { data: [] };
-
   const logsByStake = new Map<string, { date: string; value: number; at: string }[]>();
   for (const l of logRows ?? []) {
     const list = logsByStake.get(l.stake_id) ?? [];
@@ -349,10 +339,10 @@ export async function loadCommitDashboard(
 
   // Boards for the cohorts I'm actually in. Progress and rank only.
   const boards = new Map<string, BoardRow[]>();
-  await Promise.all(
-    myStakes.map(async (s) => {
-      const { data } = await supabase.rpc("cohort_progress", { _cohort_id: s.cohort_id });
-      const rows = (data ?? []).map((r) => {
+  for (const [cohortId, rows] of Array.from(boardsRaw.entries())) {
+    boards.set(
+      cohortId,
+      rows.map((r) => {
         const target = Number(r.target_value);
         const progress = Number(r.current_progress);
         return {
@@ -365,10 +355,9 @@ export async function loadCommitDashboard(
           rank: Number(r.rank),
           isMe: r.user_id === userId,
         };
-      });
-      boards.set(s.cohort_id, rows);
-    }),
-  );
+      }),
+    );
+  }
 
   // ── Per-cohort shaping ────────────────────────────────────────────────────
   const active: ActiveBetData[] = [];
@@ -590,6 +579,7 @@ export async function loadCommitDashboard(
     history: history.sort((a, b) => Date.parse(b.endDate) - Date.parse(a.endDate)),
     feeRate: Number(allCohorts[0]?.fee_rate ?? 0.1),
     cohortsJoined: myStakes.length,
+    rawLogs: logRows,
   };
 }
 

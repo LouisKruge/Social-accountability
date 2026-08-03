@@ -209,9 +209,16 @@ p {
    Restrained glass: a blur strong enough to separate layers, never so strong
    it becomes the design. Only on surfaces that genuinely float over content. */
 .glass {
-  background: rgb(var(--valley) / 0.82);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  background: rgb(var(--valley) / 0.86);
+  /* 14px, and no saturate(). Saturation boost does nothing to a palette with
+     no saturation in it, but it still costs a full compositing pass on every
+     frame the dock is over moving content — which is every frame of a scroll.
+     The blur radius is the smallest that still separates the layer. */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  /* Promote once, deliberately, instead of letting the compositor re-decide
+     mid-scroll on a low-end device. */
+  will-change: backdrop-filter;
 }
 
 @supports not (backdrop-filter: blur(1px)) {

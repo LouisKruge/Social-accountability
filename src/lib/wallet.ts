@@ -6,6 +6,7 @@ import {
   trackerSteps,
   type PayoutState,
 } from "@/lib/payoutLifecycle";
+import { getCohorts, getMyPayouts, getMyStakes } from "@/lib/queries";
 
 /**
  * THE WALLET — Ascend's money, from the user's side.
@@ -176,32 +177,25 @@ export function toCsv(lines: LedgerLine[]): string {
 export async function loadWallet(supabase: ServerClient, userId: string): Promise<Wallet> {
   const [
     { data: positionRows },
-    { data: payoutRows },
+    payoutRows,
     { data: txRows },
-    { data: stakeRows },
-    { data: cohortRows },
+    stakeRows,
+    cohortRows,
     { data: destRows },
     { data: flagRows },
     { data: eventRows },
     { data: deviceRows },
   ] = await Promise.all([
     supabase.rpc("wallet_positions"),
-    supabase
-      .from("payouts")
-      .select("id, cohort_id, amount, kind, status, created_at, paid_at, expected_by")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false }),
+    getMyPayouts(supabase, userId),
     supabase
       .from("wallet_transactions")
       .select("id, kind, amount, status, memo, bank_reference, effective_at, stake_id")
       .eq("user_id", userId)
       .order("effective_at", { ascending: false })
       .limit(200),
-    supabase
-      .from("stakes")
-      .select("id, amount, payment_confirmed, payment_reference, created_at, cohort_id")
-      .eq("user_id", userId),
-    supabase.from("stake_cohorts").select("id, name"),
+    getMyStakes(supabase, userId),
+    getCohorts(supabase),
     supabase
       .from("payout_destinations")
       .select("account_holder, bank_name, account_last4, verified")
@@ -243,10 +237,10 @@ export async function loadWallet(supabase: ServerClient, userId: string): Promis
     roi: computeRoi(lifetimeStaked, lifetimeWon),
   };
 
-  const cohortNames = new Map((cohortRows ?? []).map((c) => [c.id, c.name]));
+  const cohortNames = new Map(cohortRows.map((c) => [c.id, c.name]));
 
   // Event history for the payouts that are still moving.
-  const outstandingIds = (payoutRows ?? [])
+  const outstandingIds = payoutRows
     .filter((r) => isOutstanding(normalise(r.status)))
     .map((r) => r.id);
 
@@ -265,7 +259,7 @@ export async function loadWallet(supabase: ServerClient, userId: string): Promis
     histByPayout.set(h.payout_id, list);
   }
 
-  const payouts: PayoutTracking[] = (payoutRows ?? []).map((r) => {
+  const payouts: PayoutTracking[] = payoutRows.map((r) => {
     const state = normalise(r.status);
     const pres = PRESENTATION[state];
     const settledAt = r.created_at;
@@ -292,7 +286,7 @@ export async function loadWallet(supabase: ServerClient, userId: string): Promis
   return {
     positions,
     payouts,
-    ledger: buildLedger(txRows ?? [], stakeRows ?? [], cohortNames),
+    ledger: buildLedger(txRows ?? [], stakeRows, cohortNames),
     trust: {
       destination: destRows
         ? {

@@ -79,22 +79,10 @@ export async function loadExchange(
     loadWallet(supabase, userId),
   ]);
 
-  // Integrity is assessed from the caller's own logs across live challenges.
-  const stakeIds = new Set<string>();
-  const { data: myStakes } = await supabase
-    .from("stakes")
-    .select("id")
-    .eq("user_id", userId);
-  for (const s of myStakes ?? []) stakeIds.add(s.id);
-
-  const { data: logs } = stakeIds.size
-    ? await supabase
-        .from("daily_verification_logs")
-        .select("log_date, verified_value, source, recorded_at, device_id")
-        .in("stake_id", Array.from(stakeIds))
-    : { data: [] };
-
-  const dayLogs: DayLog[] = (logs ?? []).map((l) => ({
+  // Integrity is assessed from logs the dashboard has ALREADY fetched. This
+  // used to be two more round trips fired AFTER both loaders had resolved —
+  // a waterfall on top of a waterfall, on every module page.
+  const dayLogs: DayLog[] = dashboard.rawLogs.map((l) => ({
     date: l.log_date,
     value: Number(l.verified_value ?? 0),
     source: l.source,
