@@ -303,6 +303,16 @@ export interface CommitDashboard {
     source: "manual" | "google_fit" | "apple_health" | "fitbit";
     recorded_at: string;
     device_id: string | null;
+    /**
+     * Which challenge the day belongs to.
+     *
+     * Resolved from the log's stake, because a day only means something
+     * against the target that day was asking for. Without it every consumer
+     * has to re-derive the mapping or quietly treat every log as targetless —
+     * which is what the Life OS did on its first pass, silently producing no
+     * projections at all.
+     */
+    cohort_id: string;
   }[];
   /** How many cohorts the caller has been in. Below two, the cross-cohort
    *  board is just the cohort board again, so the page hides it. */
@@ -332,6 +342,7 @@ export async function loadCommitDashboard(
   for (const m of market ?? []) headcount.set(m.cohort_id, Number(m.participant_count));
 
   const stakeByCohort = new Map(myStakes.map((s) => [s.cohort_id, s]));
+  const cohortByStake = new Map(myStakes.map((s) => [s.id, s.cohort_id]));
   const logsByStake = new Map<string, { date: string; value: number; at: string }[]>();
   for (const l of logRows ?? []) {
     const list = logsByStake.get(l.stake_id) ?? [];
@@ -585,7 +596,10 @@ export async function loadCommitDashboard(
     history: history.sort((a, b) => Date.parse(b.endDate) - Date.parse(a.endDate)),
     feeRate: Number(allCohorts[0]?.fee_rate ?? 0.1),
     cohortsJoined: myStakes.length,
-    rawLogs: logRows,
+    rawLogs: (logRows ?? []).map((l) => ({
+      ...l,
+      cohort_id: cohortByStake.get(l.stake_id) ?? "",
+    })),
   };
 }
 

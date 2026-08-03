@@ -279,5 +279,43 @@ select public._assert(
   (select count(*) from public.stakes where user_id = :'uidB') = 0,
   'glow-up user A still cannot see stakes belonging to B');
 
+-- ── Discipline snapshots: a score is never visible to anyone else ───────────
+-- A discipline score is a statement about how reliable a person is. This
+-- product does not publish that about anyone, so the test is explicit rather
+-- than inferred from the policy text.
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+insert into public.discipline_snapshots (user_id, taken_on, score, momentum, coverage)
+values (:'uidA', current_date, 910, 88, 0.920);
+
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+insert into public.discipline_snapshots (user_id, taken_on, score, momentum, coverage)
+values (:'uidB', current_date, 640, 55, 0.920);
+
+select public._assert(
+  (select count(*) from public.discipline_snapshots) = 1,
+  'B sees only B''s own discipline snapshot, never A''s');
+select public._assert(
+  (select count(*) from public.discipline_snapshots where user_id = :'uidA') = 0,
+  'B cannot read A''s discipline score by filtering for it');
+
+-- B cannot write a snapshot attributed to A — a score that gates challenge
+-- access must not be forgeable onto someone else.
+do $$
+begin
+  begin
+    insert into public.discipline_snapshots (user_id, taken_on, score, momentum, coverage)
+    values ('aaaa1111-0000-0000-0000-00000000aaaa', current_date - 1, 1000, 100, 1.0);
+    raise exception 'FAIL: B was able to insert a snapshot for A';
+  exception when insufficient_privilege or check_violation then
+    raise notice 'PASS: B cannot write a discipline snapshot for A';
+  end;
+end $$;
+
+-- The percentile refuses to answer below the minimum cohort. With two users,
+-- "top 50%" is arithmetic on a sample that identifies people.
+select public._assert(
+  public.discipline_percentile() is null,
+  'discipline_percentile() returns NULL below the minimum cohort');
+
 reset role;
 select '════════ FEATURE ISOLATION ASSERTIONS PASSED ════════' as result;

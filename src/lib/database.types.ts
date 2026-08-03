@@ -6,6 +6,28 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      discipline_snapshots: {
+        Row: {
+          id: string;
+          user_id: string;
+          taken_on: string;
+          score: number;
+          momentum: number;
+          coverage: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          taken_on?: string;
+          score: number;
+          momentum: number;
+          coverage: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["discipline_snapshots"]["Insert"]>;
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;
@@ -619,6 +641,7 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      discipline_percentile: { Args: Record<string, never>; Returns: number | null };
       join_group_by_code: { Args: { _code: string }; Returns: string };
       preview_group_by_code: {
         Args: { _code: string };

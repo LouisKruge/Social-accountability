@@ -17,7 +17,7 @@ them.
 | Motion | Framer Motion 12 | Four named springs, `src/lib/motion.ts` |
 | Data | Supabase (Postgres 17, Auth, Storage, RLS) | `eu-west-3` |
 | Hosting | Vercel, `cdg1` | Pinned to match the database — §7.1 |
-| Tests | Vitest + a SQL harness | 307 unit tests, 89 SQL assertions |
+| Tests | Vitest + a SQL harness | 348 unit tests, 83 SQL assertions |
 
 ---
 
@@ -33,9 +33,9 @@ src/
   components/             24 presentational components; no data fetching
   lib/                    domain logic. Server modules import "server-only"
 supabase/
-  migrations/             9 migrations; RLS in the same file as the table
+  migrations/             10 migrations; RLS in the same file as the table
   tests/                  isolation and audit assertions
-docs/                     the six design documents
+docs/                     the six design documents, plus LIFE_OS.md
 ```
 
 **The rule that keeps this honest: a page fetches and renders, a component
@@ -101,7 +101,7 @@ Two bugs worth carrying forward as rules:
 the theme toggle. Everything else is a Server Component.
 
 Server-only modules (`queries.ts`, `timing.ts`, `exchange.ts`, `elevate.ts`,
-`wallet.ts`, `commitDashboard.ts`, `climb.ts`, `briefing.ts`) begin with
+`wallet.ts`, `commitDashboard.ts`, `climb.ts`, `briefing.ts`, `lifeOs.ts`) begin with
 `import "server-only"`.
 
 That import exists because of a real failure: `exchange-shell.tsx` imported
@@ -123,6 +123,7 @@ loadClimb()      5 queries, parallel   → every Climb screen
 loadExchange()   dashboard + wallet    → every Commit screen
 loadElevate()    7 queries, parallel   → every Elevate screen
 loadBriefing()   all three, parallel   → /home
+loadLifeOs()     all three + snapshots  → /os
 ```
 
 Screens filter the loaded result in memory. A round trip to Paris costs more
@@ -265,16 +266,17 @@ a different hat, and it was caught the second time while writing the tests.
 
 ## 8. Testing
 
-### 8.1 Unit — 307 tests, 17 files
+### 8.1 Unit — 348 tests, 18 files
 
 Pure logic only: ranking, integrity, payout lifecycle, wallet, cohort, stakes,
-wardrobe, photo coach, glow-up guards, climb, briefing, format, timing,
-queries, paystack.
+wardrobe, photo coach, glow-up guards, climb, briefing, intelligence, format,
+timing, queries, paystack.
 
-### 8.2 SQL — 89 assertions
+### 8.2 SQL — 83 assertions
 
-`rls_isolation.test.sql` (34), `features_isolation.test.sql` (35),
-`audit.test.sql` (20). **Isolation is verified with two real users and two real
+`rls_isolation.test.sql` (30), `features_isolation.test.sql` (31),
+`audit.test.sql` (18) — the count the runner actually reports, corrected from an
+earlier figure that double-counted the assert helper's own `raise`. **Isolation is verified with two real users and two real
 groups, never inferred from reading policy SQL.** `stakes.amount` and
 `payment_reference` are asserted unreachable by anyone but the owner, explicitly
 rather than via the policy definition.

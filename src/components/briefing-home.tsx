@@ -33,9 +33,23 @@ export function BriefingHome({ briefing }: { briefing: Briefing }) {
             {briefing.greeting ? `Hi ${briefing.greeting}` : "Today"}
           </h1>
         </div>
-        <Link href="/you" className="shrink-0 text-xs text-sage transition hover:text-snow">
-          You
-        </Link>
+        {/* The score follows the person. It is the one number that describes
+            them rather than a mode, so it belongs beside their name — and it is
+            the entry point into the OS, which nothing else links to. */}
+        {briefing.discipline.score !== null ? (
+          <Link href="/os" className="group shrink-0 text-right">
+            <span className="tnum block font-display text-2xl font-semibold leading-none text-snow transition group-hover:opacity-80">
+              {briefing.discipline.score}
+            </span>
+            <span className="mt-1 block text-micro uppercase text-sage">
+              {briefing.tier?.name ?? "Discipline"}
+            </span>
+          </Link>
+        ) : (
+          <Link href="/you" className="shrink-0 text-xs text-sage transition hover:text-snow">
+            You
+          </Link>
+        )}
       </header>
 
       {/* ── The lead ─────────────────────────────────────────────────────── */}

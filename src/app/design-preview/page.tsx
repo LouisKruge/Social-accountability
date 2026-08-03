@@ -5,6 +5,18 @@ import { ClimbPitchView } from "@/components/climb-pitch";
 import { BriefingHome } from "@/components/briefing-home";
 import { CommitPreview, ElevatePreview } from "./modes-preview";
 import type { Briefing } from "@/lib/briefing";
+import { LifeOsView } from "@/components/life-os";
+import {
+  disciplineScore,
+  momentumScore,
+  performanceIndex,
+  project,
+  simulate,
+  statusTier,
+  lifePortfolio,
+  type EffortDay,
+} from "@/lib/intelligence";
+import type { LifeOs } from "@/lib/lifeOs";
 import { momentum, type ClimbPitch, type ClimbRoute, type ClimbState, type PitchRow } from "@/lib/climb";
 
 /**
@@ -187,9 +199,105 @@ const BRIEFING: Briefing = {
     { mode: "commit", name: "Commit", href: "/commit", value: "R500", caption: "on the line · 1 open" },
     { mode: "elevate", name: "Elevate", href: "/elevate", value: "2", caption: "reviews · 14 in wardrobe" },
   ],
+  discipline: disciplineScore({
+    completion: 0.86,
+    consistency: 0.74,
+    momentum: 0.91,
+    integrity: 0.97,
+    challenge_history: 0.5,
+    goal_completion: 0.67,
+    financial: 1,
+  }),
+  tier: statusTier(
+    disciplineScore({
+      completion: 0.86,
+      consistency: 0.74,
+      momentum: 0.91,
+      integrity: 0.97,
+      challenge_history: 0.5,
+      goal_completion: 0.67,
+      financial: 1,
+    }).score,
+  ),
   climb: STATE,
   commit: {} as Briefing["commit"],
   elevate: {} as Briefing["elevate"],
+  timing: { totalMs: 0, slowest: null, spanCount: 0, spans: [], byName: [] },
+};
+
+/** A person 34 days in: strong but with a recent three-day gap. */
+const OS_EFFORT: EffortDay[] = Array.from({ length: 34 }, (_, i) => ({
+  date: `2026-06-${String(i + 1).padStart(2, "0")}`,
+  value: i >= 31 ? 2_100 : 9_000 + ((i * 977) % 4_000),
+  required: 10_000,
+}));
+
+const OS_HISTORY = Array.from({ length: 30 }, (_, i) => ({
+  date: `2026-06-${String(i + 1).padStart(2, "0")}`,
+  score: 690 + Math.round(Math.sin(i / 4) * 18) + i * 3,
+}));
+
+const OS_LOGS = OS_EFFORT.map((d) => d.value);
+
+const OS_SIGNALS = {
+  completion: 0.71,
+  consistency: 0.88,
+  momentum: momentumScore(OS_EFFORT).score / 100,
+  integrity: 0.96,
+  challenge_history: 0.5,
+  goal_completion: 0.67,
+  financial: 1,
+};
+
+const OS_DISCIPLINE = disciplineScore(OS_SIGNALS);
+
+const OS: LifeOs = {
+  discipline: OS_DISCIPLINE,
+  momentum: momentumScore(OS_EFFORT),
+  tier: statusTier(OS_DISCIPLINE.score),
+  index: performanceIndex(OS_HISTORY),
+  percentile: null,
+  portfolio: lifePortfolio([
+    { area: "Discipline", now: OS_DISCIPLINE.score, then: 690 },
+    { area: "Momentum", now: momentumScore(OS_EFFORT).score, then: 71, unit: "points" as const },
+    { area: "Climb", now: 23.4, then: 4, unit: "points" as const },
+    { area: "Earnings", now: 1450, then: 1000 },
+    { area: "Confidence", now: 3, then: null },
+    { area: "Recovery", now: null, then: null },
+  ]),
+  legacy: {
+    totalLogged: 318_400,
+    daysLogged: 34,
+    challengesEntered: 3,
+    challengesWon: 1,
+    earned: 1_450,
+    staked: 1_000,
+    weeksRanked: 5,
+    routes: 2,
+    firstDay: "2026-06-01",
+  },
+  outlook: [
+    {
+      cohortId: "c1",
+      name: "10k a day, 30 days",
+      stake: 500,
+      projection: project(OS_LOGS, 78_000, 9, 21),
+      simulation: simulate(OS_LOGS, 78_000, 9, [6_000, 8_000, 10_000, 12_000, 14_000]),
+      note: null,
+    },
+  ],
+  brief: [
+    { label: "Discipline", value: `${OS_DISCIPLINE.score} · ${OS_DISCIPLINE.band}` },
+    { label: "10k a day", value: "8,667 a day to stay on pace", href: "/commit/c1" },
+    {
+      label: "Up before six",
+      value: "No number logged this week",
+      href: "/groups/g-2/categories/p-habit/log-entry",
+    },
+  ],
+  climb: STATE,
+  commit: {} as LifeOs["commit"],
+  elevate: {} as LifeOs["elevate"],
   timing: { totalMs: 0, slowest: null, spanCount: 0, spans: [], byName: [] },
 };
 
@@ -198,6 +306,30 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
   if (searchParams.view === "hub") return <BriefingHome briefing={BRIEFING} />;
   if (searchParams.view === "hub-clear")
     return <BriefingHome briefing={{ ...BRIEFING, items: [] }} />;
+  if (searchParams.view === "os") return <LifeOsView os={OS} />;
+  if (searchParams.view === "os-empty")
+    return (
+      <LifeOsView
+        os={{
+          ...OS,
+          discipline: disciplineScore({}),
+          momentum: momentumScore([]),
+          tier: null,
+          index: null,
+          outlook: [],
+          brief: [],
+          legacy: { ...OS.legacy, firstDay: null },
+          portfolio: lifePortfolio([
+            { area: "Discipline", now: null, then: null },
+            { area: "Momentum", now: null, then: null },
+            { area: "Climb", now: null, then: null },
+            { area: "Earnings", now: null, then: null },
+            { area: "Confidence", now: null, then: null },
+            { area: "Recovery", now: null, then: null },
+          ]),
+        }}
+      />
+    );
   if (searchParams.view === "commit") return <CommitPreview />;
   if (searchParams.view === "elevate") return <ElevatePreview />;
 

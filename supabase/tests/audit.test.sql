@@ -52,6 +52,8 @@ insert into public.leaderboard_rankings (id, group_id, category_id, period_start
 values ('deadbeef-0000-0000-0000-0000000000d1','deadbeef-0000-0000-0000-0000000000b1','deadbeef-0000-0000-0000-0000000000c1','2026-07-13','2026-07-19',:'uid', 25, 1);
 insert into public.share_cards (user_id, ranking_id)
 values (:'uid','deadbeef-0000-0000-0000-0000000000d1');
+insert into public.discipline_snapshots (user_id, taken_on, score, momentum, coverage)
+values (:'uid','2026-07-19', 780, 84, 0.920);
 -- (subscription row was auto-created by the signup trigger)
 
 select public._assert((select count(*) from public.subscriptions where user_id=:'uid') = 1, 'seed: subscription exists');
@@ -68,6 +70,7 @@ select public._assert((select count(*) from public.entries              where us
 select public._assert((select count(*) from public.leaderboard_rankings where user_id=:'uid') = 0, 'cascade: rankings removed');
 select public._assert((select count(*) from public.share_cards          where user_id=:'uid') = 0, 'cascade: share cards removed');
 select public._assert((select count(*) from public.subscriptions        where user_id=:'uid') = 0, 'cascade: subscription removed');
+select public._assert((select count(*) from public.discipline_snapshots where user_id=:'uid') = 0, 'cascade: discipline snapshots removed');
 
 -- ── 5. SET NULL path: a member deletes their account, but a category they
 --       created in someone ELSE's group survives (attribution dropped), and the

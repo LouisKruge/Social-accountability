@@ -90,7 +90,9 @@ price is worth more than a true but useless zero.
 | Seven modules | `/commit/{portfolio,market,wallet,lab,floor,trust,standing}` | Built |
 | Marketplace visibility | `stake_cohorts.visibility` | Applied |
 
-Totals: **191 unit tests**, **78 SQL isolation assertions**, zero failures.
+Totals at the time of that pass: **191 unit tests**, **78 SQL isolation
+assertions**. Current totals live in `ENGINEERING.md` §8 — a figure quoted in
+one document and grown past in another is how a spec starts lying.
 
 ---
 

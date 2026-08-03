@@ -13,7 +13,12 @@ stops being useful the first time somebody plans against it.
 | **Blocked** | Cannot ship yet, and the blocker is named. Nearly all are legal or hardware, not effort. |
 | **Declined** | Deliberately not built. The reason is given, and it is never "too hard". |
 
-Counts, honestly: **148 Live · 41 Spec · 14 Blocked · 22 Declined = 225.**
+Counts, honestly: **169 Live · 48 Spec · 14 Blocked · 19 Declined = 250.**
+
+> **Corrected.** Items 156, 157 and 158 were previously listed as Declined. They
+> are now Live — see `LIFE_OS.md` §1. The objection was to a score nobody could
+> reproduce; the version that displays every contribution and every missing
+> signal is a different thing. Corrected in place rather than quietly edited.
 
 ---
 
@@ -194,9 +199,9 @@ declined for difficulty.
 | 153 | Randomised bonus / multiplier | Changes the legal classification under the National Gambling Act. Outcome must come from verified effort, never chance. Non-negotiable. |
 | 154 | Lottery or prize-draw element | Same. |
 | 155 | Odds, spreads, or betting against others | Same. Ascend is a stake on **your own** verified effort. |
-| 156 | "Discipline Credit Score" | A single number combining money, consistency and integrity that no user could reproduce from their own data. Every figure in this product traces to a row. |
-| 157 | "Confidence Index" | Same objection, plus it would put a number on how a person feels about their appearance. |
-| 158 | Composite "Ascend Score" across modes | Averaging a savings percentage against a step streak is arithmetic on incompatible units. |
+| 156 | ~~"Discipline Credit Score"~~ | **Now Live.** Built with every contribution shown in points and every unmeasured signal listed with its weight. See §G. |
+| 157 | "Confidence Index" | **Still declined.** A number on how a person feels about their appearance, derived largely from self-report, presented with the authority of a measurement. The Discipline Score works because every input is an observed action; confidence has no such inputs. |
+| 158 | ~~Composite "Ascend Score"~~ | **Now Live as the Discipline Score.** It does not average a percentage against a streak — every signal is normalised to a 0–1 rate first, and the ones that cannot be normalised are excluded rather than coerced. |
 | 159 | Public glow-up gallery | Elevate is private by construction. A gallery is the feature that makes people stop uploading. |
 | 160 | "Rate this person" of any kind | Same. |
 | 161 | Best-glow-up leaderboard | Same. |
@@ -213,6 +218,41 @@ declined for difficulty.
 | 172 | Live activity ticker of other users | Would need fabricated events to look alive. Ships when there is real activity, driven by Supabase realtime, and shows nothing when nothing is happening. |
 | 173 | JS overscroll rubber-banding | An imitation always feels like an imitation. |
 | 174 | Cross-feature database joins or shared views | One RLS mistake would breach Elevate's photographs and Commit's money at once. `profiles.id` is the only shared key. |
+
+## G. Layer 1 — the Life OS (226–250)
+
+Detail in `LIFE_OS.md`.
+
+| # | Feature | Status |
+|---|---|---|
+| 226 | Momentum Score — EWMA + consecutive-miss penalty | Live |
+| 227 | One missed day barely moves it (asserted) | Live |
+| 228 | Seven consecutive misses crash it (asserted) | Live |
+| 229 | Scattered misses cost far less than consecutive ones | Live |
+| 230 | A huge day is capped at full credit, never banked | Live |
+| 231 | Discipline Score, 300–1000, nine weighted signals | Live |
+| 232 | Per-signal contribution shown in points | Live |
+| 233 | Unmeasured signals listed with their weight, excluded from the maths | Live |
+| 234 | Coverage percentage displayed beside the score | Live |
+| 235 | Score bands (Just started → Exceptional) | Live |
+| 236 | Status tiers: Explorer → Builder → Performer → Elite → Titan → Legend | Live |
+| 237 | Points-to-next-tier | Live |
+| 238 | Daily score snapshots, upserted so reopening cannot inflate an index | Live |
+| 239 | Personal Performance Index, rebased to 1000 | Live |
+| 240 | Index change percentage | Live |
+| 241 | Volatility, computed from the unrounded index | Live |
+| 242 | Percentile with a 20-user minimum cohort | Live |
+| 243 | Goal Simulator across candidate daily rates | Live |
+| 244 | Simulation conditioned on the person's own variance, both directions | Live |
+| 245 | Eight-day minimum before any probability is shown | Live |
+| 246 | Pace projection: probability, required rate, expected completion day, risk band | Live |
+| 247 | Life Portfolio with percentage/points units per area | Live |
+| 248 | "no comparison yet" / "not measured" / "from zero" instead of a fake 0% | Live |
+| 249 | Legacy record — lifetime totals since the first logged day | Live |
+| 250 | Morning brief built only from rows that exist | Live |
+| — | Sleep, HRV, resting heart rate, recovery, mood, calendar, spending | Blocked — no integration; reported as missing, never generated |
+| — | AI Twin / behavioural prediction | Declined — see `LIFE_OS.md` §4 |
+| — | Seasons, Prestige, Achievement Vault, Corporate, Marketplace, Life Replay, Board of Directors | Spec — `LIFE_OS.md` §6 |
 
 ## E. AI (175–190) — detail in `AI_OPERATING_SYSTEM.md`
 
@@ -262,7 +302,7 @@ declined for difficulty.
 | 211 | `server-only` build-time guard on server modules | Live |
 | 212 | Deterministic number formatting (no CLDR drift) | Live |
 | 213 | Design harness rendering the real components | Live |
-| 214 | 307 unit tests, 78 SQL assertions | Live |
+| 214 | 348 unit tests, 83 SQL assertions | Live |
 | 215 | Reduced-motion equivalents on every animation | Live |
 | 216 | 48px minimum tap targets | Live |
 | 217 | 16px minimum input text (prevents iOS zoom-on-focus) | Live |

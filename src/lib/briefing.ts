@@ -3,6 +3,8 @@ import type { ServerClient } from "@/lib/supabase/server";
 import { loadClimb, type ClimbState } from "@/lib/climb";
 import { loadExchange, type ExchangeState } from "@/lib/exchange";
 import { loadElevate, type ElevateState } from "@/lib/elevate";
+import { deriveSignals, effortDays, integrityDays } from "@/lib/lifeOs";
+import { disciplineScore, momentumScore, statusTier, type DisciplineScore, type Tier } from "@/lib/intelligence";
 import { withTiming, type TimingReport } from "@/lib/timing";
 import { fracOf, num, zar } from "@/lib/format";
 
@@ -75,6 +77,14 @@ export interface Briefing {
   greeting: string | null;
   items: BriefingItem[];
   modes: ModeSummary[];
+  /**
+   * The same Discipline Score the Life OS shows, computed from the states this
+   * loader already has. Pure arithmetic, so it costs no extra query — and
+   * computing it here rather than re-deriving it another way is what stops the
+   * two screens from ever disagreeing about a person's own number.
+   */
+  discipline: DisciplineScore;
+  tier: Tier | null;
   climb: ClimbState;
   commit: ExchangeState;
   elevate: ElevateState;
@@ -276,10 +286,17 @@ export async function loadBriefing(
 
   const { climb, commit, elevate } = result;
 
+  const effort = effortDays(commit);
+  const discipline = disciplineScore(
+    deriveSignals(climb, commit, effort, integrityDays(commit), momentumScore(effort)),
+  );
+
   return {
     greeting: displayName ? displayName.trim().split(/\s+/)[0] : null,
     items: buildItems(climb, commit, elevate),
     modes: buildModes(climb, commit, elevate),
+    discipline,
+    tier: statusTier(discipline.score),
     climb,
     commit,
     elevate,

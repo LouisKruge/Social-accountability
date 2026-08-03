@@ -27,6 +27,11 @@ The product is specified across six documents. Read them in this order:
 5. [`docs/AI_OPERATING_SYSTEM.md`](./docs/AI_OPERATING_SYSTEM.md) — where a model is used, where it deliberately is not, and the guards
 6. [`docs/ENGINEERING.md`](./docs/ENGINEERING.md) — component library, data layer, state, APIs, performance, testing
 
+Plus [`docs/LIFE_OS.md`](./docs/LIFE_OS.md) — the five-layer architecture and
+Layer 1's scoring engines (Momentum, Discipline Score, Performance Index, Goal
+Simulator), including the coverage rule that keeps them honest about the data
+Ascend does not have.
+
 Supporting: [`docs/PRODUCT_AUDIT.md`](./docs/PRODUCT_AUDIT.md) (every known
 defect, fixed and open), [`docs/FEATURE_CATALOGUE.md`](./docs/FEATURE_CATALOGUE.md)
 (225 features with an honest status on each),
@@ -70,7 +75,7 @@ bash supabase/tests/run.sh
 ```
 
 This applies the shim + migration + Supabase-equivalent grants to a throwaway
-database and runs **89 assertions** across three suites:
+database and runs **83 assertions** across three suites:
 
 - **Isolation** — User A and User B (in different groups) cannot read each other's
   entries, baselines, groups, members, categories or rankings; clients cannot
@@ -88,7 +93,7 @@ database and runs **89 assertions** across three suites:
 ### Unit tests
 
 ```bash
-npm test          # 307 tests: ranking, integrity, payouts, wallet, wardrobe,
+npm test          # 348 tests: ranking, integrity, payouts, wallet, wardrobe,
                   # photo coach, content guards, climb, briefing, formatting
 ```
 
@@ -101,6 +106,7 @@ ALLOW_DESIGN_PREVIEW=1 npm run dev
 # /design-preview?view=pitch a leaderboard
 # /design-preview?view=empty a first-run account
 # /design-preview?view=hub   the briefing
+# /design-preview?view=os    the Life OS
 # /api/share-card/demo       the rank card
 ```
 
