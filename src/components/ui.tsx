@@ -119,16 +119,30 @@ export function Skeleton({ className = "" }: { className?: string }) {
 }
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "primary" | "money" | "secondary" | "ghost" | "danger";
 };
 
+/**
+ * ── WHY PRIMARY IS NO LONGER GOLD ────────────────────────────────────────────
+ * It was, and that quietly broke the one rule the palette has. Gold means money
+ * confirmed as yours (design language §2), and "Create group", "Add category"
+ * and "Sign in" are not money. Painting every submit button gold made the
+ * accent mean "the button you should press", which is how an accent stops
+ * meaning anything at all — and it left Climb, a section with no money in it,
+ * covered in the money colour.
+ *
+ * Primary is now the brightest thing on the screen, which is what carries
+ * emphasis in a monochrome system, and matches the pill CTAs the newer screens
+ * already use. Gold survives as `money`, for the single action that commits
+ * rand.
+ */
 export function Button({ variant = "primary", className = "", ...props }: ButtonProps) {
   const styles: Record<string, string> = {
-    // gold means "this moves you up" — reserved for the committing action
-    primary:
+    primary: "bg-snow text-valley hover:bg-snow/90 disabled:bg-scree disabled:text-sage font-semibold",
+    money:
       "bg-summit text-valley hover:bg-summit-soft disabled:bg-summit-deep disabled:text-valley/60 font-semibold",
     secondary: "bg-ridge text-snow hover:bg-scree ring-1 ring-scree",
-    ghost: "bg-transparent text-ice hover:bg-ridge",
+    ghost: "bg-transparent text-snow hover:bg-ridge",
     danger: "bg-fall/15 text-fall ring-1 ring-fall/40 hover:bg-fall/25",
   };
   // active:scale gives a press its weight. 0.98 is the smallest value that is
@@ -148,12 +162,13 @@ export function LinkButton({
 }: {
   href: string;
   children: ReactNode;
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "money" | "secondary" | "ghost";
 }) {
   const styles: Record<string, string> = {
-    primary: "bg-summit text-valley hover:bg-summit-soft font-semibold",
+    primary: "bg-snow text-valley hover:bg-snow/90 font-semibold",
+    money: "bg-summit text-valley hover:bg-summit-soft font-semibold",
     secondary: "bg-ridge text-snow hover:bg-scree ring-1 ring-scree",
-    ghost: "bg-transparent text-ice hover:bg-ridge",
+    ghost: "bg-transparent text-snow hover:bg-ridge",
   };
   return (
     <Link

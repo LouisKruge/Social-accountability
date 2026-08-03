@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createCategory, type ActionState } from "./actions";
-import { Button, Field, ErrorNote, SuccessNote, Card } from "@/components/ui";
+import { Button, Field, ErrorNote, SuccessNote } from "@/components/ui";
 
 function Submit() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Adding…" : "Add category"}
+      {pending ? "Adding…" : "Add pitch"}
     </Button>
   );
 }
@@ -26,9 +26,7 @@ export function CategoryForm({ groupId }: { groupId: string }) {
   const [preset, setPreset] = useState<(typeof PRESETS)[number]>(PRESETS[0]);
 
   return (
-    <Card>
-      <p className="mb-4 text-sm font-medium text-snow">Add something to climb</p>
-
+    <div>
       <div className="mb-5 flex flex-wrap gap-2">
         {PRESETS.map((p) => (
           <button
@@ -36,9 +34,9 @@ export function CategoryForm({ groupId }: { groupId: string }) {
             type="button"
             onClick={() => setPreset(p)}
             aria-pressed={preset.key === p.key}
-            className={`rounded-full px-3.5 py-1.5 text-xs transition ${
+            className={`rounded-pill px-4 py-2 text-caption transition ${
               preset.key === p.key
-                ? "bg-ice/15 font-medium text-ice ring-1 ring-ice/30"
+                ? "bg-snow font-medium text-valley"
                 : "bg-ridge text-sage ring-1 ring-scree hover:text-snow"
             }`}
           >
@@ -69,6 +67,6 @@ export function CategoryForm({ groupId }: { groupId: string }) {
         <SuccessNote>{state.success}</SuccessNote>
         <Submit />
       </form>
-    </Card>
+    </div>
   );
 }

@@ -26,10 +26,18 @@ export function AscentDefs() {
           <stop offset="55%" stopColor="rgb(var(--ice))" />
           <stop offset="100%" stopColor="rgb(var(--summit))" />
         </linearGradient>
+        {/*
+          A descent does NOT end in red. Red is reserved for genuine errors and
+          destructive actions (design language §2), and a week where someone's
+          savings went backwards is neither — it is the week they are most
+          likely to close the app if the screen shouts at them. The line simply
+          fails to reach summit light and fades toward grey, which says the same
+          thing without an accusation.
+        */}
         <linearGradient id="ascent-down" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="rgb(var(--ice-deep))" />
-          <stop offset="55%" stopColor="rgb(var(--ice))" />
-          <stop offset="100%" stopColor="rgb(var(--fall))" />
+          <stop offset="55%" stopColor="rgb(var(--ice-deep))" />
+          <stop offset="100%" stopColor="rgb(var(--sage))" />
         </linearGradient>
         <radialGradient id="summit-glow">
           <stop offset="0%" stopColor="rgb(var(--summit))" stopOpacity="0.5" />
@@ -122,7 +130,7 @@ export function AscentLine({
               strokeDasharray="1"
               style={{ ["--dash" as string]: "1" }}
             />
-            <circle cx={tip[0]} cy={tip[1]} r="4.5" fill={climbing ? "rgb(var(--summit))" : "rgb(var(--fall))"} />
+            <circle cx={tip[0]} cy={tip[1]} r="4.5" fill={climbing ? "rgb(var(--summit))" : "rgb(var(--sage))"} />
           </>
         )}
       </svg>
@@ -162,7 +170,7 @@ export function MiniAscent({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx={tip[0]} cy={tip[1]} r="2.5" fill={up ? "rgb(var(--summit))" : "rgb(var(--fall))"} />
+      <circle cx={tip[0]} cy={tip[1]} r="2.5" fill={up ? "rgb(var(--summit))" : "rgb(var(--sage))"} />
     </svg>
   );
 }

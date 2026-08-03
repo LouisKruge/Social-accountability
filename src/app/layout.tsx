@@ -12,7 +12,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0E1712",
+  // True black, matching --valley. This was still the old dark-green from the
+  // pre-monochrome palette, so on Android the browser chrome sat in a colour
+  // that no longer exists anywhere in the app.
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

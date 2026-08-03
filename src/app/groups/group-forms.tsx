@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createGroup, joinGroup, type ActionState } from "./actions";
-import { Button, Field, ErrorNote, Card } from "@/components/ui";
+import { Button, Field, ErrorNote } from "@/components/ui";
 
 function Submit({ label, pendingLabel }: { label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
@@ -20,14 +20,16 @@ export function CreateOrJoin() {
   const [joinState, joinAction] = useFormState<ActionState, FormData>(joinGroup, {});
 
   return (
-    <Card>
-      <div className="mb-5 grid grid-cols-2 gap-1 rounded-field bg-valley p-1">
+    <div>
+      {/* A segmented control, not two cards. The selected half is simply the
+          brightest thing in the row — hierarchy by brightness, per §2. */}
+      <div className="mb-5 grid grid-cols-2 gap-1 rounded-field bg-slope p-1">
         {(["create", "join"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             aria-pressed={tab === t}
-            className={`rounded-[0.65rem] py-2.5 text-sm transition ${
+            className={`min-h-[2.75rem] rounded-[0.65rem] text-body transition ${
               tab === t ? "bg-ridge font-medium text-snow" : "text-sage hover:text-snow"
             }`}
           >
@@ -56,6 +58,6 @@ export function CreateOrJoin() {
           <Submit label="Join group" pendingLabel="Joining…" />
         </form>
       )}
-    </Card>
+    </div>
   );
 }

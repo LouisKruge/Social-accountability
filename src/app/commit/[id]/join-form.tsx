@@ -4,10 +4,18 @@ import { useFormState, useFormStatus } from "react-dom";
 import { joinCohort, logSteps, type StakeState } from "./actions";
 import { Button, ErrorNote, Field, Card } from "@/components/ui";
 
-function Submit({ label, pendingLabel }: { label: string; pendingLabel: string }) {
+function Submit({
+  label,
+  pendingLabel,
+  variant,
+}: {
+  label: string;
+  pendingLabel: string;
+  variant?: "primary" | "money";
+}) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" variant={variant} disabled={pending}>
       {pending ? pendingLabel : label}
     </Button>
   );
@@ -37,7 +45,9 @@ export function JoinForm({ cohortId, stakeAmount }: { cohortId: string; stakeAmo
       </label>
 
       <ErrorNote>{state.error}</ErrorNote>
-      <Submit label={`Stake R${stakeAmount}`} pendingLabel="Joining…" />
+      {/* The one action in the whole app that commits rand, and therefore the
+          one button that is allowed to be gold. */}
+      <Submit label={`Stake R${stakeAmount}`} pendingLabel="Joining…" variant="money" />
     </form>
   );
 }

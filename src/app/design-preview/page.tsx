@@ -1,27 +1,152 @@
 import { notFound } from "next/navigation";
-import { AppShell, Header, Card, Badge, EmptyState } from "@/components/ui";
-import { AscentLine } from "@/components/ascent";
-import { LeaderboardRow, type ClimbRow } from "@/components/leaderboard-row";
+import { ClimbFace } from "@/components/climb-face";
+import { ClimbRouteView } from "@/components/climb-route";
+import { ClimbPitchView } from "@/components/climb-pitch";
 import { HubPreview } from "./hub-preview";
 import { CommitPreview, ElevatePreview } from "./modes-preview";
+import { momentum, type ClimbPitch, type ClimbRoute, type ClimbState, type PitchRow } from "@/lib/climb";
 
 /**
- * DESIGN HARNESS — renders the real leaderboard components with fixed data so
- * the design can be reviewed and screenshotted without a database.
+ * DESIGN HARNESS — renders the real Climb components with fixed data so the
+ * design can be reviewed and screenshotted without a database.
+ *
+ * It renders the REAL components rather than copies of them. A harness holding
+ * a second implementation of the screen drifts within a week and then lies
+ * about what the app looks like, which is worse than having no harness.
  *
  * Gated behind ALLOW_DESIGN_PREVIEW=1, which is only ever set locally, so this
  * route does not exist on the deployed site.
  */
 export const dynamic = "force-dynamic";
 
-const ROWS: ClimbRow[] = [
-  { userId: "1", displayName: "Thandiwe", rank: 1, pctChange: 41.2, isAbsolute: false, series: [8, 19, 27, 41.2] },
-  { userId: "2", displayName: "Sipho", rank: 2, pctChange: 28.6, isAbsolute: false, series: [12, 15, 22, 28.6], sharedValue: 12400 },
-  { userId: "3", displayName: "Kabelo", rank: 3, pctChange: 23.4, isAbsolute: false, series: [4, 9, 8, 15, 23.4] },
-  { userId: "4", displayName: "Nomvula", rank: 4, pctChange: 9.8, isAbsolute: false, series: [3, 6, 7, 9.8] },
-  { userId: "5", displayName: "Johan", rank: 5, pctChange: 500, isAbsolute: true, series: [120, 300, 500] },
-  { userId: "6", displayName: "Lerato", rank: 6, pctChange: -6.3, isAbsolute: false, series: [5, 2, -1, -6.3] },
+const ME = "me";
+
+const row = (
+  displayName: string,
+  rank: number,
+  pctChange: number,
+  series: number[],
+  extra: Partial<PitchRow> = {},
+): PitchRow => ({
+  userId: displayName === "Kabelo" ? ME : displayName.toLowerCase(),
+  displayName,
+  rank,
+  pctChange,
+  isAbsolute: false,
+  series,
+  ...extra,
+});
+
+const SAVINGS_ROWS: PitchRow[] = [
+  row("Thandiwe", 1, 41.2, [8, 19, 27, 41.2]),
+  row("Sipho", 2, 28.6, [12, 15, 22, 28.6], { sharedValue: 12400 }),
+  row("Kabelo", 3, 23.4, [4, 9, 8, 15, 23.4]),
+  row("Nomvula", 4, 9.8, [3, 6, 7, 9.8]),
+  row("Johan", 5, 500, [120, 300, 500], { isAbsolute: true }),
+  row("Lerato", 6, -6.3, [5, 2, -1, -6.3]),
 ];
+
+const SAVINGS: ClimbPitch = {
+  id: "p-savings",
+  groupId: "g-1",
+  routeName: "Payday Warriors",
+  name: "Savings",
+  metricType: "percentage_change",
+  direction: "increase",
+  unit: "ZAR",
+  rows: SAVINGS_ROWS,
+  viewer: SAVINGS_ROWS[2],
+  gap: 5.2,
+  logged: true,
+  series: [4, 9, 8, 15, 23.4],
+};
+
+const STEPS_ROWS: PitchRow[] = [
+  row("Kabelo", 1, 18, [6, 11, 18]),
+  row("Sipho", 2, 12.5, [9, 10, 12.5]),
+  row("Thandiwe", 3, 2, [14, 8, 2]),
+];
+
+const STEPS: ClimbPitch = {
+  id: "p-steps",
+  groupId: "g-1",
+  routeName: "Payday Warriors",
+  name: "Steps",
+  metricType: "percentage_change",
+  direction: "increase",
+  unit: "steps",
+  rows: STEPS_ROWS,
+  viewer: STEPS_ROWS[0],
+  gap: null,
+  logged: true,
+  series: [6, 11, 18],
+};
+
+const HABIT: ClimbPitch = {
+  id: "p-habit",
+  groupId: "g-2",
+  routeName: "6am Club",
+  name: "Up before six",
+  metricType: "streak",
+  direction: "increase",
+  unit: "days",
+  rows: [],
+  viewer: null,
+  gap: null,
+  logged: false,
+  series: [],
+};
+
+const ROUTES: ClimbRoute[] = [
+  {
+    id: "g-1",
+    name: "Payday Warriors",
+    inviteCode: "a1b2c3d4",
+    isOwner: true,
+    memberCount: 6,
+    members: [
+      { userId: "thandiwe", displayName: "Thandiwe", isOwner: false, isViewer: false },
+      { userId: ME, displayName: "Kabelo", isOwner: true, isViewer: true },
+      { userId: "sipho", displayName: "Sipho", isOwner: false, isViewer: false },
+    ],
+    pitches: [SAVINGS, STEPS],
+    bestRank: 1,
+    unlogged: 0,
+  },
+  {
+    id: "g-2",
+    name: "6am Club",
+    inviteCode: "z9y8x7w6",
+    isOwner: false,
+    memberCount: 3,
+    members: [{ userId: ME, displayName: "Kabelo", isOwner: false, isViewer: true }],
+    pitches: [HABIT],
+    bestRank: null,
+    unlogged: 1,
+  },
+];
+
+const STATE: ClimbState = {
+  period: { start: "2026-07-20", end: "2026-07-26" },
+  routes: ROUTES,
+  best: {
+    pitchId: "p-savings",
+    routeId: "g-1",
+    routeName: "Payday Warriors",
+    pitchName: "Savings",
+    metricType: "percentage_change",
+    unit: "ZAR",
+    value: 23.4,
+    isAbsolute: false,
+    rank: 3,
+    fieldSize: 6,
+  },
+  momentum: momentum([4, 9, 8, 15, 23.4]),
+  weeks: 5,
+  pending: [
+    { routeId: "g-2", routeName: "6am Club", pitchId: "p-habit", pitchName: "Up before six" },
+  ],
+};
 
 export default function DesignPreview({ searchParams }: { searchParams: { view?: string } }) {
   if (process.env.ALLOW_DESIGN_PREVIEW !== "1") notFound();
@@ -29,88 +154,32 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
   if (searchParams.view === "commit") return <CommitPreview />;
   if (searchParams.view === "elevate") return <ElevatePreview />;
 
-  const viewer = ROWS[2];
+  if (searchParams.view === "route") {
+    return <ClimbRouteView route={ROUTES[0]} siteUrl="https://ascend.example" canAddPitch />;
+  }
 
-  return (
-    <AppShell>
-      <Header title="Savings" back="/groups" subtitle="Payday Warriors · 20 – 26 Jul" />
+  if (searchParams.view === "pitch") {
+    return (
+      <ClimbPitchView
+        pitch={SAVINGS}
+        period={STATE.period}
+        routeName="Payday Warriors"
+        userId={ME}
+        isOwner
+        isPremium={false}
+        momentum={momentum(SAVINGS.series)}
+        notice={null}
+      />
+    );
+  }
 
-      <section className="relative mb-8 overflow-hidden rounded-card bg-slope px-5 pb-2 pt-6 ring-1 ring-scree/70">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-24 h-40 bg-[radial-gradient(ellipse_at_top,rgba(232,184,75,0.16),transparent_70%)]"
-        />
-        <div className="relative flex items-end justify-between">
-          <div>
-            <p className="text-micro uppercase text-sage">Your position</p>
-            <p className="mt-1 flex items-baseline gap-2">
-              <span className="font-display text-6xl font-semibold leading-none tracking-tightest text-snow">
-                3
-              </span>
-              <span className="text-sm text-sage">of {ROWS.length}</span>
-            </p>
-          </div>
-          <p className="tnum text-2xl font-medium text-summit">+23.4%</p>
-        </div>
-        <div className="relative mt-2">
-          <AscentLine values={viewer.series} height={150} />
-        </div>
-        <p className="relative pb-3 text-center text-sm text-sage">
-          <span className="tnum text-ice">5.2%</span> to catch Sipho
-        </p>
-      </section>
+  if (searchParams.view === "empty") {
+    return (
+      <ClimbFace
+        state={{ ...STATE, routes: [], best: null, momentum: null, weeks: 0, pending: [] }}
+      />
+    );
+  }
 
-      <section>
-        <h2 className="mb-3 text-micro uppercase text-sage">The climb</h2>
-        <ol className="space-y-1.5">
-          {ROWS.map((r) => (
-            <LeaderboardRow
-              key={r.userId}
-              row={r}
-              isViewer={r.displayName === "Kabelo"}
-              metricType="percentage_change"
-              unit="ZAR"
-            />
-          ))}
-        </ol>
-      </section>
-
-      <section className="mt-7">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-micro uppercase text-sage">Your trend</h2>
-          <Badge tone="summit">Premium</Badge>
-        </div>
-        <Card>
-          <div className="text-center">
-            <p className="text-sm text-sage">See how your rate of climb moves week over week.</p>
-            <span className="mt-4 inline-flex items-center justify-center rounded-field bg-ridge px-4 py-2.5 text-sm font-medium text-snow ring-1 ring-scree">
-              Unlock trends
-            </span>
-          </div>
-        </Card>
-      </section>
-
-      <div className="mt-7 space-y-2.5">
-        <button className="inline-flex w-full items-center justify-center rounded-field bg-summit px-4 py-3.5 text-sm font-semibold text-valley">
-          Make a rank card
-        </button>
-        <button className="w-full rounded-field bg-ridge px-4 py-3.5 text-sm text-sage ring-1 ring-scree">
-          Run the ranking
-        </button>
-      </div>
-
-      <p className="mt-5 text-center text-meta text-sage/80">
-        Some climbers started from zero, so their move shows as an absolute change rather than a
-        percentage.
-      </p>
-
-      <section className="mt-10">
-        <h2 className="mb-3 text-micro uppercase text-sage">Empty state</h2>
-        <EmptyState
-          title="No one's logged this week yet"
-          body="Be the first to move. Log your number and the climb starts."
-        />
-      </section>
-    </AppShell>
-  );
+  return <ClimbFace state={STATE} />;
 }

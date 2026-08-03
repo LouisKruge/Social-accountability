@@ -16,30 +16,33 @@ export default async function LogEntryPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: category } = await supabase
-    .from("categories")
-    .select("id, name, unit, metric_type, group_id")
-    .eq("id", params.categoryId)
-    .maybeSingle();
-
-  if (!category) notFound();
-
   const period = currentPeriod();
 
-  const { data: baseline } = await supabase
-    .from("category_baselines")
-    .select("baseline_value")
-    .eq("user_id", user!.id)
-    .eq("category_id", category.id)
-    .maybeSingle();
+  // All three key off `params.categoryId`, so none of them needs to wait on
+  // another. They used to run in a waterfall — three sequential trips to Paris
+  // to render a form with one input on it.
+  const [{ data: category }, { data: baseline }, { data: entry }] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("id, name, unit, metric_type, group_id")
+      .eq("id", params.categoryId)
+      .maybeSingle(),
+    supabase
+      .from("category_baselines")
+      .select("baseline_value")
+      .eq("user_id", user!.id)
+      .eq("category_id", params.categoryId)
+      .maybeSingle(),
+    supabase
+      .from("entries")
+      .select("raw_value, share_raw_value")
+      .eq("user_id", user!.id)
+      .eq("category_id", params.categoryId)
+      .eq("period_start", period.start)
+      .maybeSingle(),
+  ]);
 
-  const { data: entry } = await supabase
-    .from("entries")
-    .select("raw_value, share_raw_value")
-    .eq("user_id", user!.id)
-    .eq("category_id", category.id)
-    .eq("period_start", period.start)
-    .maybeSingle();
+  if (!category) notFound();
 
   return (
     <AppShell>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { num, zar } from "./format";
+import { fracOf, num, ordinal, zar } from "./format";
 
 describe("num", () => {
   it("groups in threes", () => {
@@ -35,5 +35,38 @@ describe("zar", () => {
   it("prefixes rand", () => {
     expect(zar(1_800)).toBe("R1,800");
     expect(zar(405.5, 2)).toBe("R405.50");
+  });
+});
+
+describe("ordinal", () => {
+  it("takes the suffix from the last digit", () => {
+    expect(ordinal(1)).toBe("1st");
+    expect(ordinal(2)).toBe("2nd");
+    expect(ordinal(3)).toBe("3rd");
+    expect(ordinal(4)).toBe("4th");
+    expect(ordinal(9)).toBe("9th");
+  });
+
+  it("gives the teens 'th' despite their last digit", () => {
+    // The whole reason this is a function rather than a lookup.
+    expect(ordinal(11)).toBe("11th");
+    expect(ordinal(12)).toBe("12th");
+    expect(ordinal(13)).toBe("13th");
+  });
+
+  it("goes back to the last digit past the teens", () => {
+    expect(ordinal(21)).toBe("21st");
+    expect(ordinal(102)).toBe("102nd");
+    expect(ordinal(111)).toBe("111th");
+    expect(ordinal(113)).toBe("113th");
+  });
+});
+
+describe("fracOf", () => {
+  it("asks for a decimal only when there is one", () => {
+    expect(fracOf(14)).toBe(0);
+    expect(fracOf(14.5)).toBe(1);
+    expect(fracOf(-8)).toBe(0);
+    expect(fracOf(0)).toBe(0);
   });
 });

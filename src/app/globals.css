@@ -97,29 +97,19 @@
    Gold and mint are darkened until they hold contrast against a bright ground.
    The same token, the same meaning, a different value.
    ═══════════════════════════════════════════════════════════════════════════ */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --valley: 250 250 250;
-    --slope: 255 255 255;
-    --ridge: 242 242 242;
-    --scree: 219 219 219;
-    --summit: 138 100 42;
-    --summit-soft: 163 122 60;
-    --summit-deep: 110 78 30;
-    --ice: 10 10 10;
-    --ice-soft: 10 10 10;
-    --ice-deep: 74 74 74;
-    --snow: 10 10 10;
-    --sage: 110 110 110;
-    --fall: 190 48 38;
-    --glow-strength: 0.06;
-    --shadow-lift: 0 8px 24px -12px rgb(0 0 0 / 0.12);
-    --shadow-float: 0 20px 48px -18px rgb(0 0 0 / 0.16);
-    color-scheme: light;
-  }
-}
+/* ── Light mode is OPT-IN, not system-driven ─────────────────────────────────
+   This used to open on `@media (prefers-color-scheme: light)`, which meant a
+   first-time visitor on a phone in light mode never saw the product's actual
+   identity — they got the inversion, and the inversion is a courtesy, not the
+   brand. Black is what Ascend looks like.
 
-/* An explicit choice always beats the system preference, both directions. */
+   So the media query is gone and light mode is reached only through the toggle,
+   which writes `data-theme` and persists it. The inversion below is unchanged
+   and fully supported; it is simply no longer chosen on a person's behalf.
+
+   `color-scheme: dark` on :root still tells the browser to render form
+   controls, scrollbars and the address bar dark, so nothing native flashes
+   white against the page. */
 :root[data-theme="light"] {
   --valley: 250 250 250;
   --slope: 255 255 255;
