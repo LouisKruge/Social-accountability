@@ -27,6 +27,9 @@ import { buildPosition, portfolioHealth } from "@/lib/position";
 import { buildIntegrityTimeline, summarise } from "@/lib/integrityTimeline";
 import type { ExchangeState } from "@/lib/exchange";
 import { momentum, type ClimbPitch, type ClimbRoute, type ClimbState, type PitchRow } from "@/lib/climb";
+import { readDna } from "@/lib/dna";
+import { buildRecap, clubStats, hallOfFame, headToHead, type RecapRanking } from "@/lib/recap";
+import { ClubHq } from "@/components/club-hq";
 
 /**
  * DESIGN HARNESS — renders the real Climb components with fixed data so the
@@ -119,6 +122,32 @@ const HABIT: ClimbPitch = {
   series: [],
 };
 
+/** A club with three weeks of history, so the recap and records have something. */
+const CLUB_HISTORY: RecapRanking[] = [
+  ...["2026-07-06", "2026-07-13", "2026-07-20"].flatMap((periodStart, w) => [
+    { userId: "thandiwe", displayName: "Thandiwe", categoryId: "p-savings", categoryName: "Savings", periodStart, pctChange: 18 + w * 8, isAbsolute: false, rank: 1 },
+    { userId: ME, displayName: "Kabelo", categoryId: "p-savings", categoryName: "Savings", periodStart, pctChange: w === 0 ? -3 : 9 + w * 7, isAbsolute: false, rank: 2 },
+    { userId: "sipho", displayName: "Sipho", categoryId: "p-savings", categoryName: "Savings", periodStart, pctChange: 6 + w * 2, isAbsolute: false, rank: 3 },
+  ]),
+];
+
+const CLUB_EXTRAS = {
+  club: clubStats(CLUB_HISTORY),
+  hallOfFame: hallOfFame(CLUB_HISTORY),
+  recap: buildRecap(CLUB_HISTORY, "2026-07-13"),
+  rivals: [
+    headToHead(CLUB_HISTORY, ME, "thandiwe", "Thandiwe", "2026-07-20"),
+    headToHead(CLUB_HISTORY, ME, "sipho", "Sipho", "2026-07-20"),
+  ],
+};
+
+const EMPTY_CLUB = {
+  club: clubStats([]),
+  hallOfFame: [],
+  recap: { periodStart: "2026-07-20", items: [], participants: 0 },
+  rivals: [],
+};
+
 const ROUTES: ClimbRoute[] = [
   {
     id: "g-1",
@@ -132,6 +161,7 @@ const ROUTES: ClimbRoute[] = [
       { userId: "sipho", displayName: "Sipho", isOwner: false, isViewer: false },
     ],
     pitches: [SAVINGS, STEPS],
+    ...CLUB_EXTRAS,
     bestRank: 1,
     unlogged: 0,
   },
@@ -143,6 +173,7 @@ const ROUTES: ClimbRoute[] = [
     memberCount: 3,
     members: [{ userId: ME, displayName: "Kabelo", isOwner: false, isViewer: true }],
     pitches: [HABIT],
+    ...EMPTY_CLUB,
     bestRank: null,
     unlogged: 1,
   },
@@ -151,6 +182,12 @@ const ROUTES: ClimbRoute[] = [
 const STATE: ClimbState = {
   period: { start: "2026-07-20", end: "2026-07-26" },
   routes: ROUTES,
+  dna: readDna(
+    Array.from({ length: 24 }, (_, i) => {
+      const d = new Date(Date.UTC(2026, 6, 1 + i)).toISOString().slice(0, 10);
+      return { date: d, value: i % 7 >= 5 ? 18_000 : 7_500, recordedAt: `${d}T06:40:00Z` };
+    }),
+  ),
   best: {
     pitchId: "p-savings",
     routeId: "g-1",
@@ -468,6 +505,8 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
     return <ElevateCommand os={{ ...ELEVATE_OS, events: [], focus: null }} />;
   if (searchParams.view === "event") return <EventPlanView event={EVENTS[0]} />;
   if (searchParams.view === "event-tight") return <EventPlanView event={EVENTS[1]} />;
+  if (searchParams.view === "hq") return <ClubHq route={ROUTES[0]} />;
+  if (searchParams.view === "hq-empty") return <ClubHq route={ROUTES[1]} />;
   if (searchParams.view === "terminal") return <ExchangeTerminal state={TERMINAL} />;
   if (searchParams.view === "terminal-empty")
     return (
@@ -500,7 +539,15 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
   if (searchParams.view === "empty") {
     return (
       <ClimbFace
-        state={{ ...STATE, routes: [], best: null, momentum: null, weeks: 0, pending: [] }}
+        state={{
+          ...STATE,
+          routes: [],
+          dna: { traits: [], primary: null, daysAnalysed: 0 },
+          best: null,
+          momentum: null,
+          weeks: 0,
+          pending: [],
+        }}
       />
     );
   }

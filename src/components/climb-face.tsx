@@ -138,6 +138,41 @@ export function ClimbFace({ state }: { state: ClimbState }) {
         )}
       </section>
 
+      {/* ── Performance DNA ───────────────────────────────────────────────
+          Computed from the viewer's OWN entries and shown only to them. A
+          group cannot see a member's raw logs, so a roster-wide label derived
+          from them would launder private data into a public one. */}
+      {state.dna.primary && (
+        <section className="mb-chapter border-t border-snow/25">
+          <div className="flex items-baseline justify-between gap-4 py-block">
+            <h2 className="font-display text-title font-semibold text-snow">
+              {state.dna.primary.name}
+            </h2>
+            <span className="shrink-0 text-caption text-sage">
+              {state.dna.daysAnalysed} weeks read
+            </span>
+          </div>
+          <p className="border-t border-scree/60 pt-4 text-body text-sage">
+            {state.dna.primary.blurb}
+          </p>
+          <ul className="mt-block border-t border-scree/60">
+            {state.dna.traits.map((t) => (
+              <li
+                key={t.key}
+                className="flex items-baseline justify-between gap-3 border-b border-scree/40 py-3.5 last:border-0"
+              >
+                <span className="min-w-0 flex-1 text-body text-snow">{t.name}</span>
+                <span className="shrink-0 text-caption text-sage">{t.evidence}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="pt-4 text-meta text-sage/70">
+            Read from your own weeks, and shown only to you — your group sees rates of change, not
+            the numbers behind them.
+          </p>
+        </section>
+      )}
+
       {/* ── Anything waiting on the viewer ───────────────────────────────── */}
       {best && pending.length > 0 && (
         <Link

@@ -13,7 +13,7 @@ stops being useful the first time somebody plans against it.
 | **Blocked** | Cannot ship yet, and the blocker is named. Nearly all are legal or hardware, not effort. |
 | **Declined** | Deliberately not built. The reason is given, and it is never "too hard". |
 
-Counts, honestly: **222 Live · 60 Spec · 22 Blocked · 28 Declined = 332.**
+Counts, honestly: **262 Live · 68 Spec · 24 Blocked · 32 Declined = 386.**
 
 > **Corrected.** Items 156, 157 and 158 were previously listed as Declined. They
 > are now Live — see `LIFE_OS.md` §1. The objection was to a score nobody could
@@ -350,6 +350,50 @@ Detail in `COMMIT_PLATFORM.md`.
 | 331 | Performance futures (planned future commitments) | Spec — needs a commitments table |
 | 332 | Challenge replay | Spec — the daily series exists; the cinematic render does not |
 
+## J. Climb ecosystem & the Director (333–386)
+
+Detail in `CLIMB_PLATFORM.md`.
+
+| # | Feature | Status |
+|---|---|---|
+| 333 | Club headquarters per route | Live |
+| 334 | Club level from results, never member count | Live |
+| 335 | Distance to the next club level | Live |
+| 336 | Club reputation — share of results moving forward | Live |
+| 337 | Weeks active, climbers, total results | Live |
+| 338–340 | Hall of fame — biggest week, most weeks led, most weeks logged | Live |
+| 341 | Records require a strict lead, never crowning one of a tie | Live |
+| 342 | No "worst" record of any kind, asserted | Live |
+| 343–348 | Weekly recap — biggest move, closest finish, comeback, personal bests, debuts, clean sweeps | Live |
+| 349 | Recap written about the CLOSED week, not the one in progress | Live |
+| 350 | Empty recap rather than a padded one | Live |
+| 351 | Recap built only from rankings the group can already see | Live |
+| 352 | Rivals — head-to-head record | Live |
+| 353 | Only weeks both were ranked on the same pitch count | Live |
+| 354–356 | Form, average margin, who is ahead this week | Live |
+| 357 | Exact ties counted as draws | Live |
+| 358–366 | Performance DNA — nine archetypes | Live |
+| 367 | At most three traits, strongest first | Live |
+| 368 | Every trait states the figure it was read from | Live |
+| 369 | Ten-week floor before any archetype at all | Live |
+| 370 | No judgemental archetype exists, asserted across five behaviour shapes | Live |
+| 371 | DNA private to its owner, never on a roster | Live |
+| 372 | Life Director — one sentence to a cross-mode plan | Live |
+| 373 | Parses "in two weeks", "next Tuesday", "tomorrow", "on the 14th", ISO dates | Live |
+| 374 | Takes the NEXT occurrence when the weekday is today | Live |
+| 375 | Marks month-guesses as low confidence | Live |
+| 376 | Shows the words the date was read from | Live |
+| 377 | Asks rather than inventing a missing date or event kind | Live |
+| 378 | Derives an editable title from the sentence | Live |
+| 379 | Elevate proposal always; Commit only when a position overlaps | Live |
+| 380 | Climb proposal only with a route and whole weeks available | Live |
+| 381 | Commit proposals flagged as touching money and never auto-applied | Live |
+| 382 | Warns when notice is too short for parts of the plan | Live |
+| 383 | Hands parsed values to the event form as editable prefill | Live |
+| 384 | Club treasury / pooled group money | Blocked — custody, same review as Commit |
+| 385 | Club XP, cosmetics, banners, animated themes, premium rooms | Spec |
+| 386 | Live chat, voice rooms, reactions, mentorship | Spec — each is a moderation surface before it is a feature |
+
 ## E. AI (175–190) — detail in `AI_OPERATING_SYSTEM.md`
 
 | # | Feature | Status |
@@ -398,7 +442,7 @@ Detail in `COMMIT_PLATFORM.md`.
 | 211 | `server-only` build-time guard on server modules | Live |
 | 212 | Deterministic number formatting (no CLDR drift) | Live |
 | 213 | Design harness rendering the real components | Live |
-| 214 | 417 unit tests, 87 SQL assertions | Live |
+| 214 | 494 unit tests, 87 SQL assertions | Live |
 | 215 | Reduced-motion equivalents on every animation | Live |
 | 216 | 48px minimum tap targets | Live |
 | 217 | 16px minimum input text (prevents iOS zoom-on-focus) | Live |

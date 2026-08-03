@@ -93,7 +93,7 @@ database and runs **87 assertions** across three suites:
 ### Unit tests
 
 ```bash
-npm test          # 417 tests: ranking, integrity, payouts, wallet, wardrobe,
+npm test          # 494 tests: ranking, integrity, payouts, wallet, wardrobe,
                   # photo coach, content guards, climb, briefing, formatting
 ```
 
@@ -109,6 +109,7 @@ ALLOW_DESIGN_PREVIEW=1 npm run dev
 # /design-preview?view=os    the Life OS
 # /design-preview?view=elevate-os  Elevate's command centre
 # /design-preview?view=terminal    Commit's exchange terminal
+# /design-preview?view=hq          a club's headquarters
 # /design-preview?view=event-tight an event whose windows have closed
 # /api/share-card/demo       the rank card
 ```

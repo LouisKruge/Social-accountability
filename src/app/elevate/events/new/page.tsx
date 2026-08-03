@@ -5,7 +5,11 @@ import { EventForm } from "./event-form";
 
 export const dynamic = "force-dynamic";
 
-export default function NewEventPage() {
+export default function NewEventPage({
+  searchParams,
+}: {
+  searchParams: { kind?: string; date?: string; title?: string };
+}) {
   return (
     <AppShell>
       <header className="mb-block">
@@ -25,7 +29,17 @@ export default function NewEventPage() {
         </p>
       </header>
 
-      <EventForm today={todayIso()} />
+      {/* Prefilled when the Director sent you here, so the sentence you typed
+          does not have to be retyped as three fields. The values are still
+          editable — a parsed date is a proposal, not a decision. */}
+      <EventForm
+        today={todayIso()}
+        prefill={{
+          kind: searchParams.kind,
+          date: searchParams.date,
+          title: searchParams.title,
+        }}
+      />
     </AppShell>
   );
 }

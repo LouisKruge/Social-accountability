@@ -4,6 +4,18 @@ import "server-only";
 import type { ServerClient } from "@/lib/supabase/server";
 import type { Direction, MetricType } from "@/lib/ranking";
 import { currentPeriod, type Period } from "@/lib/period";
+import { readDna, type Dna, type DnaDay } from "@/lib/dna";
+import {
+  buildRecap,
+  clubStats,
+  hallOfFame,
+  headToHead,
+  type ClubStats,
+  type HallOfFameEntry,
+  type HeadToHead,
+  type Recap,
+  type RecapRanking,
+} from "@/lib/recap";
 import { timed } from "@/lib/timing";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -76,6 +88,14 @@ export interface ClimbRoute {
   isOwner: boolean;
   memberCount: number;
   pitches: ClimbPitch[];
+  /** The club's own derived standing — level, reputation, activity. */
+  club: ClubStats;
+  /** Records only. No "worst" anything. */
+  hallOfFame: HallOfFameEntry[];
+  /** Last week, written from rows the group can already see. */
+  recap: Recap;
+  /** Head-to-head against every other member, best-known rival first. */
+  rivals: HeadToHead[];
   members: { userId: string; displayName: string; isOwner: boolean; isViewer: boolean }[];
   /** The viewer's best rank across this route's pitches this period. */
   bestRank: number | null;
@@ -107,6 +127,14 @@ export interface Momentum {
 export interface ClimbState {
   period: Period;
   routes: ClimbRoute[];
+  /**
+   * The viewer's own working style, read from their own daily logs.
+   *
+   * Not on the roster and not per-route: a group cannot see a member's raw
+   * logs, so a shareable label derived from them would launder private data
+   * into a public one. See src/lib/dna.ts.
+   */
+  dna: Dna;
   /** The hero figure: the viewer's single strongest move this period. */
   best: BestMove | null;
   /** Whether that move is faster or slower than their own recent average. */
@@ -401,13 +429,51 @@ export async function loadClimb(supabase: ServerClient, userId: string): Promise
 
     const myRanks = pitches.map((p) => p.viewer?.rank).filter((r): r is number => r !== undefined);
 
+    // ── Club data, from rankings the group can already read about each other ──
+    const categoryNames = new Map(
+      categoryRows.filter((c) => c.group_id === g.id).map((c) => [c.id, c.name]),
+    );
+    const clubHistory: RecapRanking[] = rankingRows
+      .filter((r) => r.group_id === g.id)
+      .map((r) => ({
+        userId: r.user_id,
+        displayName: names.get(r.user_id) ?? "Climber",
+        categoryId: r.category_id,
+        categoryName: categoryNames.get(r.category_id) ?? "a pitch",
+        periodStart: r.period_start,
+        pctChange: Number(r.pct_change),
+        isAbsolute: r.is_absolute,
+        rank: r.rank,
+      }));
+
+    // The recap is written about the week that has CLOSED, not the one in
+    // progress — a "this week" recap published on Tuesday is a recap of two
+    // days, and people learn to ignore it.
+    const closedWeek = [...new Set(clubHistory.map((r) => r.periodStart))]
+      .filter((p) => p < period.start)
+      .sort()
+      .pop();
+
+    const roster = membersByGroup.get(g.id) ?? [];
+    const rivals = roster
+      .filter((m) => m.userId !== userId)
+      .map((m) => headToHead(clubHistory, userId, m.userId, m.displayName, period.start))
+      .filter((h) => h.metWeeks > 0)
+      .sort((a, b) => b.metWeeks - a.metWeeks);
+
     routes.push({
       id: g.id,
       name: g.name,
       inviteCode: g.invite_code,
       isOwner: g.owner_id === userId,
-      memberCount: membersByGroup.get(g.id)?.length ?? 0,
-      members: membersByGroup.get(g.id) ?? [],
+      memberCount: roster.length,
+      members: roster,
+      club: clubStats(clubHistory),
+      hallOfFame: hallOfFame(clubHistory),
+      recap: closedWeek
+        ? buildRecap(clubHistory, closedWeek)
+        : { periodStart: period.start, items: [], participants: 0 },
+      rivals,
       pitches,
       bestRank: myRanks.length ? Math.min(...myRanks) : null,
       unlogged: pitches.filter((p) => !p.logged).length,
@@ -418,9 +484,20 @@ export async function loadClimb(supabase: ServerClient, userId: string): Promise
   const best = bestMove(allPitches);
   const bestPitch = best ? allPitches.find((p) => p.id === best.pitchId) : undefined;
 
+  // The viewer's own working style, from their own entries. Entry rows carry a
+  // period rather than a day, so each ranked week is one observation.
+  const dnaDays: DnaDay[] = entryRows
+    .filter((e) => e.user_id === userId)
+    .map((e) => ({
+      date: e.period_start,
+      value: Number(e.raw_value ?? 0),
+      recordedAt: `${e.period_start}T12:00:00Z`,
+    }));
+
   return {
     period,
     routes,
+    dna: readDna(dnaDays),
     best,
     momentum: bestPitch ? momentum(bestPitch.series) : null,
     weeks: logStreak(myLoggedPeriods, period.start),

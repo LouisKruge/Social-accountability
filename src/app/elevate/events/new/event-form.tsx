@@ -17,9 +17,18 @@ function Submit() {
   );
 }
 
-export function EventForm({ today }: { today: string }) {
+export function EventForm({
+  today,
+  prefill,
+}: {
+  today: string;
+  prefill?: { kind?: string; date?: string; title?: string };
+}) {
   const [state, action] = useFormState<EventState, FormData>(createEvent, {});
-  const [kind, setKind] = useState<EventKind>("interview");
+  const validKind = KINDS.some(([k]) => k === prefill?.kind)
+    ? (prefill!.kind as EventKind)
+    : "interview";
+  const [kind, setKind] = useState<EventKind>(validKind);
 
   return (
     <form action={action} className="space-y-block">
@@ -49,6 +58,7 @@ export function EventForm({ today }: { today: string }) {
         label="Name it"
         name="title"
         placeholder="Standard Bank, second round"
+        defaultValue={prefill?.title}
         maxLength={120}
         required
       />
@@ -57,6 +67,7 @@ export function EventForm({ today }: { today: string }) {
         label="When"
         name="event_date"
         type="date"
+        defaultValue={prefill?.date}
         min={today}
         required
         hint="Ascend works backwards from this date, so it has to be right."

@@ -10,6 +10,7 @@ import type { ElevateState } from "./elevate";
 const climb = (over: Partial<ClimbState> = {}): ClimbState => ({
   period: { start: "2026-07-20", end: "2026-07-26" },
   routes: [],
+  dna: { traits: [], primary: null, daysAnalysed: 0 },
   best: null,
   momentum: null,
   weeks: 0,

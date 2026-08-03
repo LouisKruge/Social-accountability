@@ -37,14 +37,20 @@ export function ClimbRouteView({
           <span aria-hidden>←</span> The face
         </Link>
         <h1 className="font-display text-title font-semibold text-snow">{route.name}</h1>
-        <p className="mt-1.5 text-body text-sage">
-          {route.memberCount} {route.memberCount === 1 ? "climber" : "climbers"}
+        <p className="mt-1.5 flex flex-wrap items-baseline gap-x-3 text-body text-sage">
+          <Link
+            href={`/groups/${route.id}/hq`}
+            className="text-snow underline underline-offset-4 transition hover:opacity-80"
+          >
+            Level {route.club.level}
+          </Link>
+          <span>
+            {route.memberCount} {route.memberCount === 1 ? "climber" : "climbers"}
+          </span>
           {route.bestRank !== null && (
-            <>
-              {" "}
-              · your best position is{" "}
-              <span className="tnum text-snow">{ordinal(route.bestRank)}</span>
-            </>
+            <span>
+              best position <span className="tnum text-snow">{ordinal(route.bestRank)}</span>
+            </span>
           )}
         </p>
       </header>

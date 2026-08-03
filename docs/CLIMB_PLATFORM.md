@@ -236,3 +236,119 @@ design can be reviewed and screenshotted without a database
 (`ALLOW_DESIGN_PREVIEW=1`; views: default, `route`, `pitch`, `empty`). It
 renders the real components rather than copies — a harness holding a second
 implementation drifts within a week and then lies about what the app looks like.
+
+
+---
+
+## The club ecosystem
+
+### Club HQ
+
+Every route gets headquarters: level, reputation, records, and last week written
+out. All of it derived from `leaderboard_rankings` — the one table a group can
+read about each other — so nothing on the screen can expose a number a member
+chose not to publish.
+
+**Club level counts RESULTS, never members.** A club of three who have logged
+for months is further along than twenty who joined yesterday, and a level that
+counted heads would say the opposite — turning the feature into an incentive to
+add people who will never log.
+
+**No club treasury.** Pooled group money is custody, and custody is what is
+blocked on compliance review across the whole product.
+
+### Records, and the tie rule
+
+Records only: biggest single week, most weeks led, most weeks logged. **No
+"worst" anything** — a group's permanent wall is not the place to enshrine
+somebody's bad month, and a hall of fame with a wall of shame beside it is a
+group people quietly leave.
+
+A record requires a **strict lead**. With three climbers tied on three weeks
+each, naming one of them "the one who keeps turning up" lets the sort order
+decide and tells the other two they did less than they did. Caught in review of
+the rendered screen, and now asserted.
+
+### The weekly recap
+
+Biggest move, closest finish, biggest comeback, personal bests, first time on
+the board, clean sweeps.
+
+**Written by rules, not by a model.** Every line is a superlative over a table
+the group can already see. A model could only paraphrase those rows, and a
+paraphrase that gets a name or a number wrong — in a message sent to a person's
+friends — is worse than no recap at all.
+
+It is written about the week that has **closed**, not the one in progress: a
+"this week" recap published on Tuesday is a recap of two days. A week with
+nothing in it produces an empty recap and the screen says so.
+
+### Rivals
+
+Head-to-head from `leaderboard_rankings`, so a rivalry cannot expose anything a
+leaderboard did not already show. **Only weeks where both were ranked on the
+same pitch count** — a week you logged against a week they did not is an
+absence, not a win, and scoring it as a win is how a rivalry feature becomes a
+lie.
+
+---
+
+## Performance DNA
+
+Consistent grinder, peak performer, weekend warrior, weekday engine, early bird,
+night owl, comeback specialist, sprinter, finisher. At most three, strongest
+first, each with the figure it was read from so it can be checked.
+
+### Why it is yours and not the group's
+
+Every signal comes from raw logs, and **a group cannot see a member's raw
+logs**. Computing a shareable label out of data the group cannot see would
+launder private information into a public one. "Sipho is a night owl" is a fact
+about when he is awake.
+
+So DNA is computed from the viewer's own rows and shown on the viewer's own
+screen. If it is ever put on a roster it will be behind an explicit per-user
+opt-in.
+
+### Why it is never a judgement
+
+There is no "inconsistent" or "quitter" archetype, and a test asserts that no
+trait name or blurb contains one, across five behaviour shapes including a run
+of nothing. The label sits next to a person's name, and the product's job is to
+keep them, not to grade them.
+
+Below ten logged weeks it says nothing at all. An archetype assigned from four
+weeks is a horoscope, and it would be the first thing a new user read about
+themselves.
+
+---
+
+## The Life Director
+
+One sentence in, a plan across all three modes out. `/director`.
+
+> "I have a wedding in two weeks"
+> → Elevate: create the plan, working backwards from the date
+> → Commit: positions still running on the day — review the load
+> → Climb: two full weeks before then
+
+### Why the parser is rules
+
+Dates and event kinds are a small, closed, testable grammar. A model would parse
+them well and occasionally hallucinate a date — and a hallucinated date here
+silently reschedules somebody's haircut and their challenge targets three days
+late.
+
+**When it cannot read a sentence it says so and asks.** It also shows its
+working: the words the date was read from are printed next to the resolved date,
+and "on the 14th" is marked low-confidence because the month is a guess.
+
+### Why nothing is applied automatically
+
+It produces **proposals**, each confirmed by the user, and the Commit ones never
+change a target on their own. There is real money on a Commit position, and an
+assistant that quietly lowers a target has changed what somebody staked on.
+
+Proposals only appear when they are real: Commit only when a position actually
+runs past the event date, Climb only when the person has a route and there are
+whole weeks to use.

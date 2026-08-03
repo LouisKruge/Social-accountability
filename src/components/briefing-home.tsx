@@ -108,6 +108,27 @@ export function BriefingHome({ briefing }: { briefing: Briefing }) {
         </section>
       )}
 
+      {/* ── The Director ─────────────────────────────────────────────────── */}
+      <section className="mb-chapter border-t border-snow/25">
+        <Link href="/director" className="group flex items-baseline justify-between gap-4 py-block">
+          <div className="min-w-0">
+            <h3 className="font-display text-title font-semibold text-snow">
+              Something coming up?
+            </h3>
+            <p className="mt-1.5 text-caption text-sage">
+              One sentence — &ldquo;wedding in two weeks&rdquo; — and Ascend plans it across all
+              three sections.
+            </p>
+          </div>
+          <span
+            aria-hidden
+            className="shrink-0 text-caption text-sage transition group-hover:translate-x-1 group-hover:text-snow"
+          >
+            →
+          </span>
+        </Link>
+      </section>
+
       {/* ── The three modes, as an index rather than a choice ────────────── */}
       <section className="border-t border-snow/25">
         {briefing.modes.map((m, i) => (
