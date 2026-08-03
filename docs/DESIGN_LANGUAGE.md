@@ -179,3 +179,38 @@ wrong theme on every cold load.
 4. Motion from `src/lib/motion.ts`. If the movement doesn't say what changed,
    make it a static state.
 5. Accent only if it means what §2 says it means.
+
+---
+
+## 7. References, and what each one actually contributes
+
+A reference is only useful if you can name the *mechanism* you are borrowing.
+"Make it feel like Linear" produces nothing; "Linear earns density by removing
+containers, not by shrinking type" is something you can build.
+
+| Reference | The mechanism worth taking | What would be cargo-cult |
+|---|---|---|
+| **Nothing OS** | Monochrome with a single accent, and a proprietary numeral treatment. Identity from restraint rather than from decoration. | Dot-matrix type. It is *their* signature; copying it makes Ascend look derivative, which is the opposite of the goal. |
+| **visionOS** | Layered depth with a clear z-order, and transitions where one element *moves* rather than two cross-fading. | Heavy translucency. It works because Apple composites against a real camera feed; on a 390px web viewport it is a blur filter that costs frames and reads as smeared. Glass here is on **one** surface — the dock — because that one genuinely floats. |
+| **Rivian** | Legibility as the premium signal. Large type, enormous contrast, nothing decorative in the driver's eyeline. | Automotive iconography and skeuomorphic gauges. |
+| **Linear** | Density earned by **removing containers**, not by shrinking type. Hairlines and alignment do the work a border was doing. | Their exact greys, which are tuned for a desktop app viewed at arm's length. |
+| **Arc** | Navigation that isn't a bar, and motion with real momentum. The command bar and the travelling dock pill both come from here. | Sidebar-as-browser-chrome — there is no window to reorganise on a phone. |
+| **Monzo / Revolut** | Money stated plainly, and trust built by *showing the mechanism* — where a payment is, what a fee was, why something is held. | Their card-heavy home screens, which are the exact pattern this pass removed. |
+
+### What that produced, concretely
+
+- **Nothing / Rivian** → the palette: black, greys, white, one amber.
+- **Linear** → the Commit and Elevate homes have no cards at all. A lead with a
+  hairline rule, a two-column bed, a numbered index. Structure from alignment.
+- **Arc / visionOS** → the dock's selected pill *travels* via `layoutId`; the
+  command bar; springs rather than durations.
+- **Monzo** → the payout tracker showing every state transition with its stated
+  reason, and `expectedArrival()` returning **null** rather than guessing.
+
+### The reference that mattered most is none of them
+
+The strongest identity decisions in this app came from the *product*, not from
+looking at other apps: gold means money that actually landed and nothing else;
+the pool fills in the valley and climbs; the challenge glyph is a stair whose
+rise is the difficulty. A borrowed mechanism is worth having. A borrowed
+signature is worth nothing, because it is by definition already someone's.
