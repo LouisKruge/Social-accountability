@@ -22,6 +22,10 @@ import { EventPlanView } from "@/components/event-plan";
 import { planEvent, readiness, todayIso, shiftDays } from "@/lib/events";
 import { transformationScore } from "@/lib/transformation";
 import type { ElevateOs, EventWithPlan } from "@/lib/elevateOs";
+import { ExchangeTerminal } from "@/components/exchange-terminal";
+import { buildPosition, portfolioHealth } from "@/lib/position";
+import { buildIntegrityTimeline, summarise } from "@/lib/integrityTimeline";
+import type { ExchangeState } from "@/lib/exchange";
 import { momentum, type ClimbPitch, type ClimbRoute, type ClimbState, type PitchRow } from "@/lib/climb";
 
 /**
@@ -362,6 +366,74 @@ const ELEVATE_OS: ElevateOs = {
   timing: { totalMs: 0, slowest: null, spanCount: 0, spans: [], byName: [] },
 };
 
+// Three positions: one ahead and metronomic, one behind and erratic, one new.
+const HIST_STEADY = Array.from({ length: 18 }, () => 11_500);
+const HIST_ERRATIC = Array.from({ length: 22 }, (_, i) => (i % 3 === 0 ? 2_400 : 9_800));
+
+const POSITIONS = [
+  buildPosition({
+    cohortId: "c1", name: "10k a day, 30 days", stake: 500,
+    progress: 207_000, target: 300_000, dayNumber: 18, totalDays: 30, daysRemaining: 12,
+    history: HIST_STEADY, poolTotal: 3_000, participants: 6, feeRate: 0.1,
+  }),
+  buildPosition({
+    cohortId: "c2", name: "Morning Grind", stake: 1_200,
+    progress: 158_000, target: 360_000, dayNumber: 22, totalDays: 28, daysRemaining: 6,
+    history: HIST_ERRATIC, poolTotal: 7_200, participants: 6, feeRate: 0.1,
+  }),
+  buildPosition({
+    cohortId: "c3", name: "Payday Push", stake: 300,
+    progress: 0, target: 150_000, dayNumber: 1, totalDays: 21, daysRemaining: 20,
+    history: [], poolTotal: 1_800, participants: 6, feeRate: 0.1,
+  }),
+];
+
+const TIMELINE_SRC = {
+  stakes: [
+    { id: "s1", cohortId: "c1", cohortName: "10k a day, 30 days", amount: 500, paymentConfirmed: true, createdAt: "2026-07-16T08:00:00Z" },
+    { id: "s2", cohortId: "c2", cohortName: "Morning Grind", amount: 1_200, paymentConfirmed: false, createdAt: "2026-07-12T08:00:00Z" },
+  ],
+  heldDays: [
+    { date: "2026-07-28", cohortName: "Morning Grind", reason: "4.1x your own 30-day median, recorded 9 days late" },
+  ],
+  verifiedDayCount: 39,
+  settled: [
+    { id: "old1", name: "First 30", endDate: "2026-06-30", hitTarget: true, payout: 900 },
+    { id: "old2", name: "Winter Sprint", endDate: "2026-05-31", hitTarget: false, payout: null },
+  ],
+  payoutEvents: [
+    { payoutId: "p1", at: "2026-07-03T09:12:00Z", to: "paid", reason: "EFT released", amount: 900, cohortName: "First 30" },
+    { payoutId: "p1", at: "2026-07-01T16:40:00Z", to: "processing", reason: "bank file submitted", amount: 900, cohortName: "First 30" },
+  ],
+};
+
+const TERMINAL: ExchangeState = {
+  dashboard: {
+    active: [], open: [{ id: "o1", name: "Payday Push", stakeAmount: 300, targetLabel: "150k in 21 days" }],
+    history: TIMELINE_SRC.settled, achievements: [], standings: null, analytics: null,
+    rawLogs: [], feeRate: 0.1,
+  } as unknown as ExchangeState["dashboard"],
+  wallet: {
+    positions: { locked: 2_000, awaitingEft: 1_200, comingToYou: 0, paidOut: 900 },
+    payouts: [], ledger: [], trust: { destination: null, flags: [], events: [], devices: [] },
+  } as unknown as ExchangeState["wallet"],
+  positions: POSITIONS,
+  portfolio: portfolioHealth(POSITIONS),
+  timeline: buildIntegrityTimeline(TIMELINE_SRC),
+  integritySummary: summarise(TIMELINE_SRC),
+  modules: {
+    portfolio: { key: "portfolio", value: "R2,000", caption: "3 open positions", alert: false, tone: "default" },
+    market: { key: "market", value: "4", caption: "open to join", alert: false, tone: "default" },
+    treasury: { key: "treasury", value: "R900", caption: "paid to you", alert: false, tone: "money" },
+    lab: { key: "lab", value: "76%", caption: "consistency", alert: false, tone: "default" },
+    floor: { key: "floor", value: "#2", caption: "of 6", alert: false, tone: "default" },
+    trust: { key: "trust", value: "94", caption: "Verified", alert: false, tone: "default" },
+    standing: { key: "standing", value: "5", caption: "of 12 milestones", alert: false, tone: "default" },
+  } as ExchangeState["modules"],
+  headline: { text: "R1,200 of your stake hasn't reached us yet", href: "/commit/wallet", tone: "warn" },
+  integrity: { score: 94, label: "Verified", tone: "good" },
+};
+
 export default function DesignPreview({ searchParams }: { searchParams: { view?: string } }) {
   if (process.env.ALLOW_DESIGN_PREVIEW !== "1") notFound();
   if (searchParams.view === "hub") return <BriefingHome briefing={BRIEFING} />;
@@ -396,6 +468,13 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
     return <ElevateCommand os={{ ...ELEVATE_OS, events: [], focus: null }} />;
   if (searchParams.view === "event") return <EventPlanView event={EVENTS[0]} />;
   if (searchParams.view === "event-tight") return <EventPlanView event={EVENTS[1]} />;
+  if (searchParams.view === "terminal") return <ExchangeTerminal state={TERMINAL} />;
+  if (searchParams.view === "terminal-empty")
+    return (
+      <ExchangeTerminal
+        state={{ ...TERMINAL, positions: [], portfolio: portfolioHealth([]), headline: null }}
+      />
+    );
   if (searchParams.view === "commit") return <CommitPreview />;
   if (searchParams.view === "elevate") return <ElevatePreview />;
 

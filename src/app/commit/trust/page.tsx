@@ -4,6 +4,7 @@ import { ModulePage } from "@/components/module-shell";
 import { TrustPanel } from "@/components/wallet-ui";
 import { DashSection } from "@/components/dash";
 import { loadExchange } from "@/lib/exchange";
+import { zar } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,60 @@ export default async function TrustPage() {
       }
     >
       <TrustPanel trust={state.wallet.trust} integrityScore={state.integrity?.score ?? null} />
+
+      {/* ── The integrity record ─────────────────────────────────────────────
+          Ascend asks people to send money to a company they have never met, on
+          the promise that a verified result decides who gets it back. The only
+          thing that makes that reasonable is a record they can read afterwards.
+          Held days appear here in the same list and the same voice as payouts —
+          a trust ledger that only shows good news is marketing. */}
+      {state.timeline.length > 0 && (
+        <section className="mt-chapter border-t border-snow/25">
+          <div className="flex items-baseline justify-between gap-4 py-block">
+            <h2 className="font-display text-title font-semibold text-snow">The record</h2>
+            <span className="shrink-0 text-caption text-sage">
+              {state.integritySummary.daysVerified} verified
+              {state.integritySummary.daysHeld > 0 && `, ${state.integritySummary.daysHeld} held`}
+            </span>
+          </div>
+          <ul className="border-t border-scree/60">
+            {state.timeline.slice(0, 40).map((e) => (
+              <li key={e.id} className="border-b border-scree/40 py-4 last:border-0">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className={`min-w-0 flex-1 text-body ${e.adverse ? "text-sage" : "text-snow"}`}>
+                    {e.title}
+                  </span>
+                  {e.amount !== null && (
+                    <span
+                      className={`tnum shrink-0 text-body ${
+                        e.amount > 0 ? "text-summit" : "text-snow/75"
+                      }`}
+                    >
+                      {e.amount > 0 ? "+" : "\u2212"}
+                      {zar(Math.abs(e.amount))}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-caption text-sage">{e.detail}</p>
+                <p className="mt-1 text-micro uppercase text-sage/70">
+                  {new Date(e.at).toLocaleDateString("en-ZA", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    timeZone: "UTC",
+                  })}
+                </p>
+              </li>
+            ))}
+          </ul>
+          {state.integritySummary.holdRate !== null && (
+            <p className="pt-4 text-meta text-sage/70">
+              {Math.round(state.integritySummary.holdRate * 100)}% of your judged days were held for
+              review. A held day is never deleted — it waits for a person.
+            </p>
+          )}
+        </section>
+      )}
 
       <div className="mt-6">
         <DashSection title="What we check">

@@ -13,7 +13,7 @@ stops being useful the first time somebody plans against it.
 | **Blocked** | Cannot ship yet, and the blocker is named. Nearly all are legal or hardware, not effort. |
 | **Declined** | Deliberately not built. The reason is given, and it is never "too hard". |
 
-Counts, honestly: **196 Live · 53 Spec · 17 Blocked · 24 Declined = 290.**
+Counts, honestly: **222 Live · 60 Spec · 22 Blocked · 28 Declined = 332.**
 
 > **Corrected.** Items 156, 157 and 158 were previously listed as Declined. They
 > are now Live — see `LIFE_OS.md` §1. The objection was to a score nobody could
@@ -301,6 +301,55 @@ Detail in `ELEVATE_PLATFORM.md` §6–8.
 | 289 | Closet heatmaps, seasonal rotation, weather adaptation, packing lists | Spec — buildable on the existing wardrobe table |
 | 290 | Particles, breathing cards, magnetic buttons, haptics | Declined — `DESIGN_LANGUAGE.md` §5 |
 
+## I. Commit — the terminal (291–332)
+
+Detail in `COMMIT_PLATFORM.md`.
+
+| # | Feature | Status |
+|---|---|---|
+| 291 | Exchange terminal led by capital at risk | Live |
+| 292 | Today's total required output across all positions | Live |
+| 293 | Position book — one row per open challenge | Live |
+| 294 | Per-position exposure | Live |
+| 295 | Completion against expected pace, with a tick at expected | Live |
+| 296 | Position health (ahead / on pace / behind / at risk / met) | Live |
+| 297 | Health never coloured red; critical needs deficit AND time pressure | Live |
+| 298 | Velocity — your own average output | Live |
+| 299 | Required velocity from what is actually left | Live |
+| 300 | Strain — required over current, as a multiple | Live |
+| 301 | Null strain rather than Infinity with nothing logged | Live |
+| 302 | Discipline volatility (coefficient of variation) | Live |
+| 303 | Steadiness 0–100 and a label (metronomic → erratic) | Live |
+| 304 | Volatility is scale-free — same shape in steps and rand scores the same | Live |
+| 305 | Per-position probability from own mean and variance | Live |
+| 306 | Probabilities clamped to 1–99, never asserting certainty | Live |
+| 307 | Expected return, erring to the lowest defensible figure | Live |
+| 308 | Portfolio health weighted by exposure, not by count | Live |
+| 309 | Rand-at-risk total for positions off pace | Live |
+| 310 | Performance portfolio screen with the full metric grid | Live |
+| 311 | Daily output chart per position | Live |
+| 312 | Strategy comparison — Even, Front-loaded, Weekday-heavy | Live |
+| 313 | Weekday split offered only when the window spans both | Live |
+| 314 | Each strategy's heaviest single day shown | Live |
+| 315 | Strategies stated as options, never as a recommendation about your week | Live |
+| 316 | Null probabilities rather than guesses without history | Live |
+| 317 | Integrity record — chronological trust ledger | Live |
+| 318 | Held days shown in the same list and voice as payouts | Live |
+| 319 | Held-day wording taken from the integrity engine itself | Live |
+| 320 | Verified days summarised, not one entry each | Live |
+| 321 | Hold rate over judged days | Live |
+| 322 | Committed vs received totalled separately | Live |
+| 323 | Command bar targets every position and action | Live |
+| 324 | Deposits / withdrawals / instant payouts / card / Apple Pay | Blocked — escrow & custody compliance review |
+| 325 | Escrow account, prize distribution automation | Blocked — same |
+| 326 | "AI confidence" as a named field | Declined — no model in this path; see COMMIT_PLATFORM.md |
+| 327 | Weather impact, best time to walk, GPS validation | Blocked — no feed |
+| 328 | Recovery impact, burnout risk | Blocked — no wearable |
+| 329 | "Historical similar users" | Declined — leaks by inference at this user count |
+| 330 | Live trading floor / activity feed | Spec — ships on realtime off genuine events, shows nothing when quiet |
+| 331 | Performance futures (planned future commitments) | Spec — needs a commitments table |
+| 332 | Challenge replay | Spec — the daily series exists; the cinematic render does not |
+
 ## E. AI (175–190) — detail in `AI_OPERATING_SYSTEM.md`
 
 | # | Feature | Status |
@@ -349,7 +398,7 @@ Detail in `ELEVATE_PLATFORM.md` §6–8.
 | 211 | `server-only` build-time guard on server modules | Live |
 | 212 | Deterministic number formatting (no CLDR drift) | Live |
 | 213 | Design harness rendering the real components | Live |
-| 214 | 379 unit tests, 87 SQL assertions | Live |
+| 214 | 417 unit tests, 87 SQL assertions | Live |
 | 215 | Reduced-motion equivalents on every animation | Live |
 | 216 | 48px minimum tap targets | Live |
 | 217 | 16px minimum input text (prevents iOS zoom-on-focus) | Live |

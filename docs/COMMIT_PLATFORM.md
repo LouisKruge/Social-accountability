@@ -333,3 +333,131 @@ publishes people's money without their consent.
 4. **WebAuthn/passkeys + TOTP 2FA** — the buildable half of the security brief.
 5. **Native client** for HealthKit/Google Fit, which unlocks the rest of §7.
 6. **Opt-in earnings sharing**, if you want the Top Earners board (§8).
+
+
+---
+
+## The terminal: positions, not cards
+
+Commit's home is no longer a dashboard. A dashboard shows you how things are; a
+terminal shows you what your position is and what it needs from you today. So
+the hero is **capital at risk**, and directly underneath it is the one number
+that changes the outcome — total output required across every position, today.
+
+Everything below is the **position book**: one row per open challenge with its
+exposure, health, strain and probability. Dense on purpose, because somebody
+with three positions open is checking, not browsing.
+
+### A position is not a bet
+
+The difference is not vocabulary. A bet has an outcome you wait for; a position
+has measurable state you can act on:
+
+| Field | What it is |
+|---|---|
+| `exposure` | Rand at risk |
+| `completion` / `expected` | Where you are, against where an even pace would be |
+| `health` | ahead / on pace / behind / at risk / target met |
+| `velocity` | Your own average output per day so far |
+| `requiredVelocity` | What each remaining day now has to produce |
+| `strain` | Required over current, as a multiple. 1.0 means "keep going" |
+| `volatility` | How steady you have been — see below |
+| `projection` | Probability from your own mean and variance |
+| `expectedReturn` | Pool net of fee, split among everyone in it |
+
+The completion bar carries a **tick at the expected position**. That tick is the
+honest part: it is what the calendar expects, not decoration, and it turns a
+progress bar into a statement about whether you are ahead or behind.
+
+### Discipline volatility
+
+Two people average 10,000 steps a day. One walks 10,000 every day; the other
+alternates 2,000 and 18,000. **Every mean-based metric in this product calls
+them identical, and they are not** — the second is one bad day from missing, and
+carries far more risk at the same average.
+
+Measured as the coefficient of variation (σ/μ) because that is scale-free: a CV
+of 0.2 means the same thing for steps and for rand. Returns null under three
+days, because a "volatility" over two points is the gap between two numbers with
+a Greek letter attached.
+
+### Health is not coloured
+
+`critical` requires **both** a real deficit and little time left. Being 15%
+behind on day two of thirty is noise, and colouring it red on day two is how a
+product teaches people to ignore its warnings. Health reads by word and by
+brightness; red stays reserved for errors.
+
+### Expected return errs low
+
+Ascend cannot know how many others will finish, so the only defensible
+assumption is that **everyone who is in, finishes** — which produces the lowest
+payout per person. Erring toward the smaller number is the only direction that
+cannot disappoint somebody who counted on it.
+
+### Probabilities never assert certainty
+
+`probabilityPct()` clamps the displayed figure to 1–99. A normal approximation
+over two weeks of somebody's step count genuinely returns 0.997 and 0.001, and
+rendering those as "100% likely" and "0% likely" claims a certainty the method
+does not have. The arithmetic keeps its precision; the sentence does not
+overclaim.
+
+---
+
+## Strategy comparison
+
+The same target, distributed differently: **Even**, **Front-loaded**, and
+**Weekday-heavy** where the remaining window actually contains both weekdays and
+a weekend. Each carries its probability, computed from the person's own history,
+and the heaviest single day it asks for — because that is the trade-off.
+Front-loading buys slack later at the cost of a harder first day, and the
+comparison exists to make that visible before you commit to it.
+
+**It will not tell you which one suits your week.** Ascend has no calendar, so it
+cannot know Wednesdays are impossible for you. These are options to choose
+between, never a recommendation derived from data that does not exist. The
+screen says so.
+
+---
+
+## The integrity record
+
+Ascend asks people to send money to a company they have never met, on the
+promise that a verified result decides who gets it back. The only thing that
+makes that reasonable is a record they can read afterwards: what was committed,
+what was checked, what was decided, when.
+
+Every entry derives from a row the user owns. **Held days appear in the same
+list and the same voice as payouts** — a trust ledger that only shows good news
+is marketing. The wording of a held day is the integrity engine's own, because
+paraphrasing it would create a second voice for the same decision.
+
+Verified days are deliberately **not** one entry each: forty identical lines
+would bury the four that matter, and a record nobody scrolls is not a record.
+They are summarised, with a hold rate.
+
+---
+
+## What the reinvention brief asked for that is NOT built
+
+| Asked for | Status |
+|---|---|
+| Deposits, withdrawals, instant payouts, scheduled payouts, card, Apple Pay, Google Pay, escrow account | **Blocked on the escrow/custody compliance review** — the constraint set at the start of this project and unchanged: manual bank transfer only, no exceptions for "just to test it faster". This is why the wallet reports *positions* rather than a spendable balance. |
+| "AI confidence" on every position | **Declined as named.** There is no model in this path; a field labelled "AI confidence" over a rule-based projection lies about where the number came from. The honest version is `projection.probability`, and the screen says how it is computed. |
+| Weather impact, best time to walk, GPS validation | Blocked — no weather feed, no location data. |
+| Recovery impact, burnout risk | Blocked — no wearable. Same rule as the Life OS: reported as absent, never estimated. |
+| "Historical similar users" | Declined. With the current user base this is a comparison against a handful of people, and it would leak information about them by inference. |
+| Live trading floor / continuous activity feed | **Spec, and the condition is unchanged**: it ships driven by Supabase realtime off genuine events, and shows nothing when nothing is happening. Fabricating events to look alive is the one thing that would destroy the trust the rest of this section is built on. |
+| Seasons, elite challenges, prestige, corporate leagues | Spec — `LIFE_OS.md` §6. |
+| Live chat, voice rooms, reactions | Spec. Each is a moderation surface before it is a feature. |
+| Biometric login, passkeys, 2FA | Spec. |
+| Particles celebrating payouts | Declined — `DESIGN_LANGUAGE.md` §5. |
+
+### Performance Futures
+
+Your own suggestion, and the honest first version is already here: the portfolio
+shows total exposure and today's total requirement across every position, so
+opening another one has a visible cost before you take it. Planning *future*
+challenges needs a table for commitments that do not exist yet — a real feature,
+and the natural next one.

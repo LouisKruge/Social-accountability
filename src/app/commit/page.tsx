@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { ExchangeHome } from "@/components/exchange-home";
+import { ExchangeTerminal } from "@/components/exchange-terminal";
 import { loadExchange } from "@/lib/exchange";
 
 export const dynamic = "force-dynamic";
@@ -10,5 +10,5 @@ export default async function CommitPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return <ExchangeHome state={await loadExchange(supabase, user!.id)} />;
+  return <ExchangeTerminal state={await loadExchange(supabase, user!.id)} />;
 }

@@ -10,6 +10,14 @@ import { loadWallet, type Wallet } from "@/lib/wallet";
 import { assessWindow, integrityLabel, type DayLog } from "@/lib/integrity";
 import { isOutstanding } from "@/lib/payoutLifecycle";
 import type { ModuleKey } from "@/lib/modules";
+import { buildPosition, portfolioHealth, type Position } from "@/lib/position";
+import {
+  buildIntegrityTimeline,
+  summarise,
+  type IntegrityEntry,
+  type IntegritySummary,
+} from "@/lib/integrityTimeline";
+import { assessDay } from "@/lib/integrity";
 import { logReport, timed } from "@/lib/timing";
 
 /**
@@ -43,6 +51,12 @@ export interface ModuleStatus {
 export interface ExchangeState {
   dashboard: CommitDashboard;
   wallet: Wallet;
+  /** Every open challenge as a position, with its own analytics. */
+  positions: Position[];
+  portfolio: ReturnType<typeof portfolioHealth>;
+  /** The trust record: what was committed, checked, decided and paid. */
+  timeline: IntegrityEntry[];
+  integritySummary: IntegritySummary;
   modules: Record<ModuleKey, ModuleStatus>;
   /** The single most important thing to say right now, or null. */
   headline: { text: string; href: string; tone: "good" | "warn" | "default" } | null;
@@ -76,6 +90,81 @@ export async function loadExchange(
         return { score: w.integrityScore, label: l.label, tone: l.tone };
       })()
     : null;
+
+  // ── Positions ─────────────────────────────────────────────────────────────
+  const logsByCohort = new Map<string, number[]>();
+  for (const l of dashboard.rawLogs) {
+    const arr = logsByCohort.get(l.cohort_id) ?? [];
+    arr.push(Number(l.verified_value ?? 0));
+    logsByCohort.set(l.cohort_id, arr);
+  }
+
+  const positions: Position[] = dashboard.active.map((a) =>
+    buildPosition({
+      cohortId: a.cohortId,
+      name: a.name,
+      stake: a.stake,
+      progress: a.progress,
+      target: a.target,
+      dayNumber: a.dayNumber,
+      totalDays: a.totalDays,
+      daysRemaining: a.daysRemaining,
+      history: logsByCohort.get(a.cohortId) ?? [],
+      poolTotal: a.poolTotal,
+      participants: a.participants,
+      feeRate: dashboard.feeRate,
+    }),
+  );
+
+  // ── The integrity record ──────────────────────────────────────────────────
+  const cohortNameById = new Map<string, string>([
+    ...dashboard.active.map((a) => [a.cohortId, a.name] as const),
+    ...dashboard.history.map((h) => [h.id, h.name] as const),
+  ]);
+
+  const heldDays = dayLogs
+    .map((d) => ({ log: d, verdict: assessDay(d, dayLogs.filter((o) => o.date !== d.date)) }))
+    .filter((x) => !x.verdict.accepted)
+    .map((x) => ({
+      date: x.log.date,
+      cohortName: "a challenge",
+      // The engine's own wording, which is written to be read by the person it
+      // concerns. Paraphrasing it here would create a second voice for the
+      // same decision.
+      reason:
+        [...x.verdict.flags].sort((a, b) => b.severity - a.severity)[0]?.detail ??
+        "flagged for review",
+    }));
+
+  const timelineSource = {
+    stakes: dashboard.active.map((a) => ({
+      id: a.cohortId,
+      cohortId: a.cohortId,
+      cohortName: a.name,
+      amount: a.stake,
+      paymentConfirmed: true,
+      createdAt: `${new Date(Date.now() - a.dayNumber * 86_400_000).toISOString()}`,
+    })),
+    heldDays,
+    verifiedDayCount: dayLogs.length - heldDays.length,
+    settled: dashboard.history.map((h) => ({
+      id: h.id,
+      name: h.name,
+      endDate: h.endDate,
+      hitTarget: h.hitTarget,
+      payout: h.payout,
+    })),
+    payoutEvents: wallet.payouts.flatMap((p) =>
+      p.history.map((h) => ({
+        payoutId: p.id,
+        at: h.at,
+        to: h.to,
+        reason: h.reason,
+        amount: p.amount,
+        cohortName: cohortNameById.get(p.cohortId) ?? p.cohortName,
+      })),
+    ),
+  };
 
   const outstanding = wallet.payouts.filter((p) => isOutstanding(p.state));
   const needsUser = wallet.payouts.some((p) => p.needsUser);
@@ -153,6 +242,10 @@ export async function loadExchange(
   return {
     dashboard,
     wallet,
+    positions,
+    portfolio: portfolioHealth(positions),
+    timeline: buildIntegrityTimeline(timelineSource),
+    integritySummary: summarise(timelineSource),
     modules,
     headline: buildHeadline(dashboard, wallet, needsUser),
     integrity,

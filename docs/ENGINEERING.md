@@ -17,7 +17,7 @@ them.
 | Motion | Framer Motion 12 | Four named springs, `src/lib/motion.ts` |
 | Data | Supabase (Postgres 17, Auth, Storage, RLS) | `eu-west-3` |
 | Hosting | Vercel, `cdg1` | Pinned to match the database — §7.1 |
-| Tests | Vitest + a SQL harness | 379 unit tests, 87 SQL assertions |
+| Tests | Vitest + a SQL harness | 417 unit tests, 87 SQL assertions |
 
 ---
 
@@ -267,7 +267,7 @@ a different hat, and it was caught the second time while writing the tests.
 
 ## 8. Testing
 
-### 8.1 Unit — 379 tests, 20 files
+### 8.1 Unit — 417 tests, 22 files
 
 Pure logic only: ranking, integrity, payout lifecycle, wallet, cohort, stakes,
 wardrobe, photo coach, glow-up guards, climb, briefing, intelligence, format,
