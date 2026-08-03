@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { AppShell, Card, Badge, Brand } from "@/components/ui";
+import { AppShell } from "@/components/ui";
 import { loadLedger, type LedgerSection } from "@/lib/ledger";
+import { zar } from "@/lib/format";
 import { signOut } from "@/app/auth/actions";
 import { ProfileForm } from "@/app/profile/profile-form";
 import { DeleteGlowupData } from "@/app/profile/delete-glowup";
@@ -9,18 +10,22 @@ import { DeleteAccount } from "@/app/profile/delete-account";
 
 export const dynamic = "force-dynamic";
 
-const SECTION_DOT: Record<LedgerSection, string> = {
-  climb: "bg-ice",
-  commit: "bg-ice",
-  elevate: "bg-snow",
-};
 const SECTION_NAME: Record<LedgerSection, string> = {
   climb: "Climb",
   commit: "Commit",
   elevate: "Elevate",
 };
 
-const zar = (n: number) => `R${Math.abs(n).toLocaleString("en-ZA", { minimumFractionDigits: 0 })}`;
+/**
+ * Absolute rand. The sign is carried by the row's own prefix, so the formatter
+ * never has to decide whether a negative reads as "−R400" or "R−400".
+ *
+ * This used `toLocaleString("en-ZA")` until now — the exact call src/lib/format.ts
+ * exists to replace, because Node and Chromium ship different CLDR data for
+ * en-ZA and rendered the same figure as "12,400" server-side and "12 400" in
+ * the browser. On the screen where a person reads their own money.
+ */
+const money = (n: number) => zar(Math.abs(n));
 
 /**
  * YOU — one hub, not three settings screens.
@@ -54,144 +59,127 @@ export default async function YouPage({
 
   return (
     <AppShell>
-      <div className="mb-7 flex items-center justify-between">
-        <Link href="/home" aria-label="All sections">
-          <Brand />
-        </Link>
+      <header className="mb-block flex items-baseline justify-between gap-4">
+        <div>
+          <p className="text-micro uppercase text-sage">Your account</p>
+          <h1 className="font-display text-title font-semibold text-snow">You</h1>
+        </div>
         <form action={signOut}>
-          <button className="text-sm text-sage transition hover:text-ice">Sign out</button>
+          <button className="shrink-0 text-xs text-sage transition hover:text-snow">
+            Sign out
+          </button>
         </form>
-      </div>
-
-      <header className="mb-7">
-        <p className="text-caption uppercase tracking-[0.16em] text-sage">Your account</p>
-        <h1 className="mt-1.5 font-display text-[1.9rem] font-semibold leading-none tracking-tightest text-snow">
-          You
-        </h1>
       </header>
 
-      {/* ── Activity ledger ─────────────────────────────────────────────── */}
-      <section className="mb-8">
-        <h2 className="mb-3 text-micro uppercase text-sage">Money in this app</h2>
-
-        <Card className="mb-3">
-          <dl className="grid grid-cols-3 gap-3 text-center">
-            <div>
-              <dt className="text-caption uppercase tracking-wider text-sage">Paid in</dt>
-              <dd className="tnum mt-1 text-sm text-snow">{zar(ledger.paidOut)}</dd>
-            </div>
-            <div>
-              <dt className="text-caption uppercase tracking-wider text-sage">Received</dt>
-              <dd className="tnum mt-1 text-sm text-summit">{zar(ledger.received)}</dd>
-            </div>
-            <div>
-              <dt className="text-caption uppercase tracking-wider text-sage">Net</dt>
-              <dd className={`tnum mt-1 text-sm ${ledger.net >= 0 ? "text-snow" : "text-sage"}`}>
-                {ledger.net < 0 ? "−" : ""}
-                {zar(ledger.net)}
-              </dd>
-            </div>
-          </dl>
+      {/* ── Money, reconciled across all three modes ─────────────────────── */}
+      <section className="mb-chapter">
+        <p className="text-micro uppercase text-sage">Net across Ascend</p>
+        <p className="tnum -ml-1 mt-2 font-display text-hero font-semibold text-snow">
+          {ledger.net < 0 && "\u2212"}
+          {money(ledger.net)}
+        </p>
+        <dl className="mt-block flex flex-wrap gap-x-8 gap-y-3 border-t border-scree/60 pt-4">
+          <div>
+            <dt className="text-micro uppercase text-sage">Paid in</dt>
+            <dd className="tnum mt-1 font-display text-lg text-snow">{money(ledger.paidOut)}</dd>
+          </div>
+          <div>
+            <dt className="text-micro uppercase text-sage">Received</dt>
+            {/* The one hue on the screen: money actually paid to you. */}
+            <dd className="tnum mt-1 font-display text-lg text-summit">{money(ledger.received)}</dd>
+          </div>
           {ledger.pending > 0 && (
-            <p className="mt-3 border-t border-scree/60 pt-3 text-center text-xs text-sage">
-              {zar(ledger.pending)} still being processed
-            </p>
+            <div>
+              <dt className="text-micro uppercase text-sage">In flight</dt>
+              <dd className="tnum mt-1 font-display text-lg text-snow">{money(ledger.pending)}</dd>
+            </div>
           )}
-        </Card>
+        </dl>
+      </section>
 
+      <section className="mb-chapter border-t border-snow/25">
+        <p className="py-block text-micro uppercase text-sage">Every movement</p>
         {ledger.entries.length === 0 ? (
-          <Card>
-            <p className="text-sm text-sage">
-              No money has moved yet. Stakes, payouts and purchases will all show up here.
-            </p>
-          </Card>
+          <p className="border-t border-scree/60 py-5 text-body text-sage">
+            No money has moved yet. Stakes, payouts and purchases all show up here.
+          </p>
         ) : (
-          <Card className="!py-2">
-            <ul className="divide-y divide-scree/50">
-              {ledger.entries.map((e) => (
-                <li key={e.id} className="flex items-center gap-3 py-3.5">
-                  <span
-                    aria-hidden
-                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${SECTION_DOT[e.section]}`}
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-snow/90">{e.label}</span>
-                    <span className="mt-0.5 block truncate text-xs text-sage">
-                      {SECTION_NAME[e.section]}
-                      {e.detail ? ` · ${e.detail}` : ""} ·{" "}
-                      {new Date(e.date).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
-                    </span>
+          <ul className="border-t border-scree/60">
+            {ledger.entries.map((e) => (
+              <li key={e.id} className="flex items-center gap-3 border-b border-scree/40 py-4 last:border-0">
+                <span className="w-16 shrink-0 text-micro uppercase text-sage">
+                  {SECTION_NAME[e.section]}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-body text-snow">{e.label}</span>
+                  <span className="mt-0.5 block truncate text-caption text-sage">
+                    {e.detail ? `${e.detail} \u00b7 ` : ""}
+                    {new Date(e.date).toLocaleDateString("en-ZA", {
+                      day: "numeric",
+                      month: "short",
+                      timeZone: "UTC",
+                    })}
                   </span>
-                  {e.amount !== 0 && (
-                    <span
-                      className={`tnum shrink-0 text-sm ${
-                        e.amount > 0 && e.status === "confirmed" ? "text-summit" : "text-snow/80"
-                      }`}
-                    >
-                      {e.amount > 0 ? "+" : "−"}
-                      {zar(e.amount)}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </Card>
+                </span>
+                {e.amount !== 0 && (
+                  <span
+                    className={`tnum shrink-0 text-body ${
+                      e.amount > 0 && e.status === "confirmed" ? "text-summit" : "text-snow/75"
+                    }`}
+                  >
+                    {e.amount > 0 ? "+" : "\u2212"}
+                    {money(e.amount)}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
       </section>
 
       {/* ── Plan ────────────────────────────────────────────────────────── */}
-      <section className="mb-8">
-        <h2 className="mb-3 text-micro uppercase text-sage">Plan</h2>
-        <Link href="/billing" className="block">
-          <Card className="flex items-center justify-between transition hover:bg-ridge">
-            <div>
-              <p className="text-sm text-snow">{isPremium ? "Premium" : "Free plan"}</p>
-              <p className="mt-0.5 text-xs text-sage">Manage your subscription</p>
-            </div>
-            <Badge tone={isPremium ? "summit" : "muted"}>{isPremium ? "Premium" : "Free"}</Badge>
-          </Card>
+      <section className="mb-chapter border-t border-scree/60 pt-block">
+        <p className="mb-4 text-micro uppercase text-sage">Plan</p>
+        <Link href="/billing" className="group flex items-center justify-between gap-4">
+          <div>
+            <p className="text-body text-snow">{isPremium ? "Premium" : "Free plan"}</p>
+            <p className="mt-0.5 text-caption text-sage">Manage your subscription</p>
+          </div>
+          <span
+            aria-hidden
+            className="shrink-0 text-caption text-sage transition group-hover:translate-x-1 group-hover:text-snow"
+          >
+            &rarr;
+          </span>
         </Link>
       </section>
 
       {/* ── Linked accounts & notifications ─────────────────────────────── */}
-      <section className="mb-8">
-        <h2 className="mb-3 text-micro uppercase text-sage">
-          Linked accounts &amp; alerts
-        </h2>
-        <Card className="mb-3">
-          <ProfileForm
-            displayName={profile?.display_name ?? ""}
-            phoneNumber={profile?.phone_number ?? null}
-            notifyWhatsapp={profile?.notify_whatsapp ?? true}
-          />
-        </Card>
-        <Card>
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm text-snow">Step tracker</p>
-              <p className="mt-0.5 text-xs text-sage">
-                For verifying Commit challenges automatically.
-              </p>
-            </div>
-            <Badge tone="muted">Not linked</Badge>
-          </div>
-          <p className="mt-3 text-xs text-sage/80">
-            Steps are self-reported for now. Device sync is coming.
+      <section className="mb-chapter border-t border-scree/60 pt-block">
+        <p className="mb-4 text-micro uppercase text-sage">Alerts &amp; linked accounts</p>
+        <ProfileForm
+          displayName={profile?.display_name ?? ""}
+          phoneNumber={profile?.phone_number ?? null}
+          notifyWhatsapp={profile?.notify_whatsapp ?? true}
+        />
+        <div className="mt-block border-t border-scree/40 pt-4">
+          <p className="text-body text-snow">Step tracker &middot; not linked</p>
+          <p className="mt-1 text-caption text-sage">
+            Steps are self-reported for now. Device sync is coming, and until it lands the
+            integrity engine is what stands between a typed number and a payout.
           </p>
-        </Card>
+        </div>
       </section>
 
       {/* ── Privacy ─────────────────────────────────────────────────────── */}
-      <section>
-        <h2 className="mb-3 text-micro uppercase text-sage">Your data</h2>
+      <section className="border-t border-scree/60 pt-block">
+        <p className="mb-4 text-micro uppercase text-sage">Your data</p>
         {searchParams.glowup_delete === "ok" && (
-          <div className="mb-3">
-            <Card className="ring-1 ring-ice/25">
-              <p className="text-sm text-ice">Your Elevate photos and reports are gone.</p>
-            </Card>
-          </div>
+          <p className="mb-4 rounded-field bg-ridge px-4 py-3 text-body text-snow ring-1 ring-scree">
+            Your Elevate photos and reports are gone.
+          </p>
         )}
-        <div className="mb-3">
+        <div className="mb-block">
           <DeleteGlowupData />
         </div>
         <DeleteAccount />

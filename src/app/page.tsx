@@ -32,7 +32,7 @@ export default async function LandingPage() {
         <div className="relative overflow-hidden rounded-card bg-slope px-5 py-6 ring-1 ring-scree/70">
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 -top-20 h-36 bg-[radial-gradient(ellipse_at_top,rgba(232,184,75,0.14),transparent_70%)]"
+            className="pointer-events-none absolute inset-x-0 -top-20 h-36 bg-[radial-gradient(ellipse_at_top,rgb(var(--glow-summit)/0.14),transparent_70%)]"
           />
           <AscentLine values={[4, 9, 8, 15, 23]} height={120} label="An example climb" />
           <div className="relative mt-3 flex items-center justify-between text-xs">

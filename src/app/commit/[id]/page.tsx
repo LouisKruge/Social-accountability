@@ -107,7 +107,7 @@ export default async function CohortPage({ params }: { params: { id: string } })
           <section className="relative mb-6 overflow-hidden rounded-card bg-slope p-5 ring-1 ring-scree/70">
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 -top-20 h-32 bg-[radial-gradient(ellipse_at_top,rgba(232,184,75,0.14),transparent_70%)]"
+              className="pointer-events-none absolute inset-x-0 -top-20 h-32 bg-[radial-gradient(ellipse_at_top,rgb(var(--glow-summit)/0.14),transparent_70%)]"
             />
             <div className="relative">
               <div className="flex items-end justify-between">

@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { ClimbFace } from "@/components/climb-face";
 import { ClimbRouteView } from "@/components/climb-route";
 import { ClimbPitchView } from "@/components/climb-pitch";
-import { HubPreview } from "./hub-preview";
+import { BriefingHome } from "@/components/briefing-home";
 import { CommitPreview, ElevatePreview } from "./modes-preview";
+import type { Briefing } from "@/lib/briefing";
 import { momentum, type ClimbPitch, type ClimbRoute, type ClimbState, type PitchRow } from "@/lib/climb";
 
 /**
@@ -148,9 +149,55 @@ const STATE: ClimbState = {
   ],
 };
 
+/**
+ * The briefing, with one of each kind of item on it. Typed as the real
+ * `Briefing`, so a change to the shape breaks the harness at compile time
+ * rather than leaving it silently rendering a stale screen.
+ */
+const BRIEFING: Briefing = {
+  greeting: "Kabelo",
+  items: [
+    {
+      id: "payout-blocked",
+      mode: "commit",
+      text: "R900 is waiting on your bank details.",
+      href: "/commit/wallet/bank",
+      priority: 10,
+      kind: "blocked",
+    },
+    {
+      id: "at-risk-c1",
+      mode: "commit",
+      text: "12,500 a day for 20 days to save your R500 in 10k a day.",
+      href: "/commit/c1",
+      priority: 20,
+      kind: "at_risk",
+    },
+    {
+      id: "climb-pending",
+      mode: "climb",
+      text: "Up before six in 6am Club has no number this week.",
+      href: "/groups/g-2/categories/p-habit/log-entry",
+      priority: 30,
+      kind: "due",
+    },
+  ],
+  modes: [
+    { mode: "climb", name: "Climb", href: "/groups", value: "+23.4%", caption: "Savings · 2 routes" },
+    { mode: "commit", name: "Commit", href: "/commit", value: "R500", caption: "on the line · 1 open" },
+    { mode: "elevate", name: "Elevate", href: "/elevate", value: "2", caption: "reviews · 14 in wardrobe" },
+  ],
+  climb: STATE,
+  commit: {} as Briefing["commit"],
+  elevate: {} as Briefing["elevate"],
+  timing: { totalMs: 0, slowest: null, spanCount: 0, spans: [], byName: [] },
+};
+
 export default function DesignPreview({ searchParams }: { searchParams: { view?: string } }) {
   if (process.env.ALLOW_DESIGN_PREVIEW !== "1") notFound();
-  if (searchParams.view === "hub") return <HubPreview />;
+  if (searchParams.view === "hub") return <BriefingHome briefing={BRIEFING} />;
+  if (searchParams.view === "hub-clear")
+    return <BriefingHome briefing={{ ...BRIEFING, items: [] }} />;
   if (searchParams.view === "commit") return <CommitPreview />;
   if (searchParams.view === "elevate") return <ElevatePreview />;
 

@@ -24,7 +24,7 @@ function Submit({ first }: { first: boolean }) {
               className="ascent-path motion-safe:animate-draw"
               d="M2 13 C 12 13, 14 5, 22 5 S 32 3, 38 3"
               fill="none"
-              stroke="#0E1712"
+              stroke="currentColor"
               strokeWidth="2.5"
               strokeLinecap="round"
               pathLength={1}

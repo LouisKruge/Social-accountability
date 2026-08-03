@@ -1,25 +1,49 @@
 # Ascend
 
-A social-accountability app for South African, WhatsApp-first groups. Friends,
-family and coworkers join private groups and compete on **rate of improvement** —
-savings growth %, debt paydown %, fitness/steps change %, or streak habits.
-Because ranking is by percentage change from each person's own baseline, someone
-starting from a low point competes on equal footing with someone already ahead.
+A South African, WhatsApp-first, mobile-primary self-improvement platform. Three
+modes under one identity:
 
-> **Not in scope (by design):** no money staking/wagering, no payments between
-> users, no wearable hard-verification. Entries are self-reported for the MVP.
+| Mode | What it is |
+| --- | --- |
+| **Climb** | Private groups ranked on **rate of improvement** — savings growth, debt paydown, steps, streak habits. Because ranking is by change from each person's own baseline, someone starting from a low point competes on equal footing with someone already ahead. |
+| **Commit** | Stake your own money on your own verified effort. Outcome is decided by verified effort only — never by chance, odds, or a multiplier. |
+| **Elevate** | Private styling, grooming and photo coaching on your own photos. No gallery, no comparison, no rating — ever. |
+
+> **Deliberately out of scope.** No randomised bonus, lottery or luck-based
+> multiplier anywhere in Commit — that would change its legal classification.
+> No deposits or withdrawals until the escrow/custody compliance review is
+> done: money movement is **manual bank transfer only**, with no exceptions for
+> "just to test it faster". Steps are self-reported; the integrity engine is
+> what stands between a typed number and a payout.
+
+## The six design documents
+
+The product is specified across six documents. Read them in this order:
+
+1. [`docs/DESIGN_LANGUAGE.md`](./docs/DESIGN_LANGUAGE.md) — colour, type, spacing, motion, materials, accessibility, and why each decision exists
+2. [`docs/CLIMB_PLATFORM.md`](./docs/CLIMB_PLATFORM.md) — groups, ranking, social systems
+3. [`docs/COMMIT_PLATFORM.md`](./docs/COMMIT_PLATFORM.md) — challenge lifecycle, wallet, payouts, integrity
+4. [`docs/ELEVATE_PLATFORM.md`](./docs/ELEVATE_PLATFORM.md) — the five studios, privacy, content safety
+5. [`docs/AI_OPERATING_SYSTEM.md`](./docs/AI_OPERATING_SYSTEM.md) — where a model is used, where it deliberately is not, and the guards
+6. [`docs/ENGINEERING.md`](./docs/ENGINEERING.md) — component library, data layer, state, APIs, performance, testing
+
+Supporting: [`docs/PRODUCT_AUDIT.md`](./docs/PRODUCT_AUDIT.md) (every known
+defect, fixed and open), [`docs/FEATURE_CATALOGUE.md`](./docs/FEATURE_CATALOGUE.md)
+(225 features with an honest status on each),
+[`docs/PERFORMANCE.md`](./docs/PERFORMANCE.md).
 
 ## Stack
 
 | Concern | Choice |
 | --- | --- |
-| Frontend | Next.js 14 (App Router), TypeScript, Tailwind |
+| Frontend | Next.js 14 (App Router), TypeScript, Tailwind, Framer Motion |
 | Backend / DB / Auth | Supabase (Postgres + Auth + RLS) |
 | Share-card images | `next/og` (`ImageResponse`) — server-rendered PNGs |
 | Ranking job | Secured route (`/api/rankings/compute`) → schedule via `pg_cron` / Edge cron |
 | WhatsApp fan-out | n8n workflow via webhook (data logic stays in the DB/app) |
-| Payments (Phase 4) | Paystack (ZAR subscriptions + webhooks) |
-| Hosting | Vercel |
+| Payments | Paystack (ZAR subscriptions + webhooks) |
+| Coaching vision | Anthropic Messages API, server-side only |
+| Hosting | Vercel, region pinned to `cdg1` to match the database |
 
 ## Getting started
 
@@ -46,12 +70,16 @@ bash supabase/tests/run.sh
 ```
 
 This applies the shim + migration + Supabase-equivalent grants to a throwaway
-database and runs **45 assertions** across two suites:
+database and runs **89 assertions** across three suites:
 
 - **Isolation** — User A and User B (in different groups) cannot read each other's
   entries, baselines, groups, members, categories or rankings; clients cannot
   write `leaderboard_rankings`; the opt-in raw-value sharing works; multi-group
   membership doesn't bleed.
+- **Feature isolation** — `stakes.amount` and `payment_reference` are asserted
+  unreachable by anyone but the stake's owner, explicitly rather than via the
+  policy definition; Elevate photos and reports are unreachable by any other
+  account.
 - **Audit + deletion cascade** — RLS is on for every table, no policy uses
   `USING (true)`, and a POPIA account deletion removes the user's rows across
   **every** table (verified by query), while a category created in someone else's
@@ -60,8 +88,25 @@ database and runs **45 assertions** across two suites:
 ### Unit tests
 
 ```bash
-npm test          # ranking math (incl. the worked example) + edge cases
+npm test          # 307 tests: ranking, integrity, payouts, wallet, wardrobe,
+                  # photo coach, content guards, climb, briefing, formatting
 ```
+
+### Review the design without a database
+
+```bash
+ALLOW_DESIGN_PREVIEW=1 npm run dev
+# /design-preview            the Climb face
+# /design-preview?view=route the route page
+# /design-preview?view=pitch a leaderboard
+# /design-preview?view=empty a first-run account
+# /design-preview?view=hub   the briefing
+# /api/share-card/demo       the rank card
+```
+
+The harness renders the **real** components against fixtures. It renders the
+real components rather than copies, so it cannot drift and start lying about
+what the app looks like.
 
 ## Scripts
 
@@ -77,17 +122,28 @@ npm test          # ranking math (incl. the worked example) + edge cases
 
 ```
 src/
-  app/                     App Router routes (auth, groups, leaderboard, share, billing)
-  components/ui.tsx        Shared mobile-first UI primitives
+  app/                     routes. A page is a loader: auth, load, render
+    <route>/loading.tsx    skeleton on every primary route
+    <route>/actions.ts     "use server" mutations, colocated
+  components/              24 presentational components; none of them fetch
   lib/
-    ranking.ts             Pure ranking business logic (unit-tested)
-    period.ts              Weekly period (Mon–Sun) helpers
-    entitlements.ts        Free/premium tier gating
+    climb.ts               Climb loader + pure ranking helpers
+    exchange.ts            Commit loader (modules)
+    elevate.ts             Elevate loader (studios)
+    briefing.ts            composes all three for /home, in the app layer only
+    queries.ts             request-scoped dedupe. Shared rows belong here
+    ranking.ts             pure ranking business logic
+    integrity.ts           7-signal anti-cheat; worst outcome is "held"
+    payoutLifecycle.ts     11-state machine, whitelisted transitions
+    glowup.ts              prompt, schema validation, content guard
+    motion.ts              four named springs
+    format.ts              deterministic number formatting
+    timing.ts              AsyncLocalStorage-scoped server timing
     supabase/              client / server / admin (service-role) / middleware
-    database.types.ts      Typed schema
 supabase/
-  migrations/              Schema + RLS (single source of truth)
-  tests/                   RLS isolation test + runner
+  migrations/              schema + RLS (single source of truth)
+  tests/                   isolation, feature isolation, audit + runner
+docs/                      the six design documents
 ```
 
 See [`DECISIONS.md`](./DECISIONS.md) for architectural decisions and every

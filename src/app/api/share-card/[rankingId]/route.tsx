@@ -1,11 +1,28 @@
 import { ImageResponse } from "next/og";
 import { loadShareByRanking } from "@/lib/shareData";
+import { fracOf, num, ordinal } from "@/lib/format";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ORDINAL = ["", "1st", "2nd", "3rd"];
-const ordinal = (n: number) => ORDINAL[n] ?? `${n}th`;
+/**
+ * ── THE PALETTE, WRITTEN OUT ─────────────────────────────────────────────────
+ * Satori renders this outside the DOM, so there are no CSS custom properties to
+ * resolve and no theme to inherit. These are the dark-theme token values from
+ * globals.css, mirrored by hand — the ONE place in the app where a literal hex
+ * is correct. Keep them in step with `:root`.
+ *
+ * They were previously the pre-monochrome greens (#0E1712 ground, #4FB196 and
+ * #7FDCC0 line, #F3F1EA type). That made the rank card — the single most public
+ * artifact the product has, the image people post to WhatsApp status — the last
+ * place in Ascend still wearing the palette that was removed everywhere else.
+ */
+const VALLEY = "#000000";
+const SNOW = "#FFFFFF";
+const SAGE = "#8E8E8E";
+const SCREE = "#262626";
+const ICE_DEEP = "#CFCFCF";
+const SUMMIT = "#E2B87A";
 
 function valueText(
   metricType: "percentage_change" | "streak",
@@ -13,10 +30,10 @@ function valueText(
   isAbsolute: boolean,
   unit: string | null,
 ): string {
-  if (metricType === "streak") return `${pct} ${unit || "day"}${pct === 1 ? "" : "s"}`;
+  if (metricType === "streak") return `${num(pct)} ${unit || "day"}${pct === 1 ? "" : "s"}`;
   const sign = pct > 0 ? "+" : "";
-  if (isAbsolute) return `${sign}${pct}${unit ? ` ${unit}` : ""}`;
-  return `${sign}${pct}%`;
+  const body = `${sign}${num(pct, fracOf(pct))}`;
+  return isAbsolute ? `${body}${unit ? ` ${unit}` : ""}` : `${body}%`;
 }
 
 /**
@@ -26,6 +43,11 @@ function valueText(
  * the lower left into summit light at the upper right, ending exactly where the
  * headline number sits. Everything else is deliberately quiet so the climb and
  * the number carry it.
+ *
+ * The headline number is WHITE, not gold. Gold means money confirmed as yours,
+ * and a leaderboard position is not money — the same rule that took the gold
+ * ring off the leader's row in the app. Gold survives only at the tip of the
+ * line, which is the product's own signature: the point you have climbed to.
  */
 export async function GET(_req: Request, { params }: { params: { rankingId: string } }) {
   // Design harness: fixed sample card for local review. ALLOW_DESIGN_PREVIEW is
@@ -63,8 +85,8 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
             height: "100%",
             alignItems: "center",
             justifyContent: "center",
-            background: "#0E1712",
-            color: "#F3F1EA",
+            background: VALLEY,
+            color: SNOW,
             fontSize: 48,
           }}
         >
@@ -76,7 +98,9 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
   }
 
   const climbing = data.metricType === "streak" || data.pctChange >= 0;
-  const tipColor = climbing ? "#E8B84B" : "#E06D5A";
+  // A descent does not end in red here either. It simply fails to reach summit
+  // light and settles into grey.
+  const tipColor = climbing ? SUMMIT : SAGE;
 
   /*
    * Composition: the climb occupies the RIGHT half, the type the LEFT. An
@@ -96,8 +120,8 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
           position: "relative",
           width: "100%",
           height: "100%",
-          background: "#0E1712",
-          color: "#F3F1EA",
+          background: VALLEY,
+          color: SNOW,
           fontFamily: "sans-serif",
           padding: "56px 64px",
         }}
@@ -112,7 +136,7 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
             height: 660,
             borderRadius: 9999,
             background:
-              "radial-gradient(circle, rgba(232,184,75,0.20) 0%, rgba(232,184,75,0.05) 42%, rgba(232,184,75,0) 68%)",
+              "radial-gradient(circle, rgba(226,184,122,0.18) 0%, rgba(226,184,122,0.05) 42%, rgba(226,184,122,0) 68%)",
           }}
         />
 
@@ -132,14 +156,14 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
               x2="1122"
               y2="142"
             >
-              <stop offset="0%" stopColor="#4FB196" />
-              <stop offset="45%" stopColor="#7FDCC0" />
+              <stop offset="0%" stopColor={ICE_DEEP} />
+              <stop offset="45%" stopColor={SNOW} />
               <stop offset="100%" stopColor={tipColor} />
             </linearGradient>
           </defs>
           {/* the shared starting line everyone climbs from */}
-          <line x1="620" y1="468" x2="1136" y2="468" stroke="#2A3A32" strokeWidth="2" strokeDasharray="3 10" />
-          <circle cx="620" cy="468" r="8" fill="#4FB196" />
+          <line x1="620" y1="468" x2="1136" y2="468" stroke={SCREE} strokeWidth="2" strokeDasharray="3 10" />
+          <circle cx="620" cy="468" r="8" fill={ICE_DEEP} />
           <path d={path} fill="none" stroke="url(#climb)" strokeWidth="7" strokeLinecap="round" />
           <circle cx="1122" cy="142" r="12" fill={tipColor} />
         </svg>
@@ -150,14 +174,14 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
             <path
               d="M4 18 L10 12 L14 15 L20 6"
               fill="none"
-              stroke="#7FDCC0"
+              stroke={SNOW}
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <circle cx="20" cy="6" r="2" fill="#E8B84B" />
+            <circle cx="20" cy="6" r="2" fill={SUMMIT} />
           </svg>
-          <div style={{ fontSize: 27, fontWeight: 600, letterSpacing: -0.5, color: "#F3F1EA" }}>
+          <div style={{ fontSize: 27, fontWeight: 600, letterSpacing: -0.5, color: SNOW }}>
             Ascend
           </div>
         </div>
@@ -172,7 +196,7 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
             maxWidth: 600,
           }}
         >
-          <div style={{ fontSize: 30, color: "#8A9A90", letterSpacing: 0.5 }}>
+          <div style={{ fontSize: 30, color: SAGE, letterSpacing: 0.5 }}>
             {`${data.displayName} · ${data.categoryName}`}
           </div>
           <div
@@ -183,12 +207,12 @@ export async function GET(_req: Request, { params }: { params: { rankingId: stri
               letterSpacing: -5,
               lineHeight: 1,
               marginTop: 10,
-              color: climbing ? "#E8B84B" : "#E06D5A",
+              color: SNOW,
             }}
           >
             {valueText(data.metricType, data.pctChange, data.isAbsolute, data.unit)}
           </div>
-          <div style={{ display: "flex", fontSize: 34, marginTop: 18, color: "#F3F1EA" }}>
+          <div style={{ display: "flex", fontSize: 34, marginTop: 18, color: SAGE }}>
             {`${ordinal(data.rank)} in ${data.groupName} this week`}
           </div>
         </div>
