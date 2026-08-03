@@ -17,6 +17,11 @@ import {
   type EffortDay,
 } from "@/lib/intelligence";
 import type { LifeOs } from "@/lib/lifeOs";
+import { ElevateCommand } from "@/components/elevate-command";
+import { EventPlanView } from "@/components/event-plan";
+import { planEvent, readiness, todayIso, shiftDays } from "@/lib/events";
+import { transformationScore } from "@/lib/transformation";
+import type { ElevateOs, EventWithPlan } from "@/lib/elevateOs";
 import { momentum, type ClimbPitch, type ClimbRoute, type ClimbState, type PitchRow } from "@/lib/climb";
 
 /**
@@ -301,6 +306,62 @@ const OS: LifeOs = {
   timing: { totalMs: 0, slowest: null, spanCount: 0, spans: [], byName: [] },
 };
 
+// Two events: one with room to prepare, one close enough that windows have shut.
+const T = todayIso();
+const mkEvent = (
+  id: string,
+  kind: Parameters<typeof planEvent>[0],
+  title: string,
+  daysOut: number,
+  done: Parameters<typeof planEvent>[3] = [],
+): EventWithPlan => {
+  const eventDate = shiftDays(T, daysOut);
+  const plan = planEvent(kind, eventDate, T, done);
+  return { id, kind, title, eventDate, notes: null, plan, readiness: readiness(plan) };
+};
+
+const EVENTS: EventWithPlan[] = [
+  mkEvent("e1", "interview", "Standard Bank, second round", 12, ["outfit_chosen", "gap_check"]),
+  mkEvent("e2", "wedding", "Lerato & Sipho", 4),
+  mkEvent("e3", "photoshoot", "Headshots for LinkedIn", 34),
+];
+
+const ELEVATE_OS: ElevateOs = {
+  state: {
+    ageConfirmed: true,
+    profile: null,
+    wardrobe: [],
+    actions: [],
+    timeline: [],
+    reportCount: 2,
+    looksCount: 5,
+    studios: {
+      style: { key: "style", value: "18", caption: "items catalogued", alert: false },
+      look: { key: "look", value: null, caption: "No routine yet", alert: false },
+      photo: { key: "photo", value: "3", caption: "shot lists run", alert: false },
+      confidence: { key: "confidence", value: "4", caption: "actions open", alert: true },
+      timeline: { key: "timeline", value: "9", caption: "entries", alert: false },
+    },
+    nextStep: null,
+    wardrobeStats: { total: 18, neverWornCount: 5, bestValue: { name: "Navy overshirt", cpw: 42 } },
+  } as ElevateOs["state"],
+  events: EVENTS,
+  focus: EVENTS[1],
+  transformation: transformationScore({
+    wardrobeItems: 18,
+    wardrobeWorn: 13,
+    looks: 5,
+    actionsTotal: 9,
+    actionsDone: 5,
+    reports: 2,
+    timelineEntries: 9,
+    recordSpanWeeks: 7,
+    eventsPrepared: 1,
+    eventsTotal: 2,
+  }),
+  timing: { totalMs: 0, slowest: null, spanCount: 0, spans: [], byName: [] },
+};
+
 export default function DesignPreview({ searchParams }: { searchParams: { view?: string } }) {
   if (process.env.ALLOW_DESIGN_PREVIEW !== "1") notFound();
   if (searchParams.view === "hub") return <BriefingHome briefing={BRIEFING} />;
@@ -330,6 +391,11 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
         }}
       />
     );
+  if (searchParams.view === "elevate-os") return <ElevateCommand os={ELEVATE_OS} />;
+  if (searchParams.view === "elevate-empty")
+    return <ElevateCommand os={{ ...ELEVATE_OS, events: [], focus: null }} />;
+  if (searchParams.view === "event") return <EventPlanView event={EVENTS[0]} />;
+  if (searchParams.view === "event-tight") return <EventPlanView event={EVENTS[1]} />;
   if (searchParams.view === "commit") return <CommitPreview />;
   if (searchParams.view === "elevate") return <ElevatePreview />;
 

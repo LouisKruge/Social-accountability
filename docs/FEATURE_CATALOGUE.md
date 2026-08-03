@@ -13,7 +13,7 @@ stops being useful the first time somebody plans against it.
 | **Blocked** | Cannot ship yet, and the blocker is named. Nearly all are legal or hardware, not effort. |
 | **Declined** | Deliberately not built. The reason is given, and it is never "too hard". |
 
-Counts, honestly: **169 Live · 48 Spec · 14 Blocked · 19 Declined = 250.**
+Counts, honestly: **196 Live · 53 Spec · 17 Blocked · 24 Declined = 290.**
 
 > **Corrected.** Items 156, 157 and 158 were previously listed as Declined. They
 > are now Live — see `LIFE_OS.md` §1. The objection was to a score nobody could
@@ -254,6 +254,53 @@ Detail in `LIFE_OS.md`.
 | — | AI Twin / behavioural prediction | Declined — see `LIFE_OS.md` §4 |
 | — | Seasons, Prestige, Achievement Vault, Corporate, Marketplace, Life Replay, Board of Directors | Spec — `LIFE_OS.md` §6 |
 
+## H. Elevate — Life Events & Transformation (251–290)
+
+Detail in `ELEVATE_PLATFORM.md` §6–8.
+
+| # | Feature | Status |
+|---|---|---|
+| 251 | Life events with a real date | Live |
+| 252 | Ten event kinds, each with its own plan | Live |
+| 253 | Plans derived on render, never stored (rule changes apply retroactively) | Live |
+| 254 | Backwards scheduling from the event date | Live |
+| 255 | Per-task ideal lead time | Live |
+| 256 | Per-task latest-useful date ("window closes") | Live |
+| 257 | Haircut scheduled 5 days out, window shut at 2 | Live |
+| 258 | Skincare 21 days out, window shut at 10 | Live |
+| 259 | Alterations sized to a tailor's turnaround, not the user's | Live |
+| 260 | Closed windows shown separately, in grey, phrased as fact not failure | Live |
+| 261 | Readiness measured against what is still achievable | Live |
+| 262 | Task tick / untick, stored only when done | Live |
+| 263 | Follow-up task scheduled AFTER the event | Live |
+| 264 | Follow-up cannot be "late" before the event happens | Live |
+| 265 | Each task routed to the studio that handles it | Live |
+| 266 | Speech practice for interviews, conversation practice for dates | Live |
+| 267 | Packing only for events you travel to | Live |
+| 268 | Event creation with past-date and 2-year-horizon validation | Live |
+| 269 | Event deletion | Live |
+| 270 | Owner-only events, asserted with two real users | Live |
+| 271 | A second user cannot attach a task to an event they don't own | Live |
+| 272 | Events removed by "delete my Elevate data" | Live |
+| 273 | Elevate command centre, led by the nearest dated thing | Live |
+| 274 | Transformation Score, 300–1000, from counted actions only | Live |
+| 275 | No model anywhere in the score's path | Live |
+| 276 | Rates not volumes — a short finished list beats a long unfinished one | Live |
+| 277 | A burst of entries cannot read as a journey | Live |
+| 278 | Per-signal contribution shown, apportioned by largest remainder | Live |
+| 279 | Contributions sum to exactly the score above the floor | Live |
+| 280 | Grooming and communication reported as unmeasured with their weight | Live |
+| 281 | Shared scoring engine with the Discipline Score | Live |
+| 282 | Age gate in front of the command centre too | Live |
+| 283 | Virtual Try-On Studio | **Declined** — generating photorealistic images of a real person's body; see §8 |
+| 284 | AI Barber hair simulation | **Declined** — same objection |
+| 285 | Retailer integrations (Nike, Zara, H&M…) | Blocked — commercial agreements |
+| 286 | Communication Lab, live voice | Spec |
+| 287 | Personal Brand Score | Spec |
+| 288 | Calendar integration | Blocked — provider connection |
+| 289 | Closet heatmaps, seasonal rotation, weather adaptation, packing lists | Spec — buildable on the existing wardrobe table |
+| 290 | Particles, breathing cards, magnetic buttons, haptics | Declined — `DESIGN_LANGUAGE.md` §5 |
+
 ## E. AI (175–190) — detail in `AI_OPERATING_SYSTEM.md`
 
 | # | Feature | Status |
@@ -302,7 +349,7 @@ Detail in `LIFE_OS.md`.
 | 211 | `server-only` build-time guard on server modules | Live |
 | 212 | Deterministic number formatting (no CLDR drift) | Live |
 | 213 | Design harness rendering the real components | Live |
-| 214 | 348 unit tests, 83 SQL assertions | Live |
+| 214 | 379 unit tests, 87 SQL assertions | Live |
 | 215 | Reduced-motion equivalents on every animation | Live |
 | 216 | 48px minimum tap targets | Live |
 | 217 | 16px minimum input text (prevents iOS zoom-on-focus) | Live |

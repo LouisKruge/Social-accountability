@@ -7,7 +7,7 @@ modes under one identity:
 | --- | --- |
 | **Climb** | Private groups ranked on **rate of improvement** — savings growth, debt paydown, steps, streak habits. Because ranking is by change from each person's own baseline, someone starting from a low point competes on equal footing with someone already ahead. |
 | **Commit** | Stake your own money on your own verified effort. Outcome is decided by verified effort only — never by chance, odds, or a multiplier. |
-| **Elevate** | Private styling, grooming and photo coaching on your own photos. No gallery, no comparison, no rating — ever. |
+| **Elevate** | Private styling, grooming and photo coaching, organised around real events in your life — an interview, a wedding, a shoot. No gallery, no comparison, no rating — ever. |
 
 > **Deliberately out of scope.** No randomised bonus, lottery or luck-based
 > multiplier anywhere in Commit — that would change its legal classification.
@@ -75,7 +75,7 @@ bash supabase/tests/run.sh
 ```
 
 This applies the shim + migration + Supabase-equivalent grants to a throwaway
-database and runs **83 assertions** across three suites:
+database and runs **87 assertions** across three suites:
 
 - **Isolation** — User A and User B (in different groups) cannot read each other's
   entries, baselines, groups, members, categories or rankings; clients cannot
@@ -93,7 +93,7 @@ database and runs **83 assertions** across three suites:
 ### Unit tests
 
 ```bash
-npm test          # 348 tests: ranking, integrity, payouts, wallet, wardrobe,
+npm test          # 379 tests: ranking, integrity, payouts, wallet, wardrobe,
                   # photo coach, content guards, climb, briefing, formatting
 ```
 
@@ -107,6 +107,8 @@ ALLOW_DESIGN_PREVIEW=1 npm run dev
 # /design-preview?view=empty a first-run account
 # /design-preview?view=hub   the briefing
 # /design-preview?view=os    the Life OS
+# /design-preview?view=elevate-os  Elevate's command centre
+# /design-preview?view=event-tight an event whose windows have closed
 # /api/share-card/demo       the rank card
 ```
 

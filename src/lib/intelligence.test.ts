@@ -131,8 +131,25 @@ describe("disciplineScore", () => {
     const consistency = d.contributions.find((c) => c.key === "consistency")!;
     expect(completion.share).toBeGreaterThan(0);
     expect(consistency.share).toBe(0);
-    // The attributed points reconstruct the score above the 300 floor.
-    expect(d.contributions.reduce((t, c) => t + c.share, 0)).toBeCloseTo(d.score! - 300, 0);
+    // The attributed points reconstruct the score above the 300 floor —
+    // exactly, via largest-remainder apportionment. Rounding each share
+    // independently drifts by a point or two, and a person checking the
+    // arithmetic and finding it off by one has a reason to distrust the number.
+    expect(d.contributions.reduce((t, c) => t + c.share, 0)).toBe(d.score! - 300);
+  });
+
+  it("apportions every point, across many signals and awkward weights", () => {
+    const d = disciplineScore({
+      completion: 0.37,
+      consistency: 0.61,
+      momentum: 0.83,
+      integrity: 0.94,
+      challenge_history: 0.5,
+      goal_completion: 0.29,
+      financial: 0.71,
+    });
+    expect(d.contributions.reduce((t, c) => t + c.share, 0)).toBe(d.score! - 300);
+    expect(d.contributions.every((c) => Number.isInteger(c.share))).toBe(true);
   });
 
   it("clamps a signal that arrives out of range", () => {

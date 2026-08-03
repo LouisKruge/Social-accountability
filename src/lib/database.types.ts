@@ -6,6 +6,46 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      life_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: string;
+          title: string;
+          event_date: string;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kind: string;
+          title: string;
+          event_date: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["life_events"]["Insert"]>;
+        Relationships: [];
+      };
+      event_tasks: {
+        Row: {
+          id: string;
+          event_id: string;
+          user_id: string;
+          task_key: string;
+          done_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          user_id: string;
+          task_key: string;
+          done_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["event_tasks"]["Insert"]>;
+        Relationships: [];
+      };
       discipline_snapshots: {
         Row: {
           id: string;

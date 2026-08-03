@@ -279,6 +279,42 @@ select public._assert(
   (select count(*) from public.stakes where user_id = :'uidB') = 0,
   'glow-up user A still cannot see stakes belonging to B');
 
+-- ── Life events: the most sensitive rows in the product ────────────────────
+-- A life event says a person is job-hunting, on a first date, or away from home
+-- on a given week. Owner-only in every direction, asserted rather than inferred.
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+insert into public.life_events (id, user_id, kind, title, event_date)
+values ('eeee0000-0000-0000-0000-0000000000a1', :'uidA', 'interview', 'A private interview', '2026-09-01');
+insert into public.event_tasks (event_id, user_id, task_key)
+values ('eeee0000-0000-0000-0000-0000000000a1', :'uidA', 'haircut');
+
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+select public._assert(
+  (select count(*) from public.life_events) = 0,
+  'B cannot see that A has an interview coming up');
+select public._assert(
+  (select count(*) from public.event_tasks) = 0,
+  'B cannot see A''s event tasks');
+
+-- B must not be able to attach a task to A's event, even knowing its id.
+do $$
+begin
+  begin
+    insert into public.event_tasks (event_id, user_id, task_key)
+    values ('eeee0000-0000-0000-0000-0000000000a1', 'bbbb2222-0000-0000-0000-00000000bbbb', 'route_check');
+    raise exception 'FAIL: B attached a task to A''s event';
+  exception when insufficient_privilege then
+    raise notice 'PASS: B cannot attach a task to A''s event';
+  end;
+end $$;
+
+-- Deleting Elevate data takes the events with it.
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+select * from public.delete_my_glowup_data();
+select public._assert(
+  (select count(*) from public.life_events) = 0 and (select count(*) from public.event_tasks) = 0,
+  'delete_my_glowup_data removes life events and their tasks');
+
 -- ── Discipline snapshots: a score is never visible to anyone else ───────────
 -- A discipline score is a statement about how reliable a person is. This
 -- product does not publish that about anyone, so the test is explicit rather

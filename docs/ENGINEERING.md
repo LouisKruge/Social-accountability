@@ -17,7 +17,7 @@ them.
 | Motion | Framer Motion 12 | Four named springs, `src/lib/motion.ts` |
 | Data | Supabase (Postgres 17, Auth, Storage, RLS) | `eu-west-3` |
 | Hosting | Vercel, `cdg1` | Pinned to match the database — §7.1 |
-| Tests | Vitest + a SQL harness | 348 unit tests, 83 SQL assertions |
+| Tests | Vitest + a SQL harness | 379 unit tests, 87 SQL assertions |
 
 ---
 
@@ -33,7 +33,7 @@ src/
   components/             24 presentational components; no data fetching
   lib/                    domain logic. Server modules import "server-only"
 supabase/
-  migrations/             10 migrations; RLS in the same file as the table
+  migrations/             11 migrations; RLS in the same file as the table
   tests/                  isolation and audit assertions
 docs/                     the six design documents, plus LIFE_OS.md
 ```
@@ -124,6 +124,7 @@ loadExchange()   dashboard + wallet    → every Commit screen
 loadElevate()    7 queries, parallel   → every Elevate screen
 loadBriefing()   all three, parallel   → /home
 loadLifeOs()     all three + snapshots  → /os
+loadElevateOs()  elevate + events       → /elevate, /elevate/events/*
 ```
 
 Screens filter the loaded result in memory. A round trip to Paris costs more
@@ -266,13 +267,13 @@ a different hat, and it was caught the second time while writing the tests.
 
 ## 8. Testing
 
-### 8.1 Unit — 348 tests, 18 files
+### 8.1 Unit — 379 tests, 20 files
 
 Pure logic only: ranking, integrity, payout lifecycle, wallet, cohort, stakes,
 wardrobe, photo coach, glow-up guards, climb, briefing, intelligence, format,
 timing, queries, paystack.
 
-### 8.2 SQL — 83 assertions
+### 8.2 SQL — 87 assertions
 
 `rls_isolation.test.sql` (30), `features_isolation.test.sql` (31),
 `audit.test.sql` (18) — the count the runner actually reports, corrected from an

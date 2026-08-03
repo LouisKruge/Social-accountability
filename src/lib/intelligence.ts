@@ -211,16 +211,37 @@ export const SIGNALS: { key: SignalKey; label: string; weight: number }[] = [
  * says so out loud.
  */
 export function disciplineScore(values: Partial<Record<SignalKey, number | null>>): DisciplineScore {
-  const present = SIGNALS.map((s) => ({ ...s, value: values[s.key] ?? null })).filter(
-    (s): s is typeof s & { value: number } => s.value !== null,
-  );
-  const missing = SIGNALS.filter((s) => (values[s.key] ?? null) === null).map((s) => ({
-    key: s.key,
-    label: s.label,
-    weight: s.weight,
-  }));
+  return weightedScore(SIGNALS, values, disciplineBand);
+}
 
-  const totalWeight = SIGNALS.reduce((t, s) => t + s.weight, 0);
+/**
+ * The shared engine behind every score in this product.
+ *
+ * Extracted rather than copied when the Transformation Score arrived: two
+ * scoring implementations drift, and the one that drifts is always the one
+ * nobody re-reads. Both scores therefore share the floor, the rescaling, the
+ * contribution attribution and the coverage reporting — so a fix to any of
+ * those is a fix to both.
+ */
+export function weightedScore<K extends string>(
+  signals: { key: K; label: string; weight: number }[],
+  values: Partial<Record<K, number | null>>,
+  band: (score: number) => string,
+): {
+  score: number | null;
+  band: string;
+  contributions: { key: K; label: string; value: number; share: number }[];
+  missing: { key: K; label: string; weight: number }[];
+  coverage: number;
+} {
+  const present = signals
+    .map((s) => ({ ...s, value: values[s.key] ?? null }))
+    .filter((s): s is typeof s & { value: number } => s.value !== null);
+  const missing = signals
+    .filter((s) => (values[s.key] ?? null) === null)
+    .map((s) => ({ key: s.key, label: s.label, weight: s.weight }));
+
+  const totalWeight = signals.reduce((t, s) => t + s.weight, 0);
   const availableWeight = present.reduce((t, s) => t + s.weight, 0);
 
   if (availableWeight === 0) {
@@ -230,20 +251,58 @@ export function disciplineScore(values: Partial<Record<SignalKey, number | null>
   const weighted = present.reduce((t, s) => t + clamp01(s.value) * s.weight, 0) / availableWeight;
   const score = Math.round(300 + 700 * weighted);
 
+  // Exact contribution of each signal, in points above the 300 floor.
+  const exact = present.map((s) => (clamp01(s.value) * s.weight * 700) / availableWeight);
+
   return {
     score,
-    band: disciplineBand(score),
+    band: band(score),
     contributions: present
-      .map((s) => ({
+      .map((s, i) => ({
         key: s.key,
         label: s.label,
         value: clamp01(s.value),
-        // What this signal actually contributed, in points of the final score.
-        share: Math.round((clamp01(s.value) * s.weight * 700) / availableWeight),
+        share: 0,
+        _exact: exact[i],
       }))
+      // Largest-remainder apportionment. Rounding each share independently lets
+      // the displayed contributions sum to one or two points either side of the
+      // score — and the panel's whole promise is that they RECONSTRUCT it. A
+      // person checking the arithmetic and finding it off by one has been given
+      // a reason to distrust the number.
+      .map(distributeShares(score - 300))
       .sort((a, b) => b.share - a.share),
     missing,
     coverage: availableWeight / totalWeight,
+  };
+}
+
+/**
+ * Round a set of exact values to integers that sum to exactly `total`.
+ *
+ * Floor everything, then hand the remaining points to whichever signals lost
+ * the most to flooring.
+ */
+function distributeShares<T extends { share: number; _exact: number }>(
+  total: number,
+): (row: T, i: number, all: T[]) => Omit<T, "_exact"> & { share: number } {
+  let assigned: number[] | null = null;
+  return (row, i, all) => {
+    if (assigned === null) {
+      const floors = all.map((r) => Math.floor(r._exact));
+      let remaining = total - floors.reduce((t, f) => t + f, 0);
+      const order = all
+        .map((r, idx) => ({ idx, frac: r._exact - Math.floor(r._exact) }))
+        .sort((a, b) => b.frac - a.frac);
+      for (const { idx } of order) {
+        if (remaining <= 0) break;
+        floors[idx] += 1;
+        remaining -= 1;
+      }
+      assigned = floors;
+    }
+    const { _exact, ...rest } = row;
+    return { ...rest, share: assigned[i] };
   };
 }
 
