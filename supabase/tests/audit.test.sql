@@ -56,6 +56,23 @@ insert into public.discipline_snapshots (user_id, taken_on, score, momentum, cov
 values (:'uid','2026-07-19', 780, 84, 0.920);
 insert into public.trophies (user_id, trophy_key, evidence, season)
 values (:'uid','ten_weeks','10 ranked weeks', 3);
+-- Treasury rows. Money records are the ones most likely to be quietly exempted
+-- from a deletion flow, so they are seeded and asserted like everything else.
+insert into public.deposits (id, user_id, amount)
+values ('deadbeef-0000-0000-0000-0000000000e1', :'uid', 400);
+insert into public.deposit_events (deposit_id, user_id, to_state, reason)
+values ('deadbeef-0000-0000-0000-0000000000e1', :'uid', 'instructed', 'Reference issued.');
+insert into public.payout_destinations (id, user_id, account_holder, bank_name, account_number, verified)
+values ('deadbeef-0000-0000-0000-0000000000e2', :'uid', 'Erase Me', 'Standard Bank', '9876543210', true);
+insert into public.withdrawals (id, user_id, destination_id, amount_requested)
+values ('deadbeef-0000-0000-0000-0000000000e3', :'uid', 'deadbeef-0000-0000-0000-0000000000e2', 300);
+insert into public.withdrawal_events (withdrawal_id, user_id, to_state, reason)
+values ('deadbeef-0000-0000-0000-0000000000e3', :'uid', 'requested', 'Requested by the account holder.');
+insert into public.disputes (id, user_id, deposit_id, category, summary)
+values ('deadbeef-0000-0000-0000-0000000000e4', :'uid', 'deadbeef-0000-0000-0000-0000000000e1',
+        'deposit_missing', 'I paid on Monday and it has not shown up.');
+insert into public.dispute_messages (dispute_id, user_id, author, body)
+values ('deadbeef-0000-0000-0000-0000000000e4', :'uid', 'user', 'Proof of payment attached.');
 -- (subscription row was auto-created by the signup trigger)
 
 select public._assert((select count(*) from public.subscriptions where user_id=:'uid') = 1, 'seed: subscription exists');
@@ -74,6 +91,13 @@ select public._assert((select count(*) from public.share_cards          where us
 select public._assert((select count(*) from public.subscriptions        where user_id=:'uid') = 0, 'cascade: subscription removed');
 select public._assert((select count(*) from public.discipline_snapshots where user_id=:'uid') = 0, 'cascade: discipline snapshots removed');
 select public._assert((select count(*) from public.trophies              where user_id=:'uid') = 0, 'cascade: trophies removed');
+select public._assert((select count(*) from public.deposits             where user_id=:'uid') = 0, 'cascade: deposits removed');
+select public._assert((select count(*) from public.deposit_events       where user_id=:'uid') = 0, 'cascade: deposit events removed');
+select public._assert((select count(*) from public.withdrawals          where user_id=:'uid') = 0, 'cascade: withdrawals removed');
+select public._assert((select count(*) from public.withdrawal_events    where user_id=:'uid') = 0, 'cascade: withdrawal events removed');
+select public._assert((select count(*) from public.payout_destinations  where user_id=:'uid') = 0, 'cascade: bank details removed');
+select public._assert((select count(*) from public.disputes             where user_id=:'uid') = 0, 'cascade: disputes removed');
+select public._assert((select count(*) from public.dispute_messages     where user_id=:'uid') = 0, 'cascade: dispute evidence removed');
 
 -- ── 5. SET NULL path: a member deletes their account, but a category they
 --       created in someone ELSE's group survives (attribution dropped), and the

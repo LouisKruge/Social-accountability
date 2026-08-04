@@ -379,5 +379,323 @@ select public._assert(
   public.discipline_percentile() is null,
   'discipline_percentile() returns NULL below the minimum cohort');
 
+-- ═══════════════════════════════════════════════════════════════════════════
+-- THE TREASURY — deposits, withdrawals, escrow, disputes
+--
+-- Every one of these is somebody's money. The rule is the same as
+-- stakes_owner_only and it is tested the same way: two real users, real rows,
+-- and a query written the way an attacker would write it rather than an
+-- inference from reading the policy.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- ── Deposits ────────────────────────────────────────────────────────────────
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+set role authenticated;
+insert into public.deposits (user_id, amount) values (:'uidA', 400);
+insert into public.deposits (user_id, amount) values (:'uidA', 750);
+
+select public._assert(
+  (select count(*) from public.deposits where user_id = :'uidA') = 2,
+  'A can read her own deposits');
+
+-- The sequence and reference are assigned by the trigger, not by the client.
+select public._assert(
+  (select array_agg(sequence order by sequence) from public.deposits where user_id = :'uidA')
+    = array[1, 2],
+  'deposit sequence is assigned server-side and increments per user');
+select public._assert(
+  (select count(*) from public.deposits
+    where user_id = :'uidA' and reference ~ '^ASC[A-Z2-9]{5}0[12]$') = 2,
+  'deposit reference is generated in the shape the UI shows');
+select public._assert(
+  (select reference from public.deposits where user_id = :'uidA' and sequence = 1)
+    = public.deposit_reference(:'uidA', 1),
+  'the stored reference matches deposit_reference() exactly');
+
+-- A client that could choose its own reference could claim somebody else's EFT.
+insert into public.deposits (user_id, amount, reference, sequence, state)
+values (:'uidA', 100, 'ASCAAAAA99', 99, 'credited');
+select public._assert(
+  (select count(*) from public.deposits where reference = 'ASCAAAAA99') = 0,
+  'a client-supplied deposit reference is overwritten by the trigger');
+select public._assert(
+  (select count(*) from public.deposits where user_id = :'uidA' and state <> 'instructed') = 0,
+  'a client CANNOT insert a deposit already in the credited state');
+
+-- No update policy: a user cannot walk their own deposit to credited later.
+do $$
+begin
+  begin
+    update public.deposits set state = 'credited';
+    if found then raise exception 'FAIL: a user credited their own deposit'; end if;
+    raise notice 'PASS: a user cannot move their own deposit to credited';
+  exception when insufficient_privilege then
+    raise notice 'PASS: a user cannot move their own deposit to credited';
+  end;
+end $$;
+
+reset role;
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+set role authenticated;
+select public._assert(
+  (select count(*) from public.deposits) = 0,
+  'B CANNOT read A''s deposits');
+select public._assert(
+  (select coalesce(sum(amount), 0) from public.deposits) = 0,
+  'B cannot aggregate over A''s deposit amounts');
+select public._assert(
+  (select count(*) from public.deposits
+    where reference = public.deposit_reference(:'uidA', 1)) = 0,
+  'B cannot find A''s deposit even knowing the exact reference');
+
+-- ── Withdrawals ─────────────────────────────────────────────────────────────
+reset role;
+set role service_role;
+insert into public.payout_destinations (id, user_id, account_holder, bank_name, account_number, verified)
+values ('eeee0000-0000-0000-0000-0000000000ee', :'uidA', 'Ayanda', 'Standard Bank', '1234567890', true);
+
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+set role authenticated;
+-- A fixed id, so the "B cannot reach it" tests below can name A's withdrawal
+-- without a service_role lookup. Role juggling inside a DO block is how a test
+-- silently starts running as superuser and passes for the wrong reason.
+insert into public.withdrawals (id, user_id, destination_id, amount_requested, state, amount_paid)
+values ('ffff0000-0000-0000-0000-0000000000ff', :'uidA',
+        'eeee0000-0000-0000-0000-0000000000ee', 300, 'paid', 300);
+
+select public._assert(
+  (select state from public.withdrawals where user_id = :'uidA') = 'requested',
+  'a client CANNOT insert a withdrawal already in the paid state');
+select public._assert(
+  (select amount_paid from public.withdrawals where user_id = :'uidA') is null,
+  'a client CANNOT declare its own withdrawal already paid out');
+
+-- Cancellation is the one state change the user owns, and it goes through the
+-- RPC rather than an update policy.
+do $$
+begin
+  begin
+    update public.withdrawals set state = 'approved';
+    if found then raise exception 'FAIL: a user approved their own withdrawal'; end if;
+    raise notice 'PASS: a user cannot approve their own withdrawal';
+  exception when insufficient_privilege then
+    raise notice 'PASS: a user cannot approve their own withdrawal';
+  end;
+end $$;
+
+select public.cancel_my_withdrawal('ffff0000-0000-0000-0000-0000000000ff');
+select public._assert(
+  (select state from public.withdrawals where user_id = :'uidA') = 'cancelled',
+  'a user CAN cancel their own withdrawal through the RPC');
+select public._assert(
+  (select count(*) from public.withdrawal_events
+    where user_id = :'uidA' and to_state = 'cancelled' and actor = 'user') = 1,
+  'cancelling writes an audit event naming the actor');
+
+-- Cancelling twice is refused by the same whitelist the TypeScript uses.
+do $$
+begin
+  begin
+    perform public.cancel_my_withdrawal('ffff0000-0000-0000-0000-0000000000ff');
+    raise exception 'FAIL: a cancelled withdrawal was cancelled again';
+  exception when raise_exception then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    raise notice 'PASS: a terminal withdrawal cannot be cancelled again';
+  end;
+end $$;
+
+-- B cannot reach A's withdrawal through the RPC even holding the exact id —
+-- which is the whole attack a leaked id enables.
+reset role;
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+set role authenticated;
+select public._assert(
+  (select count(*) from public.withdrawals) = 0,
+  'B CANNOT read A''s withdrawals');
+do $$
+begin
+  begin
+    perform public.cancel_my_withdrawal('ffff0000-0000-0000-0000-0000000000ff');
+    raise exception 'FAIL: B cancelled A''s withdrawal through the RPC';
+  exception when raise_exception then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    raise notice 'PASS: B cannot touch A''s withdrawal even with the exact id';
+  end;
+end $$;
+
+-- B cannot be paid into an account he does not own.
+--
+-- Guarded, because this test was passing for the wrong reason once: a `reset
+-- role` inside an earlier DO block left every following statement running as
+-- superuser, which bypasses RLS and makes a negative test pass silently. A
+-- negative RLS test is worthless unless the role it runs under is asserted.
+select public._assert(
+  current_user = 'authenticated',
+  'the negative RLS tests are actually running as an unprivileged role');
+
+do $$
+begin
+  begin
+    insert into public.withdrawals (user_id, destination_id, amount_requested)
+    values ('bbbb2222-0000-0000-0000-00000000bbbb',
+            'eeee0000-0000-0000-0000-0000000000ee', 300);
+    raise exception 'FAIL: B requested a withdrawal into A''s bank account';
+  exception when insufficient_privilege or check_violation then
+    raise notice 'PASS: B cannot withdraw into A''s bank account';
+  end;
+end $$;
+
+-- ── Escrow ──────────────────────────────────────────────────────────────────
+reset role;
+set role service_role;
+insert into public.escrow_holds (user_id, stake_id, cohort_id, amount)
+select :'uidA', id, :'cohort', 100 from public.stakes where user_id = :'uidA';
+
+-- A settled hold must account for every cent or the row is refused.
+do $$
+declare sid uuid;
+begin
+  select id into sid from public.stakes where user_id = 'bbbb2222-0000-0000-0000-00000000bbbb';
+  begin
+    insert into public.escrow_holds
+      (user_id, stake_id, cohort_id, amount, released_to,
+       amount_to_user, amount_to_pool, fee, released_at)
+    values ('bbbb2222-0000-0000-0000-00000000bbbb', sid,
+            'ccccdddd-0000-0000-0000-00000000cccc', 250, 'pool', 0, 200, 25, now());
+    raise exception 'FAIL: an escrow hold settled without accounting for every cent';
+  exception when check_violation then
+    raise notice 'PASS: an escrow split must sum exactly to the amount held';
+  end;
+end $$;
+
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+set role authenticated;
+select public._assert(
+  (select count(*) from public.escrow_holds) = 0,
+  'B CANNOT read A''s escrow holds, despite sharing the cohort');
+select public._assert(
+  (select coalesce(sum(amount), 0) from public.escrow_holds) = 0,
+  'B cannot size the escrow pool by aggregating over it');
+
+-- Nobody can release their own escrow: there is no insert or update policy.
+do $$
+begin
+  begin
+    update public.escrow_holds
+       set released_to = 'user', amount_to_user = 100, amount_to_pool = 0,
+           fee = 0, released_at = now();
+    if found then raise exception 'FAIL: a user released their own escrow'; end if;
+    raise notice 'PASS: a user cannot release their own escrow';
+  exception when insufficient_privilege then
+    raise notice 'PASS: a user cannot release their own escrow';
+  end;
+end $$;
+
+-- ── Disputes ────────────────────────────────────────────────────────────────
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+set role authenticated;
+insert into public.disputes (user_id, cohort_id, category, summary, state, resolution)
+values (:'uidA', :'cohort', 'settlement_outcome',
+        'My final day was logged but the cohort settled without counting it.',
+        'upheld', 'Refunded in full.');
+
+select public._assert(
+  (select state from public.disputes where user_id = :'uidA') = 'open',
+  'a client CANNOT open a dispute already decided in their favour');
+select public._assert(
+  (select resolution from public.disputes where user_id = :'uidA') is null,
+  'a client CANNOT write their own dispute resolution');
+
+-- Exactly one subject, so a dispute always points at something reviewable.
+do $$
+begin
+  begin
+    insert into public.disputes (user_id, category, summary)
+    values ('aaaa1111-0000-0000-0000-00000000aaaa', 'other',
+            'Something went wrong but I am not saying what.');
+    raise exception 'FAIL: a dispute was opened against nothing';
+  exception when check_violation then
+    raise notice 'PASS: a dispute must name exactly one subject';
+  end;
+end $$;
+
+-- A message attributed to support would be a forged reply the user could
+-- screenshot. The policy blocks the author value, not just the row owner.
+do $$
+declare did uuid;
+begin
+  select id into did from public.disputes
+   where user_id = 'aaaa1111-0000-0000-0000-00000000aaaa';
+  begin
+    insert into public.dispute_messages (dispute_id, user_id, author, body)
+    values (did, 'aaaa1111-0000-0000-0000-00000000aaaa', 'support',
+            'We have approved your refund.');
+    raise exception 'FAIL: a user posted a message attributed to support';
+  exception when insufficient_privilege or check_violation then
+    raise notice 'PASS: a user cannot post a dispute message as support';
+  end;
+end $$;
+
+insert into public.dispute_messages (dispute_id, user_id, author, body)
+select id, :'uidA', 'user', 'Here is the screenshot from my watch.'
+from public.disputes where user_id = :'uidA';
+select public._assert(
+  (select count(*) from public.dispute_messages where user_id = :'uidA') = 1,
+  'a user CAN add evidence to their own open dispute');
+
+select public.withdraw_my_dispute((select id from public.disputes where user_id = :'uidA'));
+select public._assert(
+  (select state from public.disputes where user_id = :'uidA') = 'withdrawn',
+  'a user CAN withdraw their own dispute while it is still open');
+
+-- Once withdrawn it is closed, and the evidence thread closes with it.
+do $$
+declare did uuid;
+begin
+  select id into did from public.disputes
+   where user_id = 'aaaa1111-0000-0000-0000-00000000aaaa';
+  begin
+    insert into public.dispute_messages (dispute_id, user_id, author, body)
+    values (did, 'aaaa1111-0000-0000-0000-00000000aaaa', 'user', 'One more thing.');
+    raise exception 'FAIL: evidence was added to a closed dispute';
+  exception when insufficient_privilege or check_violation then
+    raise notice 'PASS: a closed dispute accepts no further evidence';
+  end;
+end $$;
+
+reset role;
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+set role authenticated;
+select public._assert(
+  (select count(*) from public.disputes) = 0,
+  'B CANNOT read A''s disputes');
+select public._assert(
+  (select count(*) from public.dispute_messages) = 0,
+  'B CANNOT read A''s dispute evidence');
+
+-- ── treasury_balances() answers for the caller and nobody else ──────────────
+-- It takes no arguments precisely so there is no user id to substitute. B has
+-- no deposits, so every bucket must be zero even though A's are not.
+select public._assert(
+  (select available + pending + locked + escrow + processing
+        + verification_hold + rewards + referral + withdrawable
+     from public.treasury_balances()) = 250,
+  'treasury_balances() reports only the caller''s own money');
+
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+-- 400 + 750 + 100: the third is the row whose forged reference and 'credited'
+-- state the trigger overwrote. The deposit itself was a legitimate request for
+-- R100 and correctly survives as an instruction — only the fields the client
+-- had no business setting were replaced.
+select public._assert(
+  (select pending from public.treasury_balances()) = 1250,
+  'A''s in-flight deposits appear as pending, not as spendable');
+select public._assert(
+  (select available from public.treasury_balances()) = 0,
+  'nothing is available before a deposit is reconciled and credited');
+select public._assert(
+  (select escrow from public.treasury_balances()) = 100,
+  'an open escrow hold is reported as escrowed, never as available');
+
 reset role;
 select '════════ FEATURE ISOLATION ASSERTIONS PASSED ════════' as result;

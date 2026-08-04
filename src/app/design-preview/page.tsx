@@ -33,6 +33,7 @@ import { readDna } from "@/lib/dna";
 import { buildRecap, clubStats, hallOfFame, headToHead, type RecapRanking } from "@/lib/recap";
 import { ClubHq } from "@/components/club-hq";
 import { SeasonView } from "@/components/season-view";
+import { TreasuryPreview } from "./treasury-preview";
 
 /**
  * DESIGN HARNESS — renders the real Climb components with fixed data so the
@@ -541,6 +542,9 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
         state={{ ...TERMINAL, positions: [], portfolio: portfolioHealth([]), headline: null }}
       />
     );
+  if (searchParams.view === "treasury") return <TreasuryPreview variant="full" />;
+  if (searchParams.view === "treasury-blocked") return <TreasuryPreview variant="blocked" />;
+  if (searchParams.view === "treasury-empty") return <TreasuryPreview variant="empty" />;
   if (searchParams.view === "commit") return <CommitPreview />;
   if (searchParams.view === "elevate") return <ElevatePreview />;
 

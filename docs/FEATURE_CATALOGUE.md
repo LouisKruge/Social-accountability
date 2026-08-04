@@ -13,7 +13,7 @@ stops being useful the first time somebody plans against it.
 | **Blocked** | Cannot ship yet, and the blocker is named. Nearly all are legal or hardware, not effort. |
 | **Declined** | Deliberately not built. The reason is given, and it is never "too hard". |
 
-Counts, honestly: **262 Live · 68 Spec · 24 Blocked · 32 Declined = 386.**
+Counts, honestly: **273 Live · 63 Spec · 18 Blocked · 32 Declined = 386.**
 
 > **Corrected.** Items 156, 157 and 158 were previously listed as Declined. They
 > are now Live — see `LIFE_OS.md` §1. The objection was to a score nobody could
@@ -130,15 +130,19 @@ Counts, honestly: **262 Live · 68 Spec · 24 Blocked · 32 Declined = 386.**
 | 97 | Seven modules: portfolio, market, treasury, lab, floor, trust, standing | Live |
 | 98 | Headline banner ordered by what it costs you not to know | Live |
 | 99 | Wearable / health-platform ingestion | Blocked — needs provider credentials |
-| 100 | Automated settlement trigger | Spec |
-| 101 | Deposits | Blocked — escrow/custody compliance review |
-| 102 | Withdrawals | Blocked — escrow/custody compliance review |
-| 103 | Instant payouts | Blocked — escrow/custody compliance review |
-| 104 | Scheduled payouts | Blocked — escrow/custody compliance review |
-| 105 | Multi-bank support | Blocked — depends on 101–104 |
-| 106 | Dispute resolution flow | Spec |
-| 107 | Tax reports | Spec |
-| 108 | Referral and affiliate payouts | Blocked — depends on 101–104 |
+| 100 | Automated settlement trigger | Live — `treasuryJob.ts`, bookkeeping only |
+| 101 | Deposits — instruction, reference, 7-state machine, reconciliation | Live (non-custodial mode) |
+| 102 | Withdrawals — 8-state machine, eligibility gate, cancel | Live (instruction only) |
+| 103 | Instant payouts | Blocked — needs custody **and** a payment rail |
+| 104 | Scheduled payouts — Tue/Thu runs, 15:00 cut-off | Live |
+| 105 | Multi-bank support | Live — `payout_destinations` is already many-per-user |
+| 106 | Dispute resolution flow — 6 states, 60-day window, evidence thread | Live |
+| 107 | Tax reports — SA year (1 Mar–28/29 Feb), CSV export | Live |
+| 108 | Referral and affiliate payouts | Spec — bucket exists, ledger does not |
+| 108a | Nine-bucket balance model, derived not stored | Live |
+| 108b | Escrow holds with an exact-accounting CHECK constraint | Live |
+| 108c | Cancelled challenge refunds in full, fee-free | Live |
+| 108d | Custodial/non-custodial as a config flag, not a rewrite | Live |
 
 ## C. Elevate — private styling and confidence (109–152)
 
@@ -340,7 +344,8 @@ Detail in `COMMIT_PLATFORM.md`.
 | 321 | Hold rate over judged days | Live |
 | 322 | Committed vs received totalled separately | Live |
 | 323 | Command bar targets every position and action | Live |
-| 324 | Deposits / withdrawals / instant payouts / card / Apple Pay | Blocked — escrow & custody compliance review |
+| 324 | Deposits / withdrawals / scheduled payouts | Live — non-custodial mode, see `TREASURY.md` |
+| 324a | Card / Apple Pay / instant payout | Blocked — needs custody **and** a payment rail |
 | 325 | Escrow account, prize distribution automation | Blocked — same |
 | 326 | "AI confidence" as a named field | Declined — no model in this path; see COMMIT_PLATFORM.md |
 | 327 | Weather impact, best time to walk, GPS validation | Blocked — no feed |
@@ -459,9 +464,28 @@ Detail in `CLIMB_PLATFORM.md`.
 
 ## How to read the blocked list
 
-Eight of the fourteen blocked items (101–105, 108, and the two dependent
-payout features) are one decision away: **the escrow and custody compliance
-review**. Until that is done, money movement is manual bank transfer only, with
-no exceptions for "just to test it faster". That constraint is the reason the
-wallet reports *positions* rather than a spendable balance — rendering a balance
-would imply custody Ascend does not have and is not licensed to hold.
+**Updated.** Items 101, 102, 104, 105, 106 and 107 were blocked on the escrow
+and custody compliance review. They are now Live, because the software was
+separated from the licence:
+
+`src/lib/treasury.ts` runs in two modes behind one flag. In the shipped
+non-custodial mode a deposit is an *instruction to pay by EFT* carrying a
+reference, and a withdrawal is an *instruction to pay out* that a human
+executes. Every state machine, every RLS policy, every screen and the whole
+reconciliation job run identically in both modes. Flipping `TREASURY.custodial`
+to `true` — which is a reviewed commit, deliberately not an environment
+variable — makes balances spendable and settlement automatic, and changes
+nothing else.
+
+So the licence is now the only thing between the product and full custody,
+rather than six months of engineering. What remains genuinely blocked:
+
+- **103, instant payouts** — needs custody *and* a payment rail. Two gates, not one.
+- **Automated money movement of any kind** — still manual bank transfer only,
+  still with no exceptions for "just to test it faster". `treasuryJob.ts`
+  contains no payment API call by design; it advances bookkeeping that reflects
+  facts a human already established on a bank statement.
+
+The wallet still reports *positions* and buckets rather than one spendable
+number, and `available` is zero by construction while non-custodial — rendering
+a balance would imply custody Ascend does not have and is not licensed to hold.

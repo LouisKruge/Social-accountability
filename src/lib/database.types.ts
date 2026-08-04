@@ -6,6 +6,202 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      // ── Treasury (20260731000000_treasury.sql) ─────────────────────────────
+      // `sequence`, `reference` and `state` are Insert-optional on purpose:
+      // the trigger overwrites whatever a client sends. They are typed here so
+      // a read can use them, not so a write can set them.
+      deposits: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number;
+          currency: string;
+          state: string;
+          sequence: number;
+          reference: string;
+          bank_reference: string | null;
+          reconciled_at: string | null;
+          failure_reason: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          amount: number;
+          currency?: string;
+          state?: string;
+          sequence?: number;
+          reference?: string;
+          bank_reference?: string | null;
+          reconciled_at?: string | null;
+          failure_reason?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["deposits"]["Insert"]>;
+        Relationships: [];
+      };
+      deposit_events: {
+        Row: {
+          id: string;
+          deposit_id: string;
+          user_id: string;
+          from_state: string | null;
+          to_state: string;
+          reason: string;
+          actor: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          deposit_id: string;
+          user_id: string;
+          from_state?: string | null;
+          to_state: string;
+          reason: string;
+          actor?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["deposit_events"]["Insert"]>;
+        Relationships: [];
+      };
+      withdrawals: {
+        Row: {
+          id: string;
+          user_id: string;
+          destination_id: string | null;
+          amount_requested: number;
+          amount_paid: number | null;
+          currency: string;
+          state: string;
+          scheduled_for: string | null;
+          bank_reference: string | null;
+          decision_reason: string | null;
+          requested_at: string;
+          settled_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          destination_id?: string | null;
+          amount_requested: number;
+          amount_paid?: number | null;
+          currency?: string;
+          state?: string;
+          scheduled_for?: string | null;
+          bank_reference?: string | null;
+          decision_reason?: string | null;
+          requested_at?: string;
+          settled_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["withdrawals"]["Insert"]>;
+        Relationships: [];
+      };
+      withdrawal_events: {
+        Row: {
+          id: string;
+          withdrawal_id: string;
+          user_id: string;
+          from_state: string | null;
+          to_state: string;
+          reason: string;
+          actor: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          withdrawal_id: string;
+          user_id: string;
+          from_state?: string | null;
+          to_state: string;
+          reason: string;
+          actor?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["withdrawal_events"]["Insert"]>;
+        Relationships: [];
+      };
+      escrow_holds: {
+        Row: {
+          id: string;
+          user_id: string;
+          stake_id: string;
+          cohort_id: string;
+          amount: number;
+          released_to: string | null;
+          amount_to_user: number | null;
+          amount_to_pool: number | null;
+          fee: number | null;
+          placed_on: string;
+          released_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          stake_id: string;
+          cohort_id: string;
+          amount: number;
+          released_to?: string | null;
+          amount_to_user?: number | null;
+          amount_to_pool?: number | null;
+          fee?: number | null;
+          placed_on?: string;
+          released_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["escrow_holds"]["Insert"]>;
+        Relationships: [];
+      };
+      disputes: {
+        Row: {
+          id: string;
+          user_id: string;
+          cohort_id: string | null;
+          payout_id: string | null;
+          withdrawal_id: string | null;
+          deposit_id: string | null;
+          state: string;
+          category: string;
+          summary: string;
+          resolution: string | null;
+          opened_at: string;
+          resolved_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          cohort_id?: string | null;
+          payout_id?: string | null;
+          withdrawal_id?: string | null;
+          deposit_id?: string | null;
+          state?: string;
+          category: string;
+          summary: string;
+          resolution?: string | null;
+          opened_at?: string;
+          resolved_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["disputes"]["Insert"]>;
+        Relationships: [];
+      };
+      dispute_messages: {
+        Row: {
+          id: string;
+          dispute_id: string;
+          user_id: string;
+          author: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          dispute_id: string;
+          user_id: string;
+          author: string;
+          body: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["dispute_messages"]["Insert"]>;
+        Relationships: [];
+      };
       trophies: {
         Row: {
           id: string;
@@ -738,6 +934,23 @@ export interface Database {
           net: number;
         }[];
       };
+      treasury_balances: {
+        Args: Record<string, never>;
+        Returns: {
+          available: number;
+          pending: number;
+          locked: number;
+          escrow: number;
+          processing: number;
+          verification_hold: number;
+          rewards: number;
+          referral: number;
+          withdrawable: number;
+        }[];
+      };
+      deposit_reference: { Args: { _user_id: string; _sequence: number }; Returns: string };
+      cancel_my_withdrawal: { Args: { _withdrawal_id: string }; Returns: undefined };
+      withdraw_my_dispute: { Args: { _dispute_id: string }; Returns: undefined };
       cohort_market: {
         Args: Record<string, never>;
         Returns: {

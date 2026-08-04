@@ -2,9 +2,18 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ModulePage } from "@/components/module-shell";
 import { loadExchange } from "@/lib/exchange";
+import { loadTreasury } from "@/lib/treasuryAccount";
 import { DashSection } from "@/components/dash";
 import { LedgerTable, PayoutTracker, PositionTile, RoiBar } from "@/components/wallet-ui";
+import {
+  BucketGrid,
+  DepositCard,
+  DisputeCard,
+  WithdrawalCard,
+  longDate,
+} from "@/components/treasury-ui";
 import { isOutstanding } from "@/lib/payoutLifecycle";
+import { zar } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +32,16 @@ export default async function WalletPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const state = await loadExchange(supabase, user!.id);
+  const [state, treasury] = await Promise.all([
+    loadExchange(supabase, user!.id),
+    loadTreasury(supabase, user!.id),
+  ]);
   const { positions, payouts, ledger, trust } = state.wallet;
+  const openDeposits = treasury.deposits.filter((d) => !d.terminal);
+  const openWithdrawals = treasury.withdrawals.filter((w) => !w.terminal);
+  const openDisputes = treasury.disputes.filter(
+    (d) => d.state === "open" || d.state === "evidence" || d.state === "review",
+  );
   const outstanding = payouts.filter((p) => isOutstanding(p.state));
   const settled = payouts.filter((p) => !isOutstanding(p.state));
 
@@ -84,13 +101,134 @@ export default async function WalletPage() {
 
       {/* The custody statement. Stated plainly, high on the page, unprompted. */}
       <div className="mb-7 rounded-card bg-slope/50 p-4 ring-1 ring-scree/50">
-        <p className="text-meta text-sage">
-          <span className="text-snow/90">Ascend doesn&apos;t hold a balance for you.</span> There is
-          no wallet to top up and nothing to withdraw. Your stake goes to the challenge&apos;s pool,
-          and anything you win is paid straight to your bank account by EFT. The figures above are a
-          record of where your money is — not funds we&apos;re keeping.
-        </p>
+        {treasury.custodial ? (
+          <p className="text-meta text-sage">
+            <span className="text-snow/90">Your balance is held by Ascend.</span> You can top it up,
+            spend it on challenges and withdraw what has cleared. Every movement is on the ledger
+            below.
+          </p>
+        ) : (
+          <p className="text-meta text-sage">
+            <span className="text-snow/90">Ascend doesn&apos;t hold a balance for you.</span> There
+            is no wallet to top up. Money you commit is paid by EFT straight into the
+            challenge&apos;s pool with a reference that identifies it as yours, and anything you win
+            is paid straight back to your bank account. The buckets below are a record of where your
+            money is — not funds we&apos;re keeping.
+          </p>
+        )}
       </div>
+
+      {/* ── The buckets ──────────────────────────────────────────────────── */}
+      <DashSection
+        title="Where every rand sits"
+        action={
+          <Link href="/commit/wallet/tax" className="text-caption text-ice transition hover:text-snow">
+            Tax year →
+          </Link>
+        }
+      >
+        <BucketGrid balances={treasury.balances} />
+        {treasury.escrow.atRisk > 0 && (
+          <p className="mt-3 text-meta text-sage">
+            {zar(treasury.escrow.atRisk)} is escrowed against{" "}
+            {treasury.escrow.holds.filter((h) => h.releasedTo === null).length} undecided{" "}
+            {treasury.escrow.holds.filter((h) => h.releasedTo === null).length === 1
+              ? "challenge"
+              : "challenges"}
+            . Hit the target and all of it comes back to you — the fee only ever comes out of a
+            forfeit, never out of your own returned stake.
+          </p>
+        )}
+      </DashSection>
+
+      {/* ── Payments in ──────────────────────────────────────────────────── */}
+      {openDeposits.length > 0 && (
+        <DashSection
+          title="Payments in"
+          action={
+            <Link
+              href="/commit/wallet/deposits"
+              className="text-caption text-ice transition hover:text-snow"
+            >
+              All →
+            </Link>
+          }
+        >
+          <ul>
+            {openDeposits.map((d) => (
+              <DepositCard key={d.id} d={d} />
+            ))}
+          </ul>
+        </DashSection>
+      )}
+
+      {/* ── Payments out ─────────────────────────────────────────────────── */}
+      <DashSection
+        title="Payments out"
+        action={
+          <Link
+            href="/commit/wallet/withdraw"
+            className="text-caption text-ice transition hover:text-snow"
+          >
+            Withdraw →
+          </Link>
+        }
+      >
+        {openWithdrawals.length > 0 ? (
+          <ul>
+            {openWithdrawals.map((w) => (
+              <WithdrawalCard key={w.id} w={w} />
+            ))}
+          </ul>
+        ) : (
+          <p className="text-meta text-sage">
+            {treasury.eligibility.allowed ? (
+              <>
+                {zar(treasury.balances.withdrawable)} is cleared and ready. The next payment run
+                leaves on <span className="text-snow">{longDate(treasury.nextRun)}</span>.
+              </>
+            ) : (
+              <>
+                Nothing is on its way out. Payment runs leave every Tuesday and Thursday — the next
+                one is <span className="text-snow">{longDate(treasury.nextRun)}</span>.
+              </>
+            )}
+          </p>
+        )}
+      </DashSection>
+
+      {/* ── Disputes ─────────────────────────────────────────────────────── */}
+      {(openDisputes.length > 0 || treasury.disputable.length > 0) && (
+        <DashSection
+          title="Disputes"
+          action={
+            <Link
+              href="/commit/wallet/disputes"
+              className="text-caption text-ice transition hover:text-snow"
+            >
+              All →
+            </Link>
+          }
+        >
+          {openDisputes.length > 0 ? (
+            <ul>
+              {openDisputes.map((d) => (
+                <DisputeCard key={d.id} d={d} />
+              ))}
+            </ul>
+          ) : (
+            <p className="text-meta text-sage">
+              {treasury.disputable.length}{" "}
+              {treasury.disputable.length === 1 ? "settlement is" : "settlements are"} still inside
+              the 60-day window. If one of them is wrong,{" "}
+              <Link href="/commit/wallet/disputes/new" className="text-snow underline decoration-scree underline-offset-4">
+                say so
+              </Link>
+              .
+            </p>
+          )}
+        </DashSection>
+      )}
 
       {/* ── Outstanding payouts ──────────────────────────────────────────── */}
       {outstanding.length > 0 && (
