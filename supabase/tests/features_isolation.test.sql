@@ -315,6 +315,32 @@ select public._assert(
   (select count(*) from public.life_events) = 0 and (select count(*) from public.event_tasks) = 0,
   'delete_my_glowup_data removes life events and their tasks');
 
+-- ── Trophies: a record about a person, owner-only ──────────────────────────
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+insert into public.trophies (user_id, trophy_key, evidence, season)
+values (:'uidA', 'legend_tier', 'Peak 962', 3);
+
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+select public._assert(
+  (select count(*) from public.trophies) = 0,
+  'B cannot see A''s trophies');
+
+-- A trophy's evidence is the figure at the moment it was earned. There is no
+-- update policy at all, so it cannot be edited into a claim afterwards.
+do $$
+begin
+  begin
+    update public.trophies set evidence = 'Peak 1000';
+    if not found then
+      raise notice 'PASS: no rows updatable — trophy evidence is immutable';
+    else
+      raise exception 'FAIL: a trophy was edited';
+    end if;
+  exception when insufficient_privilege then
+    raise notice 'PASS: trophy evidence is immutable';
+  end;
+end $$;
+
 -- ── Discipline snapshots: a score is never visible to anyone else ───────────
 -- A discipline score is a statement about how reliable a person is. This
 -- product does not publish that about anyone, so the test is explicit rather

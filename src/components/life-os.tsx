@@ -30,9 +30,14 @@ export function LifeOsView({ os }: { os: LifeOs }) {
           <p className="text-micro uppercase text-sage">Your operating system</p>
           <h1 className="font-display text-title font-semibold text-snow">Discipline</h1>
         </div>
-        <Link href="/home" className="shrink-0 text-xs text-sage transition hover:text-snow">
-          Today
-        </Link>
+        <div className="flex shrink-0 items-baseline gap-4">
+          <Link href="/season" className="text-xs text-sage transition hover:text-snow">
+            Season
+          </Link>
+          <Link href="/home" className="text-xs text-sage transition hover:text-snow">
+            Today
+          </Link>
+        </div>
       </header>
 
       {/* ── The score ────────────────────────────────────────────────────── */}

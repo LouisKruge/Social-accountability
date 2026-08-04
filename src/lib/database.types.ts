@@ -6,6 +6,26 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      trophies: {
+        Row: {
+          id: string;
+          user_id: string;
+          trophy_key: string;
+          evidence: string;
+          awarded_at: string;
+          season: number;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          trophy_key: string;
+          evidence: string;
+          awarded_at?: string;
+          season: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["trophies"]["Insert"]>;
+        Relationships: [];
+      };
       life_events: {
         Row: {
           id: string;
@@ -536,6 +556,8 @@ export interface Database {
           end_date: string;
           stake_amount: number;
           fee_rate: number;
+          min_discipline_score: number | null;
+          min_integrity_score: number | null;
           status: "open" | "active" | "completed" | "cancelled";
           visibility: "public" | "link" | "private";
           created_by: string;
@@ -550,6 +572,8 @@ export interface Database {
           end_date: string;
           stake_amount: number;
           fee_rate?: number;
+          min_discipline_score?: number | null;
+          min_integrity_score?: number | null;
           status?: "open" | "active" | "completed" | "cancelled";
           visibility?: "public" | "link" | "private";
           created_by: string;

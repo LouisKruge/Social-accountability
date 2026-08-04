@@ -21,6 +21,24 @@ import {
   type SimulationRow,
   type Tier,
 } from "@/lib/intelligence";
+import {
+  countQualifyingSeasons,
+  prestigeFrom,
+  seasonAt,
+  seasonResult,
+  type Prestige,
+  type Season,
+  type SeasonResult,
+} from "@/lib/season";
+import {
+  evaluateTrophies,
+  recoveryProtocol,
+  summariseVault,
+  type AwardedTrophy,
+  type Recovery,
+  type VaultSummary,
+} from "@/lib/trophies";
+import { volatility } from "@/lib/position";
 import { timed, withTiming, type TimingReport } from "@/lib/timing";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -58,6 +76,14 @@ export interface LifeOs {
   /** Per-challenge projection and simulation, only where there is enough history. */
   outlook: ChallengeOutlook[];
   brief: BriefLine[];
+  /** The 90-day window, derived from a fixed epoch — never a stored row. */
+  season: Season;
+  seasonResult: SeasonResult;
+  prestige: Prestige;
+  trophies: AwardedTrophy[];
+  vault: VaultSummary;
+  /** Engages at three consecutive missed days, the same point momentum does. */
+  recovery: Recovery;
   climb: ClimbState;
   commit: ExchangeState;
   elevate: ElevateState;
@@ -156,9 +182,43 @@ export async function loadLifeOs(supabase: ServerClient, userId: string): Promis
     history.push({ date: today, score: discipline.score });
   }
 
+  // ── Layer 5: seasons, prestige, the vault ─────────────────────────────────
+  const season = seasonAt(today);
+  const snapshotPoints = snapshots.map((s) => ({ takenOn: s.taken_on, score: s.score }));
+  const qualifying = countQualifyingSeasons(snapshotPoints, today);
+
+  const heldDays = dayLogs.length ? assessWindow(dayLogs).heldDays : 0;
+  const bestSteadiness = commit.positions
+    .map((p) => p.volatility?.steadiness ?? null)
+    .filter((v): v is number => v !== null)
+    .reduce<number | null>((a, b) => (a === null || b > a ? b : a), null);
+
+  const trophies = evaluateTrophies({
+    rankedWeeks: climb.weeks,
+    positionsOpened: commit.dashboard.active.length + commit.dashboard.history.length,
+    payoutsLanded: commit.wallet.payouts.filter((p) => p.state === "paid").length,
+    verifiedDays: Math.max(0, dayLogs.length - heldDays),
+    heldDays,
+    bestSteadiness,
+    // The peak the index has ever recorded — a tier trophy cannot be un-earned
+    // by a bad fortnight afterwards.
+    peakDisciplineScore: snapshotPoints.length
+      ? Math.max(...snapshotPoints.map((s) => s.score), discipline.score ?? 0)
+      : discipline.score,
+    qualifyingSeasons: qualifying,
+    longestCleanRun: longestCleanRun(effort),
+    recoveredPositions: commit.dashboard.history.filter((h) => h.hitTarget === true).length,
+  });
+
   return {
     discipline,
     momentum,
+    season,
+    seasonResult: seasonResult(snapshotPoints, season),
+    prestige: prestigeFrom(qualifying),
+    trophies,
+    vault: summariseVault(trophies),
+    recovery: recoveryProtocol(momentum.missStreak, commit.positions.length > 0),
     tier: statusTier(discipline.score),
     index: performanceIndex(history),
     percentile,
@@ -200,6 +260,30 @@ export function deriveSignals(
     recovery: null,
     sleep: null,
   };
+}
+
+/**
+ * The longest run of consecutive met days.
+ *
+ * Counted over the days that actually had a requirement — a day with no target
+ * is neither met nor missed, and treating it as either would let a gap between
+ * challenges either break a run or silently extend it.
+ */
+export function longestCleanRun(days: EffortDay[]): number {
+  const ordered = [...days]
+    .filter((d) => d.required > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  let best = 0;
+  let run = 0;
+  for (const d of ordered) {
+    if (d.value >= d.required) {
+      run += 1;
+      best = Math.max(best, run);
+    } else {
+      run = 0;
+    }
+  }
+  return best;
 }
 
 /** Effort days, from logs plus the daily target each log was measured against. */

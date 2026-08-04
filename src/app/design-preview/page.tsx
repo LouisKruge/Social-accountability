@@ -17,6 +17,8 @@ import {
   type EffortDay,
 } from "@/lib/intelligence";
 import type { LifeOs } from "@/lib/lifeOs";
+import { countQualifyingSeasons, prestigeFrom, seasonAt, seasonResult } from "@/lib/season";
+import { evaluateTrophies, recoveryProtocol, summariseVault } from "@/lib/trophies";
 import { ElevateCommand } from "@/components/elevate-command";
 import { EventPlanView } from "@/components/event-plan";
 import { planEvent, readiness, todayIso, shiftDays } from "@/lib/events";
@@ -30,6 +32,7 @@ import { momentum, type ClimbPitch, type ClimbRoute, type ClimbState, type Pitch
 import { readDna } from "@/lib/dna";
 import { buildRecap, clubStats, hallOfFame, headToHead, type RecapRanking } from "@/lib/recap";
 import { ClubHq } from "@/components/club-hq";
+import { SeasonView } from "@/components/season-view";
 
 /**
  * DESIGN HARNESS — renders the real Climb components with fixed data so the
@@ -297,9 +300,30 @@ const OS_SIGNALS = {
 
 const OS_DISCIPLINE = disciplineScore(OS_SIGNALS);
 
+const OS_SEASON = seasonAt(todayIso());
+const OS_SNAPS = OS_HISTORY.map((h) => ({ takenOn: h.date, score: h.score }));
+const OS_TROPHIES = evaluateTrophies({
+  rankedWeeks: 12,
+  positionsOpened: 3,
+  payoutsLanded: 1,
+  verifiedDays: 39,
+  heldDays: 1,
+  bestSteadiness: 84,
+  peakDisciplineScore: 839,
+  qualifyingSeasons: 1,
+  longestCleanRun: 31,
+  recoveredPositions: 1,
+});
+
 const OS: LifeOs = {
   discipline: OS_DISCIPLINE,
   momentum: momentumScore(OS_EFFORT),
+  season: OS_SEASON,
+  seasonResult: seasonResult(OS_SNAPS, OS_SEASON),
+  prestige: prestigeFrom(countQualifyingSeasons(OS_SNAPS, todayIso())),
+  trophies: OS_TROPHIES,
+  vault: summariseVault(OS_TROPHIES),
+  recovery: recoveryProtocol(momentumScore(OS_EFFORT).missStreak, true),
   tier: statusTier(OS_DISCIPLINE.score),
   index: performanceIndex(OS_HISTORY),
   percentile: null,
@@ -505,6 +529,9 @@ export default function DesignPreview({ searchParams }: { searchParams: { view?:
     return <ElevateCommand os={{ ...ELEVATE_OS, events: [], focus: null }} />;
   if (searchParams.view === "event") return <EventPlanView event={EVENTS[0]} />;
   if (searchParams.view === "event-tight") return <EventPlanView event={EVENTS[1]} />;
+  if (searchParams.view === "season") return <SeasonView os={OS} />;
+  if (searchParams.view === "season-recovery")
+    return <SeasonView os={{ ...OS, recovery: recoveryProtocol(8, true) }} />;
   if (searchParams.view === "hq") return <ClubHq route={ROUTES[0]} />;
   if (searchParams.view === "hq-empty") return <ClubHq route={ROUTES[1]} />;
   if (searchParams.view === "terminal") return <ExchangeTerminal state={TERMINAL} />;
