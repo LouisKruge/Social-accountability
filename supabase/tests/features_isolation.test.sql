@@ -697,5 +697,119 @@ select public._assert(
   (select escrow from public.treasury_balances()) = 100,
   'an open escrow hold is reported as escrowed, never as available');
 
+-- ═══════════════════════════════════════════════════════════════════════════
+-- WEARABLES — connections are the owner's, tokens are NOBODY'S
+--
+-- The assertion that matters here is not the usual two-tenant one. It is that
+-- the OWNER cannot read their own OAuth tokens, because an owner-readable
+-- token turns any XSS in the app into a Fitbit account compromise.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+reset role;
+set role service_role;
+insert into public.wearable_connections (id, user_id, provider, scope)
+values ('dddd0000-0000-0000-0000-0000000000d1', :'uidA', 'fitbit', 'activity');
+insert into public.wearable_credentials
+  (connection_id, user_id, access_token, refresh_token, expires_at)
+values ('dddd0000-0000-0000-0000-0000000000d1', :'uidA',
+        'ACCESS-TOKEN-AAA-SECRET', 'REFRESH-TOKEN-AAA-SECRET', now() + interval '8 hours');
+
+insert into public.wearable_sync_runs (connection_id, user_id, provider, ok, days_written)
+values ('dddd0000-0000-0000-0000-0000000000d1', :'uidA', 'fitbit', true, 7);
+
+-- ── The owner ───────────────────────────────────────────────────────────────
+set request.jwt.claims = '{"sub":"aaaa1111-0000-0000-0000-00000000aaaa","role":"authenticated"}';
+set role authenticated;
+
+select public._assert(
+  (select count(*) from public.wearable_connections) = 1,
+  'A can see that her own Fitbit is connected');
+select public._assert(
+  (select count(*) from public.wearable_sync_runs where ok) = 1,
+  'A can see her own sync history');
+
+-- THE ONE THAT MATTERS.
+select public._assert(
+  (select count(*) from public.wearable_credentials) = 0,
+  'A CANNOT read her OWN OAuth tokens — an owner-readable token makes any XSS a Fitbit compromise');
+select public._assert(
+  (select count(*) from public.wearable_credentials
+    where access_token = 'ACCESS-TOKEN-AAA-SECRET') = 0,
+  'the access token is unreachable even by exact-value filter');
+select public._assert(
+  (select count(*) from public.wearable_credentials
+    where refresh_token = 'REFRESH-TOKEN-AAA-SECRET') = 0,
+  'the refresh token is unreachable even by exact-value filter');
+
+-- Nor writable: a client that could insert a token could point the sync job at
+-- an account it controls.
+do $$
+begin
+  begin
+    insert into public.wearable_credentials (connection_id, user_id, access_token)
+    values ('dddd0000-0000-0000-0000-0000000000d1',
+            'aaaa1111-0000-0000-0000-00000000aaaa', 'ATTACKER-TOKEN');
+    raise exception 'FAIL: a client wrote an OAuth token';
+  exception when insufficient_privilege or check_violation then
+    raise notice 'PASS: no client can write an OAuth token';
+  end;
+end $$;
+
+-- my_wearables() is the shape the UI reads. It must never carry a token.
+select public._assert(
+  (select count(*) from public.my_wearables()) = 1,
+  'my_wearables() returns the caller''s own connection');
+select public._assert(
+  not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'my_wearables'
+      and column_name in ('access_token','refresh_token')
+  ),
+  'my_wearables() projection contains NO token columns');
+
+-- Disconnecting is the one write a client owns, and it takes the tokens with it.
+delete from public.wearable_connections where id = 'dddd0000-0000-0000-0000-0000000000d1';
+select public._assert(
+  (select count(*) from public.wearable_connections) = 0,
+  'A CAN disconnect her own integration');
+
+reset role;
+set role service_role;
+select public._assert(
+  (select count(*) from public.wearable_credentials
+    where connection_id = 'dddd0000-0000-0000-0000-0000000000d1') = 0,
+  'disconnecting cascades the tokens away rather than orphaning them');
+
+-- ── The other tenant ────────────────────────────────────────────────────────
+insert into public.wearable_connections (id, user_id, provider)
+values ('dddd0000-0000-0000-0000-0000000000d2', :'uidA', 'google_fit');
+insert into public.wearable_sync_runs (connection_id, user_id, provider, ok)
+values ('dddd0000-0000-0000-0000-0000000000d2', :'uidA', 'google_fit', true);
+
+set request.jwt.claims = '{"sub":"bbbb2222-0000-0000-0000-00000000bbbb","role":"authenticated"}';
+set role authenticated;
+select public._assert(
+  (select count(*) from public.wearable_connections) = 0,
+  'B CANNOT see which devices A has connected');
+select public._assert(
+  (select count(*) from public.wearable_sync_runs) = 0,
+  'B CANNOT read A''s sync history');
+select public._assert(
+  (select count(*) from public.my_wearables()) = 0,
+  'my_wearables() answers for the caller only');
+
+select public._assert(
+  current_user = 'authenticated',
+  'the wearable negative tests are actually running as an unprivileged role');
+
+-- B cannot delete A's connection to break her sync.
+delete from public.wearable_connections where id = 'dddd0000-0000-0000-0000-0000000000d2';
+reset role;
+set role service_role;
+select public._assert(
+  (select count(*) from public.wearable_connections
+    where id = 'dddd0000-0000-0000-0000-0000000000d2') = 1,
+  'B CANNOT disconnect A''s integration');
+
 reset role;
 select '════════ FEATURE ISOLATION ASSERTIONS PASSED ════════' as result;

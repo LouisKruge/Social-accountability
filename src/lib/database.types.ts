@@ -6,6 +6,90 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
+      // ── Wearables (20260801000000_wearables.sql) ───────────────────────────
+      // `wearable_credentials` is typed so the SERVICE-ROLE sync job can read
+      // it. No client can: the table is deny-all under RLS. A type is not a
+      // permission — see the migration header for why the split exists.
+      wearable_connections: {
+        Row: {
+          id: string;
+          user_id: string;
+          provider: string;
+          status: string;
+          scope: string | null;
+          connected_at: string;
+          last_synced_on: string | null;
+          last_synced_at: string | null;
+          last_error: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          provider: string;
+          status?: string;
+          scope?: string | null;
+          connected_at?: string;
+          last_synced_on?: string | null;
+          last_synced_at?: string | null;
+          last_error?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["wearable_connections"]["Insert"]>;
+        Relationships: [];
+      };
+      wearable_credentials: {
+        Row: {
+          connection_id: string;
+          user_id: string;
+          access_token: string;
+          refresh_token: string | null;
+          expires_at: string | null;
+          provider_user_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          connection_id: string;
+          user_id: string;
+          access_token: string;
+          refresh_token?: string | null;
+          expires_at?: string | null;
+          provider_user_id?: string | null;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["wearable_credentials"]["Insert"]>;
+        Relationships: [];
+      };
+      wearable_sync_runs: {
+        Row: {
+          id: string;
+          connection_id: string | null;
+          user_id: string;
+          provider: string;
+          started_at: string;
+          finished_at: string | null;
+          ok: boolean;
+          days_fetched: number;
+          days_written: number;
+          days_skipped: number;
+          days_rejected: number;
+          message: string | null;
+        };
+        Insert: {
+          id?: string;
+          connection_id?: string | null;
+          user_id: string;
+          provider: string;
+          started_at?: string;
+          finished_at?: string | null;
+          ok?: boolean;
+          days_fetched?: number;
+          days_written?: number;
+          days_skipped?: number;
+          days_rejected?: number;
+          message?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["wearable_sync_runs"]["Insert"]>;
+        Relationships: [];
+      };
       // ── Treasury (20260731000000_treasury.sql) ─────────────────────────────
       // `sequence`, `reference` and `state` are Insert-optional on purpose:
       // the trigger overwrites whatever a client sends. They are typed here so
@@ -810,6 +894,7 @@ export interface Database {
           recorded_at: string;
           device_id: string | null;
           confidence: number | null;
+          connection_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -818,6 +903,7 @@ export interface Database {
           log_date: string;
           verified_value?: number | null;
           source?: "manual" | "google_fit" | "apple_health" | "fitbit";
+          connection_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["daily_verification_logs"]["Insert"]>;
@@ -949,6 +1035,21 @@ export interface Database {
         }[];
       };
       deposit_reference: { Args: { _user_id: string; _sequence: number }; Returns: string };
+      // Note the absence of any token column. The SQL suite asserts it too, so
+      // a future widening of the function is caught rather than merely typed.
+      my_wearables: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          provider: string;
+          status: string;
+          scope: string | null;
+          connected_at: string;
+          last_synced_on: string | null;
+          last_error: string | null;
+          days_from_this_source: number;
+        }[];
+      };
       cancel_my_withdrawal: { Args: { _withdrawal_id: string }; Returns: undefined };
       withdraw_my_dispute: { Args: { _dispute_id: string }; Returns: undefined };
       cohort_market: {

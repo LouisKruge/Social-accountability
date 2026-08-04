@@ -13,7 +13,7 @@ stops being useful the first time somebody plans against it.
 | **Blocked** | Cannot ship yet, and the blocker is named. Nearly all are legal or hardware, not effort. |
 | **Declined** | Deliberately not built. The reason is given, and it is never "too hard". |
 
-Counts, honestly: **273 Live · 63 Spec · 18 Blocked · 32 Declined = 386.**
+Counts, honestly: **278 Live · 63 Spec · 17 Blocked · 32 Declined = 390.**
 
 > **Corrected.** Items 156, 157 and 158 were previously listed as Declined. They
 > are now Live — see `LIFE_OS.md` §1. The objection was to a score nobody could
@@ -129,7 +129,11 @@ Counts, honestly: **273 Live · 63 Spec · 18 Blocked · 32 Declined = 386.**
 | 96 | Bottom sheets | Live |
 | 97 | Seven modules: portfolio, market, treasury, lab, floor, trust, standing | Live |
 | 98 | Headline banner ordered by what it costs you not to know | Live |
-| 99 | Wearable / health-platform ingestion | Blocked — needs provider credentials |
+| 99 | Wearable ingestion — Fitbit + Google Fit OAuth, Apple Health push | Live — dormant until credentials are set |
+| 99a | Deny-all token table: the owner cannot read their own OAuth tokens | Live |
+| 99b | Merge rule — never overwrite a manual entry, never lower a device figure | Live |
+| 99c | 120k ceiling and future-date rejection applied at the boundary | Live |
+| 99d | No connect button for a provider this deployment cannot serve | Live |
 | 100 | Automated settlement trigger | Live — `treasuryJob.ts`, bookkeeping only |
 | 101 | Deposits — instruction, reference, 7-state machine, reconciliation | Live (non-custodial mode) |
 | 102 | Withdrawals — 8-state machine, eligibility gate, cancel | Live (instruction only) |
@@ -481,6 +485,10 @@ So the licence is now the only thing between the product and full custody,
 rather than six months of engineering. What remains genuinely blocked:
 
 - **103, instant payouts** — needs custody *and* a payment rail. Two gates, not one.
+- **99, wearables** — the software is Live; what is missing is a Fitbit and a
+  Google client credential. The app deliberately renders no connect button for a
+  provider it cannot serve, so this is dormant rather than broken. See
+  `WEARABLES.md` §2 for the four env vars that switch it on.
 - **Automated money movement of any kind** — still manual bank transfer only,
   still with no exceptions for "just to test it faster". `treasuryJob.ts`
   contains no payment API call by design; it advances bookkeeping that reflects

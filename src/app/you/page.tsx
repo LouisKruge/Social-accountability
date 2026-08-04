@@ -154,6 +154,25 @@ export default async function YouPage({
         </Link>
       </section>
 
+      {/* ── Devices ─────────────────────────────────────────────────────── */}
+      <section className="mb-chapter border-t border-scree/60 pt-block">
+        <p className="mb-4 text-micro uppercase text-sage">Devices</p>
+        <Link href="/you/devices" className="group flex items-center justify-between gap-4">
+          <div>
+            <p className="text-body text-snow">Step sources</p>
+            <p className="mt-0.5 text-caption text-sage">
+              Fitbit, Google Fit, Apple Health — step totals only
+            </p>
+          </div>
+          <span
+            aria-hidden
+            className="shrink-0 text-caption text-sage transition group-hover:translate-x-1 group-hover:text-snow"
+          >
+            &rarr;
+          </span>
+        </Link>
+      </section>
+
       {/* ── Linked accounts & notifications ─────────────────────────────── */}
       <section className="mb-chapter border-t border-scree/60 pt-block">
         <p className="mb-4 text-micro uppercase text-sage">Alerts &amp; linked accounts</p>
